@@ -261,7 +261,7 @@ void corelib::initconf()
 	setMountDir(QDir::homePath() + "/.winegame/mounts");
 	setDiscDir(QDir::homePath() + "/.winegame/disc");
 	//Calculate pkgdir
-	setPackageDir("/usr/share/winegame/packages");
+	setPackageDir(pkgdir());
 	//check if dirs exists
 QStringList paths = QStringList () << wineDir() << mountDir() /*<< discDir()*/;
 foreach (QString path, paths)
@@ -434,4 +434,10 @@ bool corelib::copyDir(const QString &dir, const QString &destination)
 		}
 	}
 	return true; //others not implemented yet;
+}
+
+QString corelib::pkgdir()
+{
+	//return QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/share/winegame/packages";
+	return "/usr/share/winegame/packages/"; //What should I DO?
 }

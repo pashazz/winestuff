@@ -71,7 +71,7 @@ private:
 protected:
 	void initconf ();
 	inline QString config();
-
+	QString pkgdir ();
 	bool fileError;
 
 };

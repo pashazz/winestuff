@@ -14,7 +14,7 @@ Fuseiso (or kde-su/gksu) for mounting ISO images (http://sourceforge.net/project
 
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/usr (we have problems (for now) with other locations)
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr (we have problems (for now) with other locations!!!!)
 make
 sudo make install
 
