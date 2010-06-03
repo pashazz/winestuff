@@ -17,3 +17,13 @@ cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=/usr (we have problems (for now) with other locations)
 make
 sudo make install
+
+=========================================
+||	Unistallation			||
+=========================================
+
+cd build
+sudo rm `cat install_manifest.txt`
+OR
+$ su
+# rm `cat install_manifest.txt`
