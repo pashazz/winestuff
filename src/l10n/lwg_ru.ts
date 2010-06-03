@@ -54,7 +54,7 @@
     <message>
         <location filename="../poldownloader.cpp" line="33"/>
         <source>Downloading a list of wines</source>
-        <translation type="unfinished"></translation>
+        <translation>Загружаю список Wine...</translation>
     </message>
 </context>
 <context>
