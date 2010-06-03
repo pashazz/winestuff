@@ -1,0 +1,8 @@
+include(FindPackageHandleStandardArgs)
+if(WINESTUFF_INCLUDE_DIR AND WINESTUFF_LIBRARIES)
+set(WineStuff_FIND_QUIETLY TRUE)
+endif(WINESTUFF_INCLUDE_DIR AND WINESTUFF_LIBRARIES)
+find_library(WINESTUFF_LIBRARIES winestuff)
+find_path(WINESTUFF_INCLUDE_DIR corelib.h PATH_SUFFIXES include include/winestuff PATHS /usr /usr/local)
+find_package_handle_standard_args(WineStuff DEFAULT_MSG WINESTUFF_LIBRARIES WINESTUFF_INCLUDE_DIR)
+mark_as_advanced(WINESTUFF_LIBRARIES)

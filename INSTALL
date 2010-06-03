@@ -1,0 +1,19 @@
+
+=========================================
+||	Dependencies			||
+=========================================
+
+Qt 4.6 (http://qt.nokia.com). You need a Core, Network and SQL modules.
+winetricks (http://tinyurl.com/winetricks). Save this script to /usr/bin/winetricks.
+CMake (http://cmake.org)
+Fuseiso (or kde-su/gksu) for mounting ISO images (http://sourceforge.net/projects/fuseiso/)
+
+=========================================
+||	Installation			||
+=========================================
+
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr (we have problems (for now) with other locations)
+make
+sudo make install
