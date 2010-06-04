@@ -37,7 +37,6 @@ public:
    QString name ();
    corelib *myLib() {return core;}
    QString note ();
-   QIcon icon ();
    QString setup (); //application/setup value
    QString distr(); //wine/distr value
    bool runApplication (QString exe, QString diskroot = "", QString imageFile = ""); //well, it`s helper.
