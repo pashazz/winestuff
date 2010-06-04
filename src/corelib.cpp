@@ -239,7 +239,7 @@ bool corelib::initconf()
 	}
 	//Init our configuration.
 	if (QFile::exists(config()))
-		return;
+		return true;
 	qDebug() << "winegame: Init configuration";
 	int mem = ui->getVideoMemory();
 	setVideoMemory(mem);
@@ -447,7 +447,7 @@ else
 	}
 	if (!dir.exists("packages"))
 		return "";
-	dir.cd("winegame/packages");
+	dir.cd("packages");
 	pkgdir = dir.absolutePath();
 }
 return pkgdir;
