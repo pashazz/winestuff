@@ -1,0 +1,15 @@
+winestuff (0.1.0-rc4-0pashazz1~ppa2) lucid; urgency=low
+
+  * Qt dependence.
+ 
+ -- Pavel Zinin (Pashazz`s GnuPG key) <PZinin@gmail.com>  Thu, 03 Jun 2010 18:35:04 +0400
+
+winestuff (0.1.0-rc4-0pashazz1~ppa1) lucid; urgency=low
+
+  * New upstream release.
+  * Initial Debian packaging
+
+ -- Pavel Zinin (Pashazz`s GnuPG key) <PZinin@gmail.com>  Thu, 03 Jun 2010 17:28:59 +0400
+
+
+
