@@ -47,36 +47,19 @@ void corelib::init()
 	}
 initconf();
 //Init our DB.
-if (!QFile::exists(wineDir() + "/installed.db"))
-{
-	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-	db.setDatabaseName(wineDir() + "/installed.db");
-	if (!db.open()){
-		ui->error(tr("Database error"), tr("Failed to create database for storing installed applications. See errors on console"));
-		qDebug() << "DB: error: " << db.lastError().text();
-		qApp->exit(-24);
+bool isMakeDb;
+isMakeDb = (!QFile::exists(wineDir() + "/installed.db"));
+QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+db.setDatabaseName(wineDir() + "/installed.db");
+if (!db.open()){
+	ui->error(tr("Database error"), tr("Failed to open database for storing installed applications. See errors on console"));
+	qDebug() << "DB: error: " << db.lastError().text();
+	qApp->exit(-24);
 }
-	QSqlQuery q (db);
-	q.prepare("CREATE TABLE Apps (id INTEGER PRIMARY KEY, prefix TEXT, wineprefix TEXT, wine TEXT)");
-  if (!q.exec())
-	{
-	  ui->error( tr("Database error"), tr("Failed to create table for storing installed applications. See errors on console"));
-	  qDebug() << "DB: Query error " << q.lastError().text();
-	  qApp->exit (-24);
-  }
+if (isMakeDb)
+	initDb();
+}
 
-}
-else
-{
-	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-	db.setDatabaseName(wineDir() + "/installed.db");
-	if (!db.open()){
-		ui->error(tr("Database error"), tr("Failed to open database for storing installed applications. See errors on console"));
-		qDebug() << "DB: error: " << db.lastError().text();
-		qApp->exit(-24);
-}
-}
-}
 
 bool corelib::unpackWine (QString distr, QString destination)
 {
@@ -248,13 +231,16 @@ void corelib::runSingleExe(QStringList exe)
  proc.waitForFinished(-1);
 }
 
-void corelib::initconf()
+bool corelib::initconf()
 {
+	if (pkgdir().isEmpty())
+	{
+		return false;
+	}
 	//Init our configuration.
 	if (QFile::exists(config()))
 		return;
 	qDebug() << "winegame: Init configuration";
-
 	int mem = ui->getVideoMemory();
 	setVideoMemory(mem);
 	setWineDir(QDir::homePath() + "/.winegame/windows");
@@ -270,6 +256,7 @@ foreach (QString path, paths)
 	if (!dir.exists())
 		dir.mkpath(dir.path());
 }
+return true;
 }
 
 QString corelib::wineDir() {
@@ -438,6 +425,44 @@ bool corelib::copyDir(const QString &dir, const QString &destination)
 
 QString corelib::pkgdir()
 {
-	//return QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/share/winegame/packages";
-	return "/usr/share/winegame/packages/"; //What should I DO?
+QString pkgdir;
+QDir dir (qApp->applicationDirPath());
+if (dir.dirName() == "bin") //like a system directory
+{
+	dir.cdUp();
+	dir.cd("share");
+	if (!dir.exists("winegame/packages"))
+		return "";
+	dir.cd("winegame/packages");
+	pkgdir = dir.absolutePath();
 }
+else
+{
+	//like a source directory
+	dir.cdUp();
+	if (!dir.exists("README"))
+	{
+		//like a builddir
+		dir.cdUp();
+	}
+	if (!dir.exists("packages"))
+		return "";
+	dir.cd("winegame/packages");
+	pkgdir = dir.absolutePath();
+}
+return pkgdir;
+}
+
+void corelib::initDb()
+{
+	QSqlDatabase db = QSqlDatabase::database();
+	QSqlQuery q (db);
+   q.prepare("CREATE TABLE Apps (id INTEGER PRIMARY KEY, prefix TEXT, wineprefix TEXT, wine TEXT)");
+	 if (!q.exec())
+   {
+   ui->error( tr("Database error"), tr("Failed to create table for storing installed applications. See errors on console"));
+   qDebug() << "DB: Query error " << q.lastError().text();
+   qApp->exit (-24);
+	 }
+
+ }

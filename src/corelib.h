@@ -69,11 +69,11 @@ private:
 	bool downloadExitCode;
 
 protected:
-	void initconf ();
+	bool initconf ();
 	inline QString config();
 	QString pkgdir ();
 	bool fileError;
-
+	void initDb();
 };
 
 #endif // CORELIB_H
