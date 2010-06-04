@@ -549,8 +549,3 @@ bool Prefix::isMulti()
  {
 	 return s->value("wine/distr").toString();
  }
-
- QString Prefix::icon()
- {
-	 return _path + "/icon";
- }
