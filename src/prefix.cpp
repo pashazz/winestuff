@@ -105,9 +105,11 @@ void Prefix::lauchWinetricks(QStringList args)
     QProcess *p = new QProcess (this);
     p->setProcessEnvironment(env);
     qDebug() << tr("engine: [prefix]: starting winetricks");
-	args.prepend("-q");
-    p->start(corelib::whichBin("winetricks"), args);
-     p->waitForFinished(-1);
+	foreach (QString arg, args)
+	{
+		p->start(core->whichBin("winetricks"), QStringList () << "-q" <<arg);
+		p->waitForFinished();
+	}
 }
 
 
@@ -177,7 +179,7 @@ bool Prefix::checkWineDistr()
 	qDebug() << "checking wine... for " << name() ;
    /// проверяет дистрибутив Wine для префикса. Если проверка не удается, загружает дистрибутив заново.
 	QFile file (_path + QDir::separator() + ".wine");
-if (s->value("wine/distr").isNull())
+if (distr().isEmpty())
 {
 //TODO - удаление кастомного wine. если он более не нужен
 	if (file.exists() && core->client()->questionDialog(tr("Wine outdated"), tr("Do you want to use system wine distribution for app %1?").arg(name())))
@@ -230,28 +232,28 @@ if (s->value("wine/distr").isNull())
 QString Prefix::downloadWine() {
     QString wineBinary;
 	QString md5sum;
- if (!s->value("wine/distr").toString().isEmpty())
+ if (!distr().isEmpty())
     {
-	 QString distr = s->value("wine/distr").toString();
+	 QString wineDistr = distr();
 	 //здесь запускаем процесс закачки и распаковки данного дистрибутива Wine
 	 QString destination = core->wineDir()+ QString("/wines/") + prefixName();
 	 QDir dir (core->wineDir()+ "/wines");
 	 if (!dir.exists())
 		 dir.mkdir(dir.path());
-	 QString distrname =   core->downloadWine(distr);
+	 QString distrname =   core->downloadWine(wineDistr);
 	 if (distrname.isEmpty())
 		 return "";
 	 if (!core->unpackWine(distrname, destination))
 		 return "";
 
-	 qDebug() << "wine distribution is" << distr;
+	 qDebug() << "wine distribution is" << wineDistr;
 	 md5sum = getMD5();
 	 if (!md5sum.isEmpty())
 	 { //записываем сумму md5
 		 qDebug() << "writing md5: " << md5sum;
 		 writeMD5(md5sum);
 	 }
-	 return distr;
+	 return wineDistr;
  }
  else
  {
@@ -529,7 +531,7 @@ bool Prefix::isMulti()
 	 if (s->value("wine/nomd5", false).toBool())
 		 return "";
 	//download MD5 file with QtNetwork
-	 QUrl url = QUrl(s->value("wine/distr").toString() + ".md5");
+	 QUrl url = QUrl (distr()+ ".md5");
 	 if (url.isEmpty())
 		 return "";
 	 QEventLoop loop;
@@ -548,5 +550,16 @@ bool Prefix::isMulti()
 
  QString Prefix::distr()
  {
-	 return s->value("wine/distr").toString();
+	 QUrl url (s->value("wine/distr").toString());
+	 if (url.isEmpty())
+		 return "";
+	 if (url.scheme() == "wg")
+	 {
+		 //Get file from winegame-project.ru
+		 const QString site = "http://winegame-project.ru/wine"; //yet hardcoded
+		 QString realUrl = site + "/" + core->unixSystem() + "/" + url.path();
+		 return realUrl;
+	 }
+	 else
+		 return url.toString();
  }

@@ -36,6 +36,8 @@ public:
 	bool copyDir (const QString &dir, const QString &destination);
 	void init (); /// этот метод на данный момент только прописывает видеопамять. В конфиг.
 	static bool unpackWine(QString distr, QString destination);
+	QString unixSystem () {return system;} //наша замена QSysInfo. На системах Win/Lin/Mac/Symbian возвращает пустую строку
+
 	static bool checkPrefixName (QString);
 	void runSingleExe (QStringList exe) ;
 	/// Блок настроек
@@ -45,14 +47,14 @@ public:
 	QString videoMemory ();
 	QString discDir();
 	bool forceFuseiso ();
-	void setForceFuseiso(bool);
+	void setForceFuseiso(bool value, bool isempty = false);
 	void syncSettings() {settings->sync();}
 	static QString autorun (QString diskRoot);
-	void setWineDir (QString dir);
-	void setPackageDir (QString dir);
-	void setMountDir (QString dir);
-	void setVideoMemory (int memory);
-	void setDiscDir(QString dir);
+	void setWineDir (QString dir, bool isempty =false);
+	void setPackageDir (QString dir, bool isempty = false);
+	void setMountDir (QString dir, bool isempty = false);
+	void setVideoMemory (int memory, bool isempty = false);
+	void setDiscDir(QString dir, bool isempty = false);
 	QString getSudoProg ();
 	QString downloadWine(QString url);
 
@@ -67,6 +69,7 @@ private:
 	QSettings *settings;
 	QSqlDatabase db;
 	bool downloadExitCode;
+	QString system;
 
 protected:
 	bool initconf ();
@@ -74,6 +77,7 @@ protected:
 	QString pkgdir ();
 	bool fileError;
 	void initDb();
+	void setConfigValue (QString key, QVariant value, bool setIfEmpty);
 };
 
 #endif // CORELIB_H

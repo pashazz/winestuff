@@ -27,8 +27,13 @@ corelib::corelib(QObject *parent, UiClient *client)
 	//Init Settings object
 	settings = new QSettings (config(), QSettings::IniFormat, this);
 	//Init translations object
-
-
+#ifdef Q_WS_X11
+QProcess p (this);
+p.start("uname");
+p.waitForFinished();
+system = p.readAllStandardOutput().toLower().trimmed().replace('\n', "");
+qDebug() << "system:" << system << "32";
+#endif
 }
 
 QString corelib::whichBin(QString bin) {
@@ -238,16 +243,16 @@ bool corelib::initconf()
 		return false;
 	}
 	//Init our configuration.
-	if (QFile::exists(config()))
-		return true;
-	qDebug() << "winegame: Init configuration";
+	if (settings->value("VideoMemory").isNull())
+	{
 	int mem = ui->getVideoMemory();
-	setVideoMemory(mem);
-	setWineDir(QDir::homePath() + "/.winegame/windows");
-	setMountDir(QDir::homePath() + "/.winegame/mounts");
-	setDiscDir(QDir::homePath() + "/.winegame/disc");
+	setVideoMemory(mem, true);
+}
+	setWineDir(QDir::homePath() + "/.winegame/windows", true);
+	setMountDir(QDir::homePath() + "/.winegame/mounts", true);
+	setDiscDir(QDir::homePath() + "/.winegame/disc",true);
 	//Calculate pkgdir
-	setPackageDir(pkgdir());
+	setPackageDir(pkgdir(), true);
 	//check if dirs exists
 QStringList paths = QStringList () << wineDir() << mountDir() /*<< discDir()*/;
 foreach (QString path, paths)
@@ -268,24 +273,24 @@ QString corelib::packageDir() {
 QString corelib::mountDir() {
 	return settings->value("MountDir").toString();
 }
-void corelib::setWineDir(QString dir)
+void corelib::setWineDir(QString dir, bool isempty)
 {
-	settings->setValue("WineDir", dir);
+	setConfigValue("WineDir", dir, isempty);
 }
-void corelib::setPackageDir(QString dir)
+void corelib::setPackageDir(QString dir, bool isempty)
 {
-	settings->setValue("PackageDir", dir);
+	setConfigValue("PackageDir", dir, isempty);
 }
-void corelib::setMountDir(QString dir)
+void corelib::setMountDir(QString dir, bool isempty)
 {
-	settings->setValue("MountDir", dir);
+	setConfigValue("MountDir", dir, isempty);
 }
-void corelib::setVideoMemory(int memory)
+void corelib::setVideoMemory(int memory, bool isempty)
 {
 	int oldMemory = settings->value("VideoMemory").toInt();
 	if (oldMemory == memory)
 		return;
-	settings->setValue("VideoMemory", memory);
+	setConfigValue("VideoMemory", memory, isempty);
 	settings->sync(); //we need to force sync
 	//Sync all videomemory entries
 	QDir dir (packageDir());
@@ -352,16 +357,16 @@ bool corelib::forceFuseiso()
 	return settings->value("ForceFuseiso", false).toBool();
 }
 
-void corelib::setForceFuseiso(bool value)
+void corelib::setForceFuseiso(bool value, bool isempty)
 {
 	QFile file (corelib::whichBin("fuseiso"));
 	if (file.exists())
-		settings->setValue("ForceFuseiso", value);
+		setConfigValue("ForceFuseiso", value, isempty);
 }
 
-void corelib::setDiscDir(QString dir)
+void corelib::setDiscDir(QString dir, bool isempty)
 {
-	settings->setValue("DiscDir", dir);
+	setConfigValue("DiscDir", dir, isempty);
 }
 
 QString corelib::discDir()
@@ -466,3 +471,16 @@ void corelib::initDb()
 	 }
 
  }
+
+void corelib::setConfigValue(QString key, QVariant value, bool setIfEmpty)
+{
+	if (setIfEmpty)
+	{
+		if (settings->value(key).isNull()) //recursive call
+			setConfigValue(key, value, false);
+	}
+	else
+	{
+		settings->setValue(key, value);
+	}
+}
