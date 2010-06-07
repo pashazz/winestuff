@@ -420,7 +420,8 @@ bool Prefix::runApplication(QString exe, QString diskroot, QString imageFile)
 	if (!diskroot.isEmpty())
 		env.insert("CDROOT", diskroot);
 
-	env.insert("FILESDIR", _workdir + "/files");
+	if (QDir(_workdir + "/files").exists())
+		env.insert("FILESDIR", _workdir + "/files");
 	env.insert("WINEDEBUG", "-all");
 	installFirstApplication();
 	wineBin = wine(); //автоматически добавляет нужную запись в env.
