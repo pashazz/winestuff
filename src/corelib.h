@@ -37,7 +37,7 @@ public:
 	void init (); /// этот метод на данный момент только прописывает видеопамять. В конфиг.
 	static bool unpackWine(QString distr, QString destination);
 	QString unixSystem () {return system;} //наша замена QSysInfo. На системах Win/Lin/Mac/Symbian возвращает пустую строку
-
+	bool syncPackages();
 	static bool checkPrefixName (QString);
 	void runSingleExe (QStringList exe) ;
 	/// Блок настроек
@@ -57,7 +57,7 @@ public:
 	void setDiscDir(QString dir, bool isempty = false);
 	QString getSudoProg ();
 	QString downloadWine(QString url);
-
+	QString shareDir ();
 	UiClient * client () {return ui;}
 private slots:
 	void error (QNetworkReply::NetworkError);
@@ -74,7 +74,6 @@ private:
 protected:
 	bool initconf ();
 	inline QString config();
-	QString pkgdir ();
 	bool fileError;
 	void initDb();
 	void setConfigValue (QString key, QVariant value, bool setIfEmpty);

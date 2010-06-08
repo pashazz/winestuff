@@ -32,7 +32,6 @@ QProcess p (this);
 p.start("uname");
 p.waitForFinished();
 system = p.readAllStandardOutput().toLower().trimmed().replace('\n', "");
-qDebug() << "system:" << system << "32";
 #endif
 }
 
@@ -46,12 +45,18 @@ QString corelib::whichBin(QString bin) {
 }
 void corelib::init()
 {
-	if (!QFile::exists(whichBin("wine")))
+if (!QFile::exists(whichBin("wine")))
 	{
 		qApp->exit(-4);
 	}
 initconf();
-//Init our DB.
+//скачаем пакеты
+if (!syncPackages())
+{
+	ui->error(tr("Initialzation error"), tr("Unable to download packages"));
+	qApp->exit(-7);
+}
+
 bool isMakeDb;
 isMakeDb = (!QFile::exists(wineDir() + "/installed.db"));
 QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
@@ -204,8 +209,10 @@ bool corelib::checkPrefixName(QString prefix)
     //пока что тут у нас проверяется на пробелы.
     if (prefix.contains(' '))
         return false;
- if (prefix == "wines") //зарезервировано для вайнов
-     return false;
+	if (prefix == "wines") //зарезервировано для вайнов
+		return false;
+	if (prefix == "wineversion") //также
+		return false;
  return true;
 }
 
@@ -238,10 +245,6 @@ void corelib::runSingleExe(QStringList exe)
 
 bool corelib::initconf()
 {
-	if (pkgdir().isEmpty())
-	{
-		return false;
-	}
 	//Init our configuration.
 	if (settings->value("VideoMemory").isNull())
 	{
@@ -251,10 +254,9 @@ bool corelib::initconf()
 	setWineDir(QDir::homePath() + "/.winegame/windows", true);
 	setMountDir(QDir::homePath() + "/.winegame/mounts", true);
 	setDiscDir(QDir::homePath() + "/.winegame/disc",true);
-	//Calculate pkgdir
-	setPackageDir(pkgdir(), true);
+	setPackageDir(QDir::homePath() + "/.winegame/packages", true);
 	//check if dirs exists
-QStringList paths = QStringList () << wineDir() << mountDir() /*<< discDir()*/;
+QStringList paths = QStringList () << wineDir() << mountDir() /*<< discDir()*/ ;
 foreach (QString path, paths)
 {
 	QDir dir (path);
@@ -428,34 +430,20 @@ bool corelib::copyDir(const QString &dir, const QString &destination)
 	return true; //others not implemented yet;
 }
 
-QString corelib::pkgdir()
+QString corelib::shareDir()
 {
-QString pkgdir;
+QString shareDir;
 QDir dir (qApp->applicationDirPath());
 if (dir.dirName() == "bin") //like a system directory
 {
 	dir.cdUp();
 	dir.cd("share");
-	if (!dir.exists("winegame/packages"))
+	if (!dir.exists("winegame"))
 		return "";
-	dir.cd("winegame/packages");
-	pkgdir = dir.absolutePath();
+	dir.cd("winegame");
+	shareDir = dir.absolutePath();
 }
-else
-{
-	//like a source directory
-	dir.cdUp();
-	if (!dir.exists("README"))
-	{
-		//like a builddir
-		dir.cdUp();
-	}
-	if (!dir.exists("packages"))
-		return "";
-	dir.cd("packages");
-	pkgdir = dir.absolutePath();
-}
-return pkgdir;
+
 }
 
 void corelib::initDb()
@@ -483,4 +471,64 @@ void corelib::setConfigValue(QString key, QVariant value, bool setIfEmpty)
 	{
 		settings->setValue(key, value);
 	}
+}
+
+bool corelib::syncPackages()
+{
+	//url захардкорден, временно
+	const QString MIRROR = "http://winegame-project.ru/winepkg";
+	// инициализирую QtNetwork классы
+	//загружаю файл LASE
+	QEventLoop loop;
+	QNetworkAccessManager *manager = new QNetworkAccessManager (this);
+	QNetworkRequest req; //request для Url
+	req.setUrl(QUrl(MIRROR + "/LAST"));
+	req.setRawHeader("User-Agent", "Winegame-Browser 0.1");
+	QNetworkReply *reply = manager->get(req);
+	connect (reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
+	connect (reply, SIGNAL(finished()), &loop, SLOT(quit()));
+	connect (reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
+	ui->showProgressBar(tr("Downloading winegame packagelist"));
+	ui->progressText(tr("Downloading winegame release info...."));
+	loop.exec();
+	ui->endProgress();
+	QString relInfo = reply->readAll();
+	if (relInfo.isEmpty())
+		return false;
+	//открываем ~/.winegame/packages/LAST
+	QFile file (packageDir() + "/LAST");
+	QTextStream stream (&file);
+	if (!file.exists())
+		file.open(QIODevice::WriteOnly | QIODevice::Text);
+	else
+	{
+		//читаем содержимое LAST, сравнивая его с relInfo
+		file.open(QIODevice::ReadOnly | QIODevice::Text);
+		if (relInfo == stream.readAll())
+			return true;
+		//закрываем файл и открываем его в режиме truncate
+		file.close();
+		file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+		}
+	//записываем relInfo
+	stream << relInfo;
+	file.close();
+	//загружаю дистрибутив package-latest.tar.bz2
+	req.setUrl(QUrl(MIRROR + "/packages-latest.tar.bz2"));
+	qDebug() << "winechecker: Downloading packages" << MIRROR + "/packages-latest.tar.bz2";
+	QNetworkReply *reply2 = manager->get(req);
+	connect (reply2, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
+	connect (reply2, SIGNAL(finished()), &loop, SLOT(quit()));
+	connect (reply2, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
+	ui->showProgressBar(tr("Downloading winegame package index"));
+	ui->progressText(tr("Downloading winegame packages..."));
+	loop.exec();
+	ui->endProgress();
+	//записываем в /tmp
+	QString tfile = QDir::tempPath() + "/index.tar.bz2";
+	file.setFileName(tfile);
+	file.open(QIODevice::WriteOnly);
+	file.write(reply2->readAll());
+	file.close();
+	return 	unpackWine(tfile, packageDir());
 }
