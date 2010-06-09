@@ -123,7 +123,7 @@ if (file.open(QIODevice::WriteOnly))
 else
 {
 	qDebug() << "engine: error open file (WINEDISTR):" << file.errorString();
-	return false;
+        return "";
 }
 
 
