@@ -43,6 +43,9 @@ public:
    virtual void infoDialog (const QString &title, const QString &text) = 0; //Показ информации _И ОЖИДАНИЕ РЕАКЦИИ ПОЛЬЗОВАТЕЛЯ_. Проще говоря, мессейджбокс OK
    virtual void selectExe (const QString &title, QString &file, QString home = "") = 0; //диалог выбора файла Exe.
    virtual void insertNextCd (bool &result, QString count) = 0;
+   /* Wait message */
+   virtual void showUserWaitMessage (const QString &message) = 0; //показать модальный диалог (или что-то типа того, чтобы пользователь понял, что идет операция).
+   virtual void closeWaitMessage() = 0;//закрытие диалога
 };
 
 #endif // UICLIENT_H

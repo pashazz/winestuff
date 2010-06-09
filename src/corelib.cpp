@@ -430,7 +430,7 @@ bool corelib::copyDir(const QString &dir, const QString &destination)
 	return true; //others not implemented yet;
 }
 
-QString corelib::shareDir()
+QString corelib::shareDir() const
 {
 QString shareDir;
 QDir dir (qApp->applicationDirPath());
@@ -531,4 +531,21 @@ bool corelib::syncPackages()
 	file.write(reply2->readAll());
 	file.close();
 	return 	unpackWine(tfile, packageDir());
+}
+
+int corelib::runGenericProcess(QProcess *process, const QString &program, QString message)
+{
+ /*
+   Запускает программу program в процессе process, при этом
+   показывая прогрессбар winegame через UiClient
+   */
+	if (message.isEmpty())
+		message = tr("The process is running");
+	QEventLoop loop;
+	ui->showUserWaitMessage(message);
+	connect(process, SIGNAL(finished(int)), &loop, SLOT(quit()));
+	process->start(program);
+	loop.exec();
+	ui->closeWaitMessage();
+	return process->exitCode();
 }

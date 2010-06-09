@@ -67,7 +67,7 @@ QString _path;
 QString _workdir;
   QSettings *s;
 QProcessEnvironment env;
-QString downloadWine ();
+bool downloadWine ();
 corelib *core;
 void getPrefixPath();
 QSqlDatabase db;

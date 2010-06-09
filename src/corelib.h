@@ -57,8 +57,9 @@ public:
 	void setDiscDir(QString dir, bool isempty = false);
 	QString getSudoProg ();
 	QString downloadWine(QString url);
-	QString shareDir ();
+	QString shareDir () const;
 	UiClient * client () {return ui;}
+	int runGenericProcess(QProcess *process, const QString &program, QString message = "");
 private slots:
 	void error (QNetworkReply::NetworkError);
 	void setRange (qint64, qint64); //заглушка для QProgressDialog

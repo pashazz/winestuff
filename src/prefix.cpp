@@ -51,8 +51,9 @@ void rp(QString path, QProcessEnvironment env)
 
 void Prefix::runProgram(QString exe)
 {
-QFuture <void> fProc = run(rp, QString("%1  \"%2\"").arg(wine()).arg(exe),  this->env);
-//fProc.waitForFinished();
+	QProcess p (this);
+	p.setProcessEnvironment(env);
+	core->runGenericProcess(&p, wine() + " \"" + exe + "\"", tr("Running Windows program %1").arg(QFileInfo(exe).fileName()));
 }
 
 void Prefix::removePrefix()
@@ -107,8 +108,7 @@ void Prefix::lauchWinetricks(QStringList args)
     qDebug() << tr("engine: [prefix]: starting winetricks");
 	foreach (QString arg, args)
 	{
-		p->start(core->whichBin("winetricks"), QStringList () << "-q" <<arg);
-		p->waitForFinished();
+		core->runGenericProcess(p, "winetricks -q " + arg, tr("Installing component: %1").arg(arg));
 	}
 }
 
@@ -203,8 +203,7 @@ if (distr().isEmpty())
 	if ((!file.exists()) || (!QFile::exists(wine())))
     {
         //Загружаем Wine
-        QString wineUrl = downloadWine();
-		if (wineUrl.isEmpty())
+		if (!downloadWine())
 		{
 			qDebug() << "winechecker: empty url - guru meditation error";
 			return false;
@@ -229,12 +228,12 @@ if (distr().isEmpty())
 	return true;
 }
 
-QString Prefix::downloadWine() {
-    QString wineBinary;
+bool Prefix::downloadWine() {
 	QString md5sum;
  if (!distr().isEmpty())
     {
 	 QString wineDistr = distr();
+	 qDebug() << "wine distrib" << wineDistr;
 	 //здесь запускаем процесс закачки и распаковки данного дистрибутива Wine
 	 QString destination = core->wineDir()+ QString("/wines/") + prefixName();
 	 QDir dir (core->wineDir()+ "/wines");
@@ -242,25 +241,23 @@ QString Prefix::downloadWine() {
 		 dir.mkdir(dir.path());
 	 QString distrname =   core->downloadWine(wineDistr);
 	 if (distrname.isEmpty())
-		 return "";
+	 {
+		 core->client()->error(tr("Unable to download Wine"), tr("Error info: Failed to download Wine for %1" ).arg(name()));
+		 return false;
+	 }
 	 if (!core->unpackWine(distrname, destination))
-		 return "";
-
-	 qDebug() << "wine distribution is" << wineDistr;
+	 {
+		 core->client()->error(tr("Unable to unpack Wine"), tr("Error info: Failed to unpack %1 into %2").arg(distrname).arg(destination));
+		 return false;
+	 }
 	 md5sum = getMD5();
 	 if (!md5sum.isEmpty())
 	 { //записываем сумму md5
 		 qDebug() << "writing md5: " << md5sum;
 		 writeMD5(md5sum);
 	 }
-	 return wineDistr;
  }
- else
- {
-	 wineBinary = wine();
- }
-    //если wineBinary все еще не установлен
-return "";
+ return true;
 }
 
 bool Prefix::installFirstApplication()
@@ -386,6 +383,8 @@ void Prefix::makeDesktopIcon(const QString &path, const QString &name)
 
 bool Prefix::runApplication(QString exe, QString diskroot, QString imageFile)
 {
+	core->client()->showNotify(tr("Installation"), tr("Installing program: %1").arg(exe));
+
 	if (hasDBEntry())
 	{
 		runProgram(exe);
@@ -396,7 +395,6 @@ bool Prefix::runApplication(QString exe, QString diskroot, QString imageFile)
 	{
 		if (s->value("wine/preset").toBool())
 		{
-			//Таак, быстро отвязываем библиотечку от гуя
 			QString prefixName;
 			emit prefixNameNeed(prefixName); //если намереваемся ставить аппликуху, обязательно связываем этот сигнал со слотом, иначе краш и все такое.
 			if (prefixName.isEmpty())
@@ -433,33 +431,24 @@ bool Prefix::runApplication(QString exe, QString diskroot, QString imageFile)
 		makeWineCdrom(diskroot);
 	else
 		makeWineCdrom(diskroot, imageFile);
-
-	/// TODO: работа по копированию файлов для последующей их установки с ЖД, если необходимо.
-	/// мы будем поддерживать мультидисковые игры (если и будем) только с реальных дисков.
 	//пока работаем так
 	QProcess *proc = new QProcess (this);
 	proc->setProcessEnvironment(env);
 	proc->setWorkingDirectory(getExeWorkingDirectory(exe));
 	if (QFile::exists(_workdir + "/preinst"))
 	{
-		proc->start ("\"" +_workdir + "/preinst\"");
-		proc->waitForFinished(-1);
+		core->runGenericProcess(proc, "\"" +_workdir + "/preinst\"", tr("Running pre-installation trigger & script"));
 	}
-
-	qDebug() << tr("engine: starting Windows program %1 with wine binary %2").arg(exe).arg(wineBin) << proc->workingDirectory();
-	qDebug() << wineBin + " \"" + exe  +"\"" ;
-	proc->start(wineBin + " \"" + exe  +"\"" );
-	proc->waitForFinished(-1);
-
+	qDebug() << "Wine binary is " << wineBin;
+	qDebug() << "command is" <<  wineBin + " \"" + exe  +"\"";
+	core->runGenericProcess(proc,wineBin + " \"" + exe  +"\"" );
 	//ну а теперь финальная часть, запуск postinst
 	if (QFile::exists(_workdir + "/postinst"))
 	{
-	proc->start("\"" + _workdir + "/postinst\"");
-	proc->waitForFinished(-1);
-	makefix();
+		core->runGenericProcess(proc, "\"" +_workdir + "/postinst\"", tr("Running pre-installation trigger & script"));
 	}
+	makefix();
 	setMemory();
-
 return true;
 }
 
@@ -563,3 +552,4 @@ bool Prefix::isMulti()
 	 else
 		 return url.toString();
  }
+
