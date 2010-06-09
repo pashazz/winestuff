@@ -79,8 +79,7 @@ bool corelib::unpackWine (QString distr, QString destination)
  QProcess *proc = new QProcess (0); //не забываем удалять
  proc->setWorkingDirectory(destination);
  QString unpackLine =  QString ("tar xvpf %1 -C %2").arg(distr).arg(destination);
- proc->start(unpackLine);
-  proc->waitForFinished(-1);
+runGenericProcess(proc, unpackLine, tr("Unpacking wine...."));
  qDebug() <<QString("engine: Wine distribution %1 unpacked to %2").arg(distr).arg(destination);
  return proc->exitCode() == 0 ? true : false;
 	 }

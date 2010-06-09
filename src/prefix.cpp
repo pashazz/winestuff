@@ -53,7 +53,10 @@ void Prefix::runProgram(QString exe)
 {
 	QProcess p (this);
 	p.setProcessEnvironment(env);
-	core->runGenericProcess(&p, wine() + " \"" + exe + "\"", tr("Running Windows program %1").arg(QFileInfo(exe).fileName()));
+	QEventLoop loop;
+	connect(&p, SIGNAL(finished(int)), &loop, SLOT(quit()));
+	p.start(wine() + " \"" + exe + "\"");
+	loop.exec();
 }
 
 void Prefix::removePrefix()
@@ -439,8 +442,6 @@ bool Prefix::runApplication(QString exe, QString diskroot, QString imageFile)
 	{
 		core->runGenericProcess(proc, "\"" +_workdir + "/preinst\"", tr("Running pre-installation trigger & script"));
 	}
-	qDebug() << "Wine binary is " << wineBin;
-	qDebug() << "command is" <<  wineBin + " \"" + exe  +"\"";
 	core->runGenericProcess(proc,wineBin + " \"" + exe  +"\"" );
 	//ну а теперь финальная часть, запуск postinst
 	if (QFile::exists(_workdir + "/postinst"))
