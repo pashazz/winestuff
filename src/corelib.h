@@ -55,6 +55,8 @@ public:
 	void setMountDir (QString dir, bool isempty = false);
 	void setVideoMemory (int memory, bool isempty = false);
 	void setDiscDir(QString dir, bool isempty = false);
+	void setSyncMirrors(QStringList urls, bool isempty = false);
+	QStringList syncMirrors();
 	QString getSudoProg ();
 	QString downloadWine(QString url);
 	QString shareDir () const;

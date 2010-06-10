@@ -241,6 +241,7 @@ void corelib::runSingleExe(QStringList exe)
 
 bool corelib::initconf()
 {
+	/// TODO: перенос в winegame
 	//Init our configuration.
 	if (settings->value("VideoMemory").isNull())
 	{
@@ -251,6 +252,7 @@ bool corelib::initconf()
 	setMountDir(QDir::homePath() + "/.winegame/mounts", true);
 	setDiscDir(QDir::homePath() + "/.winegame/disc",true);
 	setPackageDir(QDir::homePath() + "/.winegame/packages", true);
+	setSyncMirrors(QStringList("http://winegame-project.ru/winepkg"), true);
 	//check if dirs exists
 QStringList paths = QStringList () << wineDir() << mountDir() /*<< discDir()*/ ;
 foreach (QString path, paths)
@@ -498,14 +500,16 @@ void corelib::setConfigValue(QString key, QVariant value, bool setIfEmpty)
 
 bool corelib::syncPackages()
 {
-	//url захардкорден, временно
-	const QString MIRROR = "http://winegame-project.ru/winepkg";
+	foreach (QString mirror, syncMirrors())
+	{
+		if (mirror.isEmpty())
+			continue;
 	// инициализирую QtNetwork классы
-	//загружаю файл LASE
+	//загружаю файл LAST
 	QEventLoop loop;
 	QNetworkAccessManager *manager = new QNetworkAccessManager (this);
 	QNetworkRequest req; //request для Url
-	req.setUrl(QUrl(MIRROR + "/LAST"));
+	req.setUrl(QUrl(mirror + "/LAST"));
 	req.setRawHeader("User-Agent", "Winegame-Browser 0.1");
 	QNetworkReply *reply = manager->get(req);
 	connect (reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
@@ -536,8 +540,8 @@ bool corelib::syncPackages()
 	file.write(relInfo);
 	file.close();
 	//загружаю дистрибутив package-latest.tar.bz2
-	req.setUrl(QUrl(MIRROR + "/packages-latest.tar.bz2"));
-	qDebug() << "winechecker: Downloading packages" << MIRROR + "/packages-latest.tar.bz2";
+	req.setUrl(QUrl(mirror + "/packages-latest.tar.bz2"));
+	qDebug() << "winechecker: Downloading packages" << mirror + "/packages-latest.tar.bz2";
 	QNetworkReply *reply2 = manager->get(req);
 	connect (reply2, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
 	connect (reply2, SIGNAL(finished()), &loop, SLOT(quit()));
@@ -552,7 +556,10 @@ bool corelib::syncPackages()
 	file.open(QIODevice::WriteOnly);
 	file.write(reply2->readAll());
 	file.close();
-	return 	unpackWine(tfile, packageDir());
+	if (!unpackWine(tfile, packageDir()))
+		return false;
+}
+	return true;
 }
 
 int corelib::runGenericProcess(QProcess *process, const QString &program, QString message)
@@ -570,4 +577,22 @@ int corelib::runGenericProcess(QProcess *process, const QString &program, QStrin
 	loop.exec();
 	ui->closeWaitMessage();
 	return process->exitCode();
+}
+
+QStringList corelib::syncMirrors()
+{
+	//не используем механизм QStringList для QSettings, т.к. нельзя. (отпадает возможность удобного ручного редактирования
+	return settings->value("hosts/sync").toString().split(";", QString::SkipEmptyParts);
+}
+void corelib::setSyncMirrors(QStringList urls, bool isempty)
+{
+	foreach (QString str, urls)
+	{
+		if (!QUrl(str).isValid())
+			urls.removeOne(str);
+	}
+	if (urls.isEmpty())
+		return;
+	QString value  = urls.join(";");
+	setConfigValue("hosts/sync", value, isempty);
 }
