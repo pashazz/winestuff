@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "prefix.h"
 //The core of WineGame. Commonly used func.
 corelib::corelib(QObject *parent, UiClient *client)
-	:QObject(parent), ui (client), fileError(false)
+	:QObject(parent), ui (client)
 {
 	//Init Settings object
 	settings = new QSettings (config(), QSettings::IniFormat, this);
@@ -89,11 +89,9 @@ QString corelib::downloadWine(QString url) //TODO: проверка на оши�
 	downloadExitCode = true;
     QUrl myurl = QUrl(url);
     QFileInfo inf (myurl.path());
-	QString wineFileName =QDir::tempPath() + QDir::separator() +  inf.fileName();
-    //проверяем, есть ли у нас данный файл
-    if (QFile::exists(wineFileName))
-        return wineFileName;
-
+	QString wineFileName = QDir::tempPath() + QDir::separator() + inf.fileName();
+	if (QFileInfo(wineFileName).exists())
+		return wineFileName;
 	ui->showNotify(tr("Don`t worry!"), tr("Now WineGame will download some files, that will need for get your applicaton running"));
      QEventLoop loop;
 QNetworkAccessManager *manager = new QNetworkAccessManager (this);
@@ -126,7 +124,7 @@ else
 }
 
 
-return downloadExitCode ? wineFileName : "";
+return downloadExitCode ? file.fileName() : "";
 }
 
 
@@ -187,7 +185,6 @@ void corelib::error(QNetworkReply::NetworkError error)
 		ui->error(tr("Network error"), tr("Something went wrong! %1.").arg(errstr));
 	  downloadExitCode = false;
     }
-	fileError = true;
 }
 
 void corelib::setRange(qint64 aval, qint64 total)
@@ -276,14 +273,41 @@ QString corelib::mountDir() {
 }
 void corelib::setWineDir(QString dir, bool isempty)
 {
+	if (isempty && (!wineDir().isEmpty()))
+	{
+		//выставляем isempty в false, чтобы форсировать установку настройки....
+		QFileInfo myDir (wineDir());
+		if ((!myDir.exists()) || (!myDir.isWritable()))
+			isempty = false;
+	}
 	setConfigValue("WineDir", dir, isempty);
 }
 void corelib::setPackageDir(QString dir, bool isempty)
 {
+	if (isempty && (!packageDir().isEmpty()))
+	{
+		QFileInfo myDir (packageDir());
+		if ((!myDir.exists()) || (!myDir.isWritable()))
+			isempty = false;
+	}
 	setConfigValue("PackageDir", dir, isempty);
 }
 void corelib::setMountDir(QString dir, bool isempty)
 {
+	if (isempty && (!packageDir().isEmpty()))
+	{
+		QFileInfo myDir (mountDir());
+		if (forceFuseiso())
+		{
+		if ((!myDir.exists()) || (!myDir.isWritable()))
+			isempty = false;
+	}
+		else
+		{
+			if ((!myDir.exists()) || (!myDir.isReadable()))
+				isempty = false;
+		}
+	}
 	setConfigValue("MountDir", dir, isempty);
 }
 void corelib::setVideoMemory(int memory, bool isempty)
@@ -491,26 +515,25 @@ bool corelib::syncPackages()
 	ui->progressText(tr("Downloading winegame release info...."));
 	loop.exec();
 	ui->endProgress();
-	QString relInfo = reply->readAll();
+	QByteArray relInfo = reply->readAll();
 	if (relInfo.isEmpty())
 		return false;
 	//открываем ~/.winegame/packages/LAST
 	QFile file (packageDir() + "/LAST");
-	QTextStream stream (&file);
 	if (!file.exists())
-		file.open(QIODevice::WriteOnly | QIODevice::Text);
+		file.open(QIODevice::WriteOnly);
 	else
 	{
 		//читаем содержимое LAST, сравнивая его с relInfo
-		file.open(QIODevice::ReadOnly | QIODevice::Text);
-		if (relInfo == stream.readAll())
+		file.open(QIODevice::ReadOnly);
+		if (relInfo == file.readAll())
 			return true;
 		//закрываем файл и открываем его в режиме truncate
 		file.close();
-		file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+		file.open(QIODevice::WriteOnly | QIODevice::Truncate);
 		}
 	//записываем relInfo
-	stream << relInfo;
+	file.write(relInfo);
 	file.close();
 	//загружаю дистрибутив package-latest.tar.bz2
 	req.setUrl(QUrl(MIRROR + "/packages-latest.tar.bz2"));

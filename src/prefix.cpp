@@ -259,6 +259,7 @@ bool Prefix::downloadWine() {
 		 qDebug() << "writing md5: " << md5sum;
 		 writeMD5(md5sum);
 	 }
+	 QFile::remove(distrname);
  }
  return true;
 }

@@ -75,7 +75,6 @@ private:
 protected:
 	bool initconf ();
 	inline QString config();
-	bool fileError;
 	void initDb();
 	void setConfigValue (QString key, QVariant value, bool setIfEmpty);
 };
