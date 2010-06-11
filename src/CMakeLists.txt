@@ -55,13 +55,7 @@ add_custom_command (
 TARGET translations
 COMMAND ${QT_LRELEASE_EXECUTABLE} ${TRANSLATIONS}
 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-
-
-
-
-
 add_library(winestuff SHARED ${HEADERS} ${SOURCES} ${MOC_SOURCES} )
-
 target_link_libraries( winestuff ${QT_LIBRARIES} )
 set(LIB_INSTALL_PATH ${CMAKE_INSTALL_PREFIX}/lib/)
 set(LIB_INCLUDE_PATH ${CMAKE_INSTALL_PREFIX}/include/winestuff)

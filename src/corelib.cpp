@@ -99,13 +99,16 @@ QNetworkRequest req; //request для Url
 req.setUrl(QUrl(url));
 req.setRawHeader("User-Agent", "Winegame-Browser 0.1");
 QNetworkReply *reply = manager->get(req);
+currentReply = reply;
 connect (reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
 connect (reply, SIGNAL(finished()), &loop, SLOT(quit()));
 connect (reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
-ui->showProgressBar(tr("Downloading Wine..."));
+ui->showProgressBar(tr("Downloading Wine..."), SLOT(cancelCurrentOperation()));
 ui->progressText(tr("Downloading wine... %1").arg(url));
 loop.exec();
 ui->endProgress();
+if (reply->error() == QNetworkReply::OperationCanceledError)
+	return "CANCEL";
 QByteArray buffer = reply->readAll();
 //Get MD5 sum info...
 //do not provide error info..
@@ -130,7 +133,7 @@ return downloadExitCode ? file.fileName() : "";
 
 void corelib::error(QNetworkReply::NetworkError error)
 {
-    if  (error != QNetworkReply::NoError)
+	if  (error == QNetworkReply::NoError || error == QNetworkReply::OperationCanceledError)
     {
        return;
    }
@@ -504,6 +507,7 @@ bool corelib::syncPackages()
 	{
 		if (mirror.isEmpty())
 			continue;
+		qDebug() << "wgpkg: sync packages with mirror: " << mirror;
 	// инициализирую QtNetwork классы
 	//загружаю файл LAST
 	QEventLoop loop;
@@ -512,16 +516,20 @@ bool corelib::syncPackages()
 	req.setUrl(QUrl(mirror + "/LAST"));
 	req.setRawHeader("User-Agent", "Winegame-Browser 0.1");
 	QNetworkReply *reply = manager->get(req);
+	currentReply = reply;
 	connect (reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
 	connect (reply, SIGNAL(finished()), &loop, SLOT(quit()));
 	connect (reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
-	ui->showProgressBar(tr("Downloading winegame packagelist"));
+	ui->showProgressBar(tr("Downloading winegame packagelist"), SLOT(cancelCurrentOperation()));
 	ui->progressText(tr("Downloading winegame release info...."));
 	loop.exec();
 	ui->endProgress();
 	QByteArray relInfo = reply->readAll();
 	if (relInfo.isEmpty())
+	{
+		qDebug() << "wgpkg: failed to fetch packages from" << mirror << "URL " << req.url();
 		return false;
+	}
 	//открываем ~/.winegame/packages/LAST
 	QFile file (packageDir() + "/LAST");
 	if (!file.exists())
@@ -543,10 +551,11 @@ bool corelib::syncPackages()
 	req.setUrl(QUrl(mirror + "/packages-latest.tar.bz2"));
 	qDebug() << "winechecker: Downloading packages" << mirror + "/packages-latest.tar.bz2";
 	QNetworkReply *reply2 = manager->get(req);
+	currentReply = reply2;
 	connect (reply2, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
 	connect (reply2, SIGNAL(finished()), &loop, SLOT(quit()));
 	connect (reply2, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
-	ui->showProgressBar(tr("Downloading winegame package index"));
+	ui->showProgressBar(tr("Downloading winegame package index"), SLOT(cancelCurrentOperation()));
 	ui->progressText(tr("Downloading winegame packages..."));
 	loop.exec();
 	ui->endProgress();
@@ -556,7 +565,9 @@ bool corelib::syncPackages()
 	file.open(QIODevice::WriteOnly);
 	file.write(reply2->readAll());
 	file.close();
-	if (!unpackWine(tfile, packageDir()))
+	bool res = unpackWine(tfile, packageDir());
+	file.remove();
+	if (!res)
 		return false;
 }
 	return true;
@@ -595,4 +606,14 @@ void corelib::setSyncMirrors(QStringList urls, bool isempty)
 		return;
 	QString value  = urls.join(";");
 	setConfigValue("hosts/sync", value, isempty);
+}
+/*!
+ Отменяет текущую операцию загрузки (см. corelib::downloadWine())
+  */
+void corelib::cancelCurrentOperation()
+{
+	if (currentReply)
+		currentReply->abort();
+	else
+		qDebug() << "WARNING: access to null pointer";
 }

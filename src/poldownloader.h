@@ -45,11 +45,13 @@ private:
 	bool goodGet;
 	bool downloadWine(QString version);
 	bool checkSHA1(QString file);
-
+	QNetworkReply *currentReply;
 	QStringList sha1sums;
 	QStringList versions;
 	QStringList files;
 
+private slots:
+	void cancelCurrentOperation();
 protected:
 	 QString URL;
 

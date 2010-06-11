@@ -62,6 +62,7 @@ public slots:
 signals:
 void prefixNameNeed (QString &name);
 private:
+bool downloadCancelled;
 QString _prefix;
 QString _path;
 QString _workdir;

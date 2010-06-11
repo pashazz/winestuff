@@ -66,6 +66,7 @@ private slots:
 	void error (QNetworkReply::NetworkError);
 	void setRange (qint64, qint64); //заглушка для QProgressDialog
 	void exitApp();
+	void cancelCurrentOperation();
 
 private:
 	UiClient *ui;
@@ -73,7 +74,7 @@ private:
 	QSqlDatabase db;
 	bool downloadExitCode;
 	QString system;
-
+	QNetworkReply *currentReply;
 protected:
 	bool initconf ();
 	inline QString config();

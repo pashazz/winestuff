@@ -233,6 +233,7 @@ if (distr().isEmpty())
 
 bool Prefix::downloadWine() {
 	QString md5sum;
+	downloadCancelled = false;
  if (!distr().isEmpty())
     {
 	 QString wineDistr = distr();
@@ -246,6 +247,12 @@ bool Prefix::downloadWine() {
 	 if (distrname.isEmpty())
 	 {
 		 core->client()->error(tr("Unable to download Wine"), tr("Error info: Failed to download Wine for %1" ).arg(name()));
+		 return false;
+	 }
+	 else if (distrname == "CANCEL")
+	 {
+		 //set status to cancelled
+		 downloadCancelled = true;
 		 return false;
 	 }
 	 if (!core->unpackWine(distrname, destination))
@@ -427,7 +434,14 @@ bool Prefix::runApplication(QString exe, QString diskroot, QString imageFile)
 	if (QDir(_workdir + "/files").exists())
 		env.insert("FILESDIR", _workdir + "/files");
 	env.insert("WINEDEBUG", "-all");
-	installFirstApplication();
+	if (!installFirstApplication())
+	{
+		if (downloadCancelled)
+			core->client()->error(tr("Error"), tr("Operation cancelled by user"));
+		else
+			core->client()->error(tr("Error"), tr("Error while preparing wine environment"));
+		return false;
+	}
 	wineBin = wine(); //автоматически добавляет нужную запись в env.
 	//запуск Winetricks
 	lauchWinetricks(s->value("wine/components").toString().split(" ", QString::SkipEmptyParts));

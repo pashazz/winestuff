@@ -32,7 +32,8 @@ Q_OBJECT
 public:
    virtual void showNotify (QString title, QString body) = 0; //показывает нотификацию
    /*! ProgressBar func. */
-   virtual void showProgressBar (QString title) = 0; //показываем прогрессбар с заголовком title
+   virtual void showProgressBar (QString title, const char * cancelSlot) = 0; //показываем прогрессбар с заголовком title
+   virtual void showProgressBar(QString title) = 0; //то же самое, но без возможности отмены
    virtual void progressText (QString text) = 0 ; //показать текст text на прогрессбаре
    virtual void progressRange (int, int) = 0; //прогресс операции
    virtual void endProgress () = 0; //закрытие бара.

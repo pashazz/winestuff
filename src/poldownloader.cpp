@@ -106,6 +106,8 @@ if (wineFileName.isEmpty())
 QString archive = core->downloadWine(URL + wineFileName);
 if (archive.isEmpty())
 	return false;
+else if (archive == "CANCEL") //else because more code is needed at this point.
+	return false;
 if (!checkSHA1(archive))
 	return false; //experimental
 if(!core->unpackWine(archive, core->wineDir()))
@@ -172,4 +174,12 @@ QString PolDownloader::detectCurrentVersion()
 			return str;
 	}
 	return "";
+}
+
+void PolDownloader::cancelCurrentOperation()
+{
+	if (currentReply)
+		currentReply->abort();
+	else
+		qDebug() << "WARNING: access to null pointer";
 }
