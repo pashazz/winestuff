@@ -436,10 +436,12 @@ bool Prefix::runApplication(QString exe, QString diskroot, QString imageFile)
 	env.insert("WINEDEBUG", "-all");
 	if (!installFirstApplication())
 	{
-		if (downloadCancelled)
+	/*	if (downloadCancelled)
 			core->client()->error(tr("Error"), tr("Operation cancelled by user"));
 		else
 			core->client()->error(tr("Error"), tr("Error while preparing wine environment"));
+			*/
+		//это излишне.
 		return false;
 	}
 	wineBin = wine(); //автоматически добавляет нужную запись в env.

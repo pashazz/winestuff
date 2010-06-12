@@ -103,7 +103,7 @@ currentReply = reply;
 connect (reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
 connect (reply, SIGNAL(finished()), &loop, SLOT(quit()));
 connect (reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
-ui->showProgressBar(tr("Downloading Wine..."), SLOT(cancelCurrentOperation()));
+ui->showProgressBar(tr("Downloading Wine..."), SLOT(cancelCurrentOperation()), this);
 ui->progressText(tr("Downloading wine... %1").arg(url));
 loop.exec();
 ui->endProgress();
@@ -520,7 +520,7 @@ bool corelib::syncPackages()
 	connect (reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
 	connect (reply, SIGNAL(finished()), &loop, SLOT(quit()));
 	connect (reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
-	ui->showProgressBar(tr("Downloading winegame packagelist"), SLOT(cancelCurrentOperation()));
+	ui->showProgressBar(tr("Downloading winegame packagelist"), SLOT(cancelCurrentOperation()), this);
 	ui->progressText(tr("Downloading winegame release info...."));
 	loop.exec();
 	ui->endProgress();
@@ -555,7 +555,7 @@ bool corelib::syncPackages()
 	connect (reply2, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
 	connect (reply2, SIGNAL(finished()), &loop, SLOT(quit()));
 	connect (reply2, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
-	ui->showProgressBar(tr("Downloading winegame package index"), SLOT(cancelCurrentOperation()));
+	ui->showProgressBar(tr("Downloading winegame package index"), SLOT(cancelCurrentOperation()), this);
 	ui->progressText(tr("Downloading winegame packages..."));
 	loop.exec();
 	ui->endProgress();
