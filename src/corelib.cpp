@@ -434,13 +434,17 @@ bool corelib::removeDir(const QString & dir)
 }
 
 bool corelib::copyDir(const QString &dir, const QString &destination)
-{ //call corelib::client()::progresstext before this
+{
+	ui->showProgressBar(tr("Copying files...."), SLOT(cancelCopy()), this);
+	copyCancelled = false;
 	QDir myDir(dir);
 	myDir.mkpath(destination);
 	int max = myDir.entryList(QDir::NoDotAndDotDot).count();
 	int i = 0;
 	foreach (QString fileName, myDir.entryList(QDir::NoDotAndDotDot | QDir::AllEntries))
 	{
+		if (copyCancelled)
+			return false;
 		i++;
 		ui->progressText(tr("Copying %1 into %2").arg(dir + fileName).arg(destination + fileName));
 		ui->progressRange(i,max);
@@ -452,10 +456,18 @@ bool corelib::copyDir(const QString &dir, const QString &destination)
 		else
 		{
 			QFile file (dir + QDir::separator() + fileName);
+			QEventLoop loop (this);
+			loop.exec();
 			file.copy(destination + QDir::separator() + fileName);
+			loop.quit();
 		}
 	}
 	return true; //others not implemented yet;
+}
+
+void corelib::cancelCopy()
+{
+	copyCancelled = true;
 }
 
 QString corelib::shareDir() const

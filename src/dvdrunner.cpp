@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dvdrunner.h"
 #include <QtDebug>
 DVDRunner::DVDRunner(corelib *lib, QString path)
-	:QObject (0),core (lib), mounted (false)
+	:QObject (0),core (lib), mounted (false), cancelled (false)
 {
 	//Пробуем определить тип
 	QFileInfo info (path);
@@ -105,7 +105,6 @@ bool DVDRunner::prepare(bool nodetect)
 
 	if (Wprefix->isMulti())
 	{
-		core->client()->showProgressBar(tr("Copying files from your CDs"));
 		for (int i=1; i <= Wprefix->discCount(); i++)
 		{
 			if (i != 1)
@@ -127,7 +126,8 @@ bool DVDRunner::prepare(bool nodetect)
 						goto insertnextcd;
 				}
 			}
-			core->copyDir(diskPath, core->discDir());
+			if (!core->copyDir(diskPath, core->discDir()))
+				return;
 		}
 		diskPath = core->discDir();
 		core->client()->endProgress();
@@ -218,7 +218,8 @@ void DVDRunner::cleanup()
 	//размонтируем наш сидюк
 	if (type == Pashazz::Image)
 	{
-		core->client()->infoDialog(tr("Information"), tr("Press OK/Enter when application`s installation ends"));
+		if (!cancelled)
+			core->client()->infoDialog(tr("Information"), tr("Press OK/Enter when application`s installation ends"));
 		QProcess p (this);
 		p.start(umount);
 		p.waitForFinished(-1);
@@ -272,3 +273,5 @@ Pashazz::DiscInfo * DVDRunner::info(QString diskPath, corelib *lib) //Некот
 	delete pr;
 	return myInfo;
 }
+
+

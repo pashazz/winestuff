@@ -58,6 +58,7 @@ private:
 	corelib *core;
 	bool result;
 	bool multidisc;
+	bool cancelled;
 	bool detect();
 	static QString wrkdir (QString diskPath, QDir packageDir); //главная функция
 	bool prepare (bool nodetect = false); //метод для выполнения различных подготовок (монтирования и т.д.). Если WineGame распознал диск сам, то этот метод вызывается из конструктора.
@@ -68,6 +69,8 @@ private:
 	int _max; //copyfile size
 	bool mounted;
 
+private slots:
+	void cancelCopying();
 };
 
 #endif // DVDRUNNER_H
