@@ -70,7 +70,6 @@ private:
 	bool mounted;
 
 private slots:
-	void cancelCopying();
 };
 
 #endif // DVDRUNNER_H

@@ -67,7 +67,7 @@ private slots:
 	void setRange (qint64, qint64); //заглушка для QProgressDialog
 	void exitApp();
 	void cancelCurrentOperation();
-
+	void cancelCopy();
 private:
 	UiClient *ui;
 	QSettings *settings;
@@ -75,6 +75,9 @@ private:
 	bool downloadExitCode;
 	QString system;
 	QNetworkReply *currentReply;
+
+	/* About copying files */
+	bool copyCancelled;
 protected:
 	bool initconf ();
 	inline QString config();

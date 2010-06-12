@@ -127,7 +127,7 @@ bool DVDRunner::prepare(bool nodetect)
 				}
 			}
 			if (!core->copyDir(diskPath, core->discDir()))
-				return;
+				return false;
 		}
 		diskPath = core->discDir();
 		core->client()->endProgress();
