@@ -435,7 +435,6 @@ bool corelib::removeDir(const QString & dir)
 
 bool corelib::copyDir(const QString &dir, const QString &destination)
 {
-	ui->showProgressBar(tr("Copying files...."), SLOT(cancelCopy()), this);
 	copyCancelled = false;
 	QDir myDir(dir);
 	myDir.mkpath(destination);
@@ -443,10 +442,13 @@ bool corelib::copyDir(const QString &dir, const QString &destination)
 	int i = 0;
 	foreach (QString fileName, myDir.entryList(QDir::NoDotAndDotDot | QDir::AllEntries))
 	{
+		qApp->processEvents();
 		if (copyCancelled)
+		{
 			return false;
+		}
 		i++;
-		ui->progressText(tr("Copying %1 into %2").arg(dir + fileName).arg(destination + fileName));
+		ui->progressText(tr("Copying %1 into %2").arg(dir + QDir::separator() + fileName).arg(destination + QDir::separator() + fileName));
 		ui->progressRange(i,max);
 		if (QFileInfo(dir + QDir::separator() + fileName).isDir())
 		{
@@ -456,10 +458,7 @@ bool corelib::copyDir(const QString &dir, const QString &destination)
 		else
 		{
 			QFile file (dir + QDir::separator() + fileName);
-			QEventLoop loop (this);
-			loop.exec();
 			file.copy(destination + QDir::separator() + fileName);
-			loop.quit();
 		}
 	}
 	return true; //others not implemented yet;
@@ -519,7 +518,6 @@ bool corelib::syncPackages()
 	{
 		if (mirror.isEmpty())
 			continue;
-		qDebug() << "wgpkg: sync packages with mirror: " << mirror;
 	// инициализирую QtNetwork классы
 	//загружаю файл LAST
 	QEventLoop loop;
@@ -561,7 +559,6 @@ bool corelib::syncPackages()
 	file.close();
 	//загружаю дистрибутив package-latest.tar.bz2
 	req.setUrl(QUrl(mirror + "/packages-latest.tar.bz2"));
-	qDebug() << "winechecker: Downloading packages" << mirror + "/packages-latest.tar.bz2";
 	QNetworkReply *reply2 = manager->get(req);
 	currentReply = reply2;
 	connect (reply2, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));

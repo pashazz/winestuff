@@ -67,7 +67,6 @@ private slots:
 	void setRange (qint64, qint64); //заглушка для QProgressDialog
 	void exitApp();
 	void cancelCurrentOperation();
-	void cancelCopy();
 private:
 	UiClient *ui;
 	QSettings *settings;
@@ -83,6 +82,8 @@ protected:
 	inline QString config();
 	void initDb();
 	void setConfigValue (QString key, QVariant value, bool setIfEmpty);
+public slots:
+	void cancelCopy();
 };
 
 #endif // CORELIB_H

@@ -76,6 +76,7 @@ DVDRunner::DVDRunner(corelib *lib, QString path)
 		type = Pashazz::Unknown;
 		core->client()->error(tr("Execution error"), tr("I/O error"));
 	}
+	qDebug() << "DDT: preparing disc....";
  result =	prepare ();
 }
 
@@ -98,13 +99,18 @@ bool DVDRunner::prepare(bool nodetect)
 	//2) детектинг. Если юзер сам указал префикс, тогда аргумент nodetect должен быть true. Иначе detect попытается найти нужный пакет и создать объект Prefix
 	if (!nodetect)
 	{
-	if (!detect ())
-		return false;
+		qDebug() << "Detecting disc....";
+		if (!detect ())
+		{
+			qDebug() << "Unable to detect disc";
+			return false;
+		}
 }
 	//3)Проверяем, возможно наша игра на нескольких дисках
 
 	if (Wprefix->isMulti())
 	{
+		qDebug() << "Multidisc detected";
 		for (int i=1; i <= Wprefix->discCount(); i++)
 		{
 			if (i != 1)
@@ -119,23 +125,50 @@ bool DVDRunner::prepare(bool nodetect)
 				}
 				else
 				{
-					QDir dpath (diskPath);
-					qDebug() << dpath.path() << "is disc";
-					qDebug() << dpath.entryList(QDir::NoDotAndDotDot | QDir::AllEntries);
-					if (dpath.entryList(QDir::NoDotAndDotDot | QDir::AllEntries).count() == 0)
+					if (!checkDisc(diskPath))
 						goto insertnextcd;
 				}
 			}
+			core->client()->showProgressBar(tr("Copying files...."), SLOT(cancelCopy()), core);
 			if (!core->copyDir(diskPath, core->discDir()))
+			{
+				qDebug() << "Unable to copy directory..." << diskPath;
+				core->client()->endProgress();
 				return false;
+			}
 		}
 		diskPath = core->discDir();
-		core->client()->endProgress();
+ 	core->client()->endProgress();
 	}
 	else
 		qDebug() << "game isn`t multicd, count" << Wprefix->discCount();
 	//вроде все.
 	return true;
+}
+
+bool DVDRunner::checkDisc(QString &diskPath) //проверяет диск. Если пусто, спрашивает у пользователя новую директорию, поэтому diskPath передается по ссылке.
+{
+	QDir dpath (diskPath);
+	qDebug() << dpath.path() << "is disc";
+	qDebug() << dpath.entryList(QDir::NoDotAndDotDot | QDir::AllEntries);
+	checkdisc:
+	if (dpath.entryList(QDir::NoDotAndDotDot | QDir::AllEntries).count() == 0)
+	{
+		// Спрашиваем у клиента директорию.
+		diskPath = core->client()->directoryDialog(tr("Select disc directory...."), dpath.cleanPath(dpath.path() + "/.."));
+		if (diskPath.isEmpty())
+		{ //Возвращаем значение diskPath
+			diskPath = dpath.absolutePath();
+			return false;
+		}
+		else
+		{//проверяем значение
+			dpath.setPath(diskPath);
+			goto checkdisc;
+		}
+	}
+	else
+		return true;
 }
 
 QString DVDRunner::wrkdir(QString diskPath, QDir packageDir)

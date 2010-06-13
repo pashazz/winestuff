@@ -61,6 +61,7 @@ private:
 	bool cancelled;
 	bool detect();
 	static QString wrkdir (QString diskPath, QDir packageDir); //главная функция
+	bool checkDisc(QString &diskPath);
 	bool prepare (bool nodetect = false); //метод для выполнения различных подготовок (монтирования и т.д.). Если WineGame распознал диск сам, то этот метод вызывается из конструктора.
 	Prefix *Wprefix;
 	QString diskPath, realDrive;

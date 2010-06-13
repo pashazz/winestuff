@@ -47,6 +47,8 @@ public:
    /* Wait message */
    virtual void showUserWaitMessage (const QString &message) = 0; //показать модальный диалог (или что-то типа того, чтобы пользователь понял, что идет операция).
    virtual void closeWaitMessage() = 0;//закрытие диалога
+   /* say directory */
+   virtual QString directoryDialog (const QString &description, const QString &startDirectory) = 0;
 };
 
 #endif // UICLIENT_H
