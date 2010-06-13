@@ -113,6 +113,7 @@ bool DVDRunner::prepare(bool nodetect)
 		qDebug() << "Multidisc detected";
 		for (int i=1; i <= Wprefix->discCount(); i++)
 		{
+
 			if (i != 1)
 			{
 				bool result = false;
@@ -129,7 +130,6 @@ bool DVDRunner::prepare(bool nodetect)
 						goto insertnextcd;
 				}
 			}
-			core->client()->showProgressBar(tr("Copying files...."), SLOT(cancelCopy()), core);
 			if (!core->copyDir(diskPath, core->discDir()))
 			{
 				qDebug() << "Unable to copy directory..." << diskPath;
@@ -138,7 +138,6 @@ bool DVDRunner::prepare(bool nodetect)
 			}
 		}
 		diskPath = core->discDir();
- 	core->client()->endProgress();
 	}
 	else
 		qDebug() << "game isn`t multicd, count" << Wprefix->discCount();

@@ -244,7 +244,6 @@ void corelib::runSingleExe(QStringList exe)
 
 bool corelib::initconf()
 {
-	/// TODO: перенос в winegame
 	//Init our configuration.
 	if (settings->value("VideoMemory").isNull())
 	{
@@ -256,6 +255,13 @@ bool corelib::initconf()
 	setDiscDir(QDir::homePath() + "/.winegame/disc",true);
 	setPackageDir(QDir::homePath() + "/.winegame/packages", true);
 	setSyncMirrors(QStringList("http://winegame-project.ru/winepkg"), true);
+	if (QDir(discDir()).exists())
+	{
+	//подчищаем discDir
+	ui->showProgressBar(tr("Cleaning up"));
+	removeDir(discDir());
+	ui->endProgress();
+}
 	//check if dirs exists
 QStringList paths = QStringList () << wineDir() << mountDir() /*<< discDir()*/ ;
 foreach (QString path, paths)
@@ -436,8 +442,14 @@ bool corelib::removeDir(const QString & dir)
 bool corelib::copyDir(const QString &dir, const QString &destination)
 {
 	copyCancelled = false;
+	static bool isProgressBarShow = false;
 	QDir myDir(dir);
 	myDir.mkpath(destination);
+	if (!isProgressBarShow)
+	{
+		ui->showProgressBar(tr("Copying %1 into %2").arg(dir).arg(destination));
+		isProgressBarShow = true;
+	}
 	int max = myDir.entryList(QDir::NoDotAndDotDot).count();
 	int i = 0;
 	foreach (QString fileName, myDir.entryList(QDir::NoDotAndDotDot | QDir::AllEntries))
@@ -445,6 +457,8 @@ bool corelib::copyDir(const QString &dir, const QString &destination)
 		qApp->processEvents();
 		if (copyCancelled)
 		{
+			if (isProgressBarShow)
+				ui->endProgress();
 			return false;
 		}
 		i++;
@@ -461,6 +475,8 @@ bool corelib::copyDir(const QString &dir, const QString &destination)
 			file.copy(destination + QDir::separator() + fileName);
 		}
 	}
+	if (isProgressBarShow)
+		ui->endProgress();
 	return true; //others not implemented yet;
 }
 
