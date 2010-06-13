@@ -69,7 +69,7 @@ private:
 	Pashazz::DriveType type;
 	int _max; //copyfile size
 	bool mounted;
-
+	QStringList entrylist;
 private slots:
 };
 
