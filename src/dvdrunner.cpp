@@ -113,7 +113,6 @@ bool DVDRunner::prepare(bool nodetect)
 		qDebug() << "Multidisc detected";
 		for (int i=1; i <= Wprefix->discCount(); i++)
 		{
-
 			if (i != 1)
 			{
 				bool result = false;
@@ -130,6 +129,7 @@ bool DVDRunner::prepare(bool nodetect)
 						goto insertnextcd;
 				}
 			}
+			entrylist = QDir(diskPath).entryList();
 			if (!core->copyDir(diskPath, core->discDir()))
 			{
 				qDebug() << "Unable to copy directory..." << diskPath;
@@ -151,7 +151,7 @@ bool DVDRunner::checkDisc(QString &diskPath) //проверяет диск. Ес
 	qDebug() << dpath.path() << "is disc";
 	qDebug() << dpath.entryList(QDir::NoDotAndDotDot | QDir::AllEntries);
 	checkdisc:
-	if (dpath.entryList(QDir::NoDotAndDotDot | QDir::AllEntries).count() == 0)
+	if ((dpath.entryList(QDir::NoDotAndDotDot | QDir::AllEntries).count() == 0) || (entrylist == dpath.entryList()))
 	{
 		// Спрашиваем у клиента директорию.
 		diskPath = core->client()->directoryDialog(tr("Select disc directory...."), dpath.cleanPath(dpath.path() + "/.."));
