@@ -294,7 +294,7 @@ if (!dir.exists())
 	s->endGroup();
 	if (distr.isEmpty())
 	   {
-		wine = corelib::whichBin("wine");
+		wine = core->whichBin("wine");
 	}
 	   else
 	   {

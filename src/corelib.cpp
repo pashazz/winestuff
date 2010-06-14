@@ -41,7 +41,10 @@ QString corelib::whichBin(QString bin) {
     p.waitForFinished(-1);
     QString path = QString(p.readAll()).trimmed();
     path.remove('\n');
-    return path;
+	if (QFile::exists(path))
+		return path;
+	else
+		return "";
 }
 void corelib::init()
 {
@@ -377,12 +380,11 @@ corelib::~corelib()
 
 QString corelib::getSudoProg()
 {
-	QFile file;
 	QStringList programs = QStringList () << "kdesu" << "gksu" << "xdg-su";
 	foreach (QString str, programs)
 	{
-		file.setFileName(whichBin(str));
-		if (file.exists())
+		QString prog = whichBin(str);
+		if (!prog.isEmpty())
 			return str;
 	}
 	return "";
@@ -395,9 +397,9 @@ bool corelib::forceFuseiso()
 
 void corelib::setForceFuseiso(bool value, bool isempty)
 {
-	QFile file (corelib::whichBin("fuseiso"));
-	if (file.exists())
-		setConfigValue("ForceFuseiso", value, isempty);
+	if (whichBin("fuseiso").isEmpty())
+		return;
+	setConfigValue("ForceFuseiso", value, isempty);
 }
 
 void corelib::setDiscDir(QString dir, bool isempty)
