@@ -1,3 +1,3 @@
 Version 0.2.0
-- Более полная привязка к БД, что позволит изменять свойства Preset-префиксов
-- Загрузка данных из интернета.
+Store ALL prefixes in sqlite database
+More clean API/ABI
