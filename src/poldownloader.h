@@ -19,19 +19,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /*!
   PolDownloader is a http://wine.playonlinux.com/linux-i386/ download & integration client
   */
-
 #ifndef POLDOWNLOADER_H
 #define POLDOWNLOADER_H
 
 #include <QtCore>
 #include <QtNetwork>
-#include "prefix.h"
+#include "prefixcollection.h"
 
 class PolDownloader : public QObject
 {
 	Q_OBJECT
 public:
-	PolDownloader(Prefix *prefixObj);
+	PolDownloader(PrefixCollection *collection, const QString &prefixId, corelib *lib);
 	QStringList versionList() {return versions;}
 	bool setWineVersion (QString version); //return false if SQL error or no such version
 	QString detectCurrentVersion();
@@ -40,8 +39,9 @@ public slots:
 	void fallback();
 
 private:
-	Prefix *prefix;
+	PrefixCollection *pcoll;
 	corelib *core;
+	Prefix *prefix;
 	bool goodGet;
 	bool downloadWine(QString version);
 	bool checkSHA1(QString file);

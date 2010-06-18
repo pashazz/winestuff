@@ -20,63 +20,60 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifndef PREFIX_H
 #define PREFIX_H
-/// класс для работы с префиксами (не preset)
 #include <QtCore>
-#include "libwinegame_global.h"
 #include "corelib.h"
- class WINESTUFFSHARED_EXPORT  Prefix : public QObject
+
+class PrefixCollection;
+
+class  Prefix : public QObject
 {
-Q_OBJECT
-
+	Q_OBJECT
+friend class PrefixCollection; //for Prefix`s protected functions.
 public:
-	explicit Prefix(QObject *parent, QString workdir, corelib *lib);
-	QString prefixPath () {return _path;}
-    QString prefixName () {return _prefix;}
-    QString wine();
-    QString standardExe();
-   QString name ();
-   corelib *myLib() {return core;}
-   QString note ();
-  QString setup (); //application/setup value
-   QString distr(); //wine/distr value
-   bool runApplication (QString exe, QString diskroot = "", QString imageFile = ""); //well, it`s helper.
-  void makeDesktopIcon (const QString &path, const  QString &name);
-  bool isPreset();
-  bool isMulti();
-   short int discCount();
-  QString projectWorkingDir () {return _workdir;}
-  QProcessEnvironment envs () {return env;}
-  //Запуск программы в данном Prefix
-  void runProgram (QString exe);
-  void lauchWinetricks(QStringList args);
-  void setMemory();
-  void removePrefix ();
-  bool installFirstApplication ();
-  bool checkWineDistr();
-  bool hasDBEntry ();
-  QString getExeWorkingDirectory (QString);
-public slots:
-  void lauch_c();
+	Prefix (QObject *parent, corelib *lib);
+	Prefix (const QString &id,  const QString &name, const QString &note,  const QString &path, const QString &wine, QObject *parent, corelib *lib);
+	virtual ~Prefix () {}
+	/* Setters */
+	void setName (const QString &name) {_name = name;}
+	void setNote (const QString &note) {_note = note;}
+	void setID (const QString &id) {this->id = id;}
+	void setPath (const QString &path) {_path = path;}
+	void setWine (const QString &wine) {_wine = wine;}
+	void setDiscAttributes (QString diskRoot, QString imageFile = "")
+	{
+		_diskroot = diskRoot;
+		_imagefile = imageFile;
+	}
 
+	/*Getters */
+	QString name () {return _name;}
+	QString note () {return _note;}
+	QString ID () {return this->id;}
+	QString path () {return _path;}
+	QString wine() {return _wine;}
 
-signals:
-void prefixNameNeed (QString &name);
-private:
-bool downloadCancelled;
-QString _prefix;
-QString _path;
-QString _workdir;
-  QSettings *s;
-QProcessEnvironment env;
-bool downloadWine ();
-corelib *core;
-void getPrefixPath();
-QSqlDatabase db;
-QString getMD5();
-void writeMD5(QString md5sum);
+	/* Process env. */
+	QProcessEnvironment environment ();
+	/* Other functions */
+	int runApplication (const QString &program, QString workingDirectory = "");
+	void makeDesktopIcon (const QString &name, const QString &program, const QString &icon);
+	void setMemory ();
 protected:
-void makefix (); //исправление реестра Wine: запуск winebrowser.exe -nohome %1 вместо winebrowser.exe -nohome
-void makeWineCdrom (const  QString &path, const QString &device= "/dev/cdrom");
+	/* Common functions */
+	void makefix();
+	void makeWineCdrom(const QString &path, const QString &device);
 
+private:
+	QString id;
+	QString _name;
+	QString _note;
+	QString _path;
+	QString _wine;
+	QString _diskroot;
+	QString _imagefile;
+	corelib *core;
 };
+
+
+
 #endif // PREFIX_H

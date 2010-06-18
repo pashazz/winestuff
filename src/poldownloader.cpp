@@ -16,13 +16,12 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 #include "poldownloader.h"
 
-PolDownloader::PolDownloader(Prefix *prefixObj)
-	:QObject(prefixObj), prefix(prefixObj), URL("http://wine.playonlinux.com/linux-i386/")
+PolDownloader::PolDownloader(PrefixCollection *collection, const QString &prefixId, corelib *lib)
+	:QObject(collection), pcoll(collection),  core(lib), URL("http://wine.playonlinux.com/linux-i386/")
 {
-	core = prefix->myLib();
+	prefix = collection->getPrefix(prefixId);
 	goodGet = true; //обозначает, успешна ли загрузка списка.
 	QEventLoop loop;
 	QNetworkAccessManager *manager = new QNetworkAccessManager (this);
@@ -74,7 +73,6 @@ bool PolDownloader::checkSHA1(QString file)
 {
 	if (!goodGet)
 		return false;
-	/* GUI freezes at this point */
 	QProcess *p = new QProcess (this);
 	p->start(core->whichBin("sha1sum") + " " + file);
 	p->waitForFinished(-1);
@@ -121,51 +119,25 @@ bool PolDownloader::setWineVersion(QString version)
 	//trying to download wine
 	if (!downloadWine(version))
 		return false;
-	QSqlDatabase db = QSqlDatabase::database();
-	QSqlQuery q (db);
-	q.prepare("UPDATE Apps SET wine=:wine WHERE prefix=:prefix");
-	q.bindValue(":wine", core->wineDir() + "/wineversion/" + version + "/usr/bin/wine");
-	q.bindValue(":prefix", prefix->prefixName());
-	if (!q.exec())
-	{
-		qDebug() << "PolDownloader: failed to execute SQL query " << q.lastError().text();
-		return false;
-	}
+	prefix->setWine(core->wineDir() + "/wineversion/" + version + "/usr/bin/wine");
+	pcoll->updatePrefix(prefix);
 	return true;
 }
 void PolDownloader::fallback()
 {
 	//back to app`s wine
 	QString wine;
-	QSqlDatabase db = QSqlDatabase::database();
-	QSqlQuery q (db);
-	q.prepare("UPDATE Apps SET wine=:wine WHERE prefix=:prefix");
-	if (prefix->distr().isEmpty()) //like a system wine
+	if (QFile::exists(SourceReader::defaultWine(prefix->ID())))
+		wine = SourceReader::defaultWine(prefix->ID());
+	else
 		wine = core->whichBin("wine");
-	else //like a custom wine
-		wine = core->wineDir() + "/wines/" + prefix->prefixName() + "/usr/bin/wine";
-	q.bindValue(":wine", wine);
-	q.bindValue(":prefix", prefix->prefixName());
-	if (!q.exec())
-	{
-		qDebug() << "PolDownloader: failed to execute SQL query " << q.lastError().text();
-	}
-
+	prefix->setWine(wine);
+	pcoll->updatePrefix(prefix);
 }
 
 QString PolDownloader::detectCurrentVersion()
 {
-	QSqlDatabase db = QSqlDatabase::database();
-	QSqlQuery q (db);
-	q.prepare("SELECT wine FROM Apps WHERE prefix=:prefix");
-	q.bindValue(":prefix", prefix->prefixName());
-	if (!q.exec())
-	{
-		qDebug() << "PolDownloader: failed to execute SQL query " << q.lastError().text();
-	}
-	q.first();
-	QString wine = q.value(0).toString();
-	//Analyze this. Try to detect version number
+	QString wine = prefix->wine();
 	QStringList myList(versions);
 	qSort(myList.begin(), myList.end(), qGreater<QString>()); //новые версии wine- раньше.
 	foreach (QString str, myList)

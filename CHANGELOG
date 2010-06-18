@@ -3,3 +3,4 @@
 r1:packages now in internet at winegame-project.ru
 r2:cancelling of operations implemented
 r3:RELEASE 0.1
+r4:new classes: SourceReader, PrefixCollection, many new functions

@@ -25,9 +25,9 @@ find_package( Qt4 REQUIRED )
             ENDIF(QT_QTSQL_FOUND)
 
 include (${QT_USE_FILE})
-set (QHEADERS corelib.h  dvdrunner.h  poldownloader.h  prefix.h  uiclient.h)
+set (QHEADERS corelib.h  dvdrunner.h  poldownloader.h  prefix.h inireader.h  uiclient.h prefixcollection.h)
 set (HEADERS ${QHEADERS} libwinegame_global.h)
-set (SOURCES corelib.cpp  dvdrunner.cpp  poldownloader.cpp  prefix.cpp)
+set (SOURCES corelib.cpp  dvdrunner.cpp  poldownloader.cpp  prefix.cpp inireader.cpp prefixcollection.cpp)
 message (STATUS "Run 'make translations && make' to compile winestuff")
 
 qt4_wrap_cpp (MOC_SOURCES ${QHEADERS})

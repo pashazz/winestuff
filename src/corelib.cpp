@@ -19,13 +19,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "corelib.h"
-#include "prefix.h"
 //The core of WineGame. Commonly used func.
 corelib::corelib(QObject *parent, UiClient *client)
 	:QObject(parent), ui (client)
 {
 	//Init Settings object
 	settings = new QSettings (config(), QSettings::IniFormat, this);
+	QDir::setSearchPaths("packages", packageDirs());
+	QDir::setSearchPaths("winedir", QStringList(wineDir()));
 	//Init translations object
 #ifdef Q_WS_X11
 QProcess p (this);
@@ -256,7 +257,7 @@ bool corelib::initconf()
 	setWineDir(QDir::homePath() + "/.winegame/windows", true);
 	setMountDir(QDir::homePath() + "/.winegame/mounts", true);
 	setDiscDir(QDir::homePath() + "/.winegame/disc",true);
-	setPackageDir(QDir::homePath() + "/.winegame/packages", true);
+	setPackageDirs(QStringList(QDir::homePath() + "/.winegame/packages"), true);
 	setSyncMirrors(QStringList("http://winegame-project.ru/winepkg"), true);
 	if (QDir(discDir()).exists())
 	{
@@ -279,8 +280,8 @@ return true;
 QString corelib::wineDir() {
 	return settings->value("WineDir").toString();
 }
-QString corelib::packageDir() {
-	return settings->value("PackageDir").toString();
+QStringList corelib::packageDirs() {
+	return settings->value("PackageDir").toString().split(';', QString::SkipEmptyParts);
 }
 QString corelib::mountDir() {
 	return settings->value("MountDir").toString();
@@ -296,19 +297,23 @@ void corelib::setWineDir(QString dir, bool isempty)
 	}
 	setConfigValue("WineDir", dir, isempty);
 }
-void corelib::setPackageDir(QString dir, bool isempty)
+void corelib::setPackageDirs(const QStringList &dirs, bool isempty)
 {
-	if (isempty && (!packageDir().isEmpty()))
+	if (isempty && (!packageDirs().isEmpty()))
 	{
-		QFileInfo myDir (packageDir());
-		if ((!myDir.exists()) || (!myDir.isWritable()))
+		foreach (QString dir, packageDirs()){
+		QFileInfo mdir (dir);
+		if ((!mdir.exists()) || (!mdir.isWritable()))
 			isempty = false;
 	}
+	}
+foreach (QString dir, dirs)
 	setConfigValue("PackageDir", dir, isempty);
+
 }
 void corelib::setMountDir(QString dir, bool isempty)
 {
-	if (isempty && (!packageDir().isEmpty()))
+	if (isempty && (!mountDir().isEmpty()))
 	{
 		QFileInfo myDir (mountDir());
 		if (forceFuseiso())
@@ -332,7 +337,9 @@ void corelib::setVideoMemory(int memory, bool isempty)
 	setConfigValue("VideoMemory", memory, isempty);
 	settings->sync(); //we need to force sync
 	//Sync all videomemory entries
-	QDir dir (packageDir());
+/*	foreach (QString d, packageDirs())
+	{
+		QDir dir(d);
 	foreach (QFileInfo info, dir.entryInfoList(QDir::Dirs | QDir::Readable))
 	{
 		//construct prefix obj
@@ -343,7 +350,8 @@ void corelib::setVideoMemory(int memory, bool isempty)
 			prefix->setMemory();
 		}
 	}
-
+}
+*/ //todo: port it to new architecture
 }
 QString corelib::videoMemory()
 {
@@ -514,7 +522,13 @@ void corelib::initDb()
    qDebug() << "DB: Query error " << q.lastError().text();
    qApp->exit (-24);
 	 }
-
+	 q.prepare("CREATE TABLE Names (id INTEGER PRIMARY KEY, prefix TEXT, name TEXT, note TEXT, lang TEXT)");
+	 if (!q.exec())
+   {
+   ui->error( tr("Database error"), tr("Failed to create table for storing installed applications. See errors on console"));
+   qDebug() << "DB: Query error " << q.lastError().text();
+   qApp->exit (-24);
+	 }
  }
 
 void corelib::setConfigValue(QString key, QVariant value, bool setIfEmpty)
@@ -526,6 +540,10 @@ void corelib::setConfigValue(QString key, QVariant value, bool setIfEmpty)
 	}
 	else
 	{
+		if (key == "PackageDir") //little hack
+			QDir::setSearchPaths("packages", value.toStringList());
+		else if (key == "WineDir")
+			QDir::setSearchPaths("winedir", value.toString());
 		settings->setValue(key, value);
 	}
 }
@@ -559,7 +577,7 @@ bool corelib::syncPackages()
 		return false;
 	}
 	//открываем ~/.winegame/packages/LAST
-	QFile file (packageDir() + "/LAST");
+	QFile file (packageDirs().first() + "/LAST");
 	if (!file.exists())
 		file.open(QIODevice::WriteOnly);
 	else
@@ -592,7 +610,7 @@ bool corelib::syncPackages()
 	file.open(QIODevice::WriteOnly);
 	file.write(reply2->readAll());
 	file.close();
-	bool res = unpackWine(tfile, packageDir());
+	bool res = unpackWine(tfile, packageDirs().first());
 	file.remove();
 	if (!res)
 		return false;

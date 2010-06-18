@@ -42,7 +42,7 @@ public:
 	void runSingleExe (QStringList exe) ;
 	/// Блок настроек
 	QString wineDir ();
-	QString packageDir ();
+	QStringList packageDirs ();
 	QString mountDir ();
 	QString videoMemory ();
 	QString discDir();
@@ -51,7 +51,7 @@ public:
 	void syncSettings() {settings->sync();}
 	static QString autorun (QString diskRoot);
 	void setWineDir (QString dir, bool isempty =false);
-	void setPackageDir (QString dir, bool isempty = false);
+	void setPackageDirs (const QStringList  &dirs, bool isempty = false);
 	void setMountDir (QString dir, bool isempty = false);
 	void setVideoMemory (int memory, bool isempty = false);
 	void setDiscDir(QString dir, bool isempty = false);
