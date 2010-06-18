@@ -543,7 +543,7 @@ void corelib::setConfigValue(QString key, QVariant value, bool setIfEmpty)
 		if (key == "PackageDir") //little hack
 			QDir::setSearchPaths("packages", value.toStringList());
 		else if (key == "WineDir")
-			QDir::setSearchPaths("winedir", value.toString());
+			QDir::setSearchPaths("winedir", QStringList(value.toString()));
 		settings->setValue(key, value);
 	}
 }
