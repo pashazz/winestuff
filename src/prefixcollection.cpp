@@ -42,7 +42,7 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 	q.bindValue(":wine", reader->wine());
 	if (!q.exec())
 	{
-		core->client()->error(tr("Database error"), tr("Traceback: %1").arg(q.lastError().text()));
+		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
 		return 0;
 	}
 	// записываем имена и notes для всех языков
@@ -56,7 +56,7 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 		q.bindValue(":lang", locale);
 		if (!q.exec())
 		{
-			core->client()->error(tr("Database error"), tr("Traceback: %1").arg(q.lastError().text()));
+			core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
 			return 0;
 		}
 	}

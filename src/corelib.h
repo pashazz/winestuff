@@ -34,7 +34,7 @@ public:
 	static QString whichBin (QString bin);
 	bool removeDir (const QString &dir);
 	bool copyDir (const QString &dir, const QString &destination);
-	void init (); /// этот метод на данный момент только прописывает видеопамять. В конфиг.
+	void init ();
 	bool unpackWine(QString distr, QString destination);
 	QString unixSystem () {return system;} //наша замена QSysInfo. На системах Win/Lin/Mac/Symbian возвращает пустую строку
 	bool syncPackages();

@@ -29,30 +29,30 @@ class WINESTUFFSHARED_EXPORT SourceReader : public QObject
 public:
 	Q_OBJECT
 public:
-	explicit SourceReader(QString confId, corelib *lib, QObject *parent = 0) :id(confId), core(lib),  QObject (parent),s(new QSettings("packages:" + id + "/control", QSettings::IniFormat, parent)) {}
-	 ~SourceReader() {}
-	 static QStringList configurations (const QStringList &directories); //возвращает ДОСТУПНЫЕ конфигурации, т.е. те, в которые приложения НЕ БЫЛИ установлены.
-	 static bool updateWines (const QStringList &prefixes, corelib *core);
-	 bool checkWine ();
+	explicit SourceReader(QString confId, corelib *lib, QObject *parent = 0) : QObject (parent), id(confId), core(lib), s(new QSettings("packages:" + id + "/control", QSettings::IniFormat, parent)) {}
+	~SourceReader() {}
+	static QStringList configurations (const QStringList &directories); //возвращает ДОСТУПНЫЕ конфигурации, т.е. те, в которые приложения НЕ БЫЛИ установлены.
+	static bool updateWines (const QStringList &prefixes, corelib *core);
+	bool checkWine ();
 	QString ID () {return id;}
-	 QString name();
-	 QString note();
-	 QString setup();
-	 QString prefixPath ();
-	 QString wine ();
-	 QStringList components ();
-	 QString filesDirectory ();
-	 QString icon ();
-	 QString preinstCommand ();
-	 QString postinstCommand ();
-	 QStringList availableDiscs();
-	 QStringList discFileList (const QString &disc);
-	 static QString defaultWine (const QString &id); // default wine for prefix ID in this implementation
-	 bool needToSetMemory ();
-	 Name nameForLang (QString locale);
-	 QStringList locales();
-	 bool isMulticd ();
-	 short int discCount();
+	QString name();
+	QString note();
+	QString setup();
+	QString prefixPath ();
+	QString wine ();
+	QStringList components ();
+	QString filesDirectory ();
+	QString icon ();
+	QString preinstCommand ();
+	QString postinstCommand ();
+	QStringList availableDiscs();
+	QStringList discFileList (const QString &disc);
+	static QString defaultWine (const QString &id); // default wine for prefix ID in this implementation
+	bool needToSetMemory ();
+	Name nameForLang (QString locale);
+	QStringList locales();
+	bool isMulticd ();
+	short int discCount();
 signals:
 	void presetPrefixNeed(QString &prefix);
 	void presetNameNeed (QString &name);
