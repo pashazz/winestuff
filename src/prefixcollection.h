@@ -23,13 +23,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "prefix.h"
 #include "inireader.h"
 
-class PrefixCollection : public QObject
+class WINESTUFFSHARED_EXPORT PrefixCollection : public QObject
 {
 	Q_OBJECT
 public:
 	PrefixCollection (QSqlDatabase database, corelib *lib, QObject *parent = 0);
 	virtual ~PrefixCollection();
-	Prefix* install (SourceReader *reader, QString file);
+	Prefix* install (SourceReader *reader, QString file, QString dvdObj = "");
 	bool remove (QString id);
 	QList<Prefix*> prefixes ();
 	Prefix* getPrefix (QString id);

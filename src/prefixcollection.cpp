@@ -27,7 +27,7 @@ PrefixCollection::PrefixCollection (QSqlDatabase database, corelib *lib, QObject
 	loc = QLocale::system().name();
 }
 
-Prefix* PrefixCollection::install(SourceReader *reader, QString file)
+Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dvdObj)
 {
 	if (!reader)
 		return 0;
@@ -49,7 +49,7 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file)
 	foreach (QString locale,reader->locales())
 	{
 		Name name = reader->nameForLang(locale);
-		q.prepare("INSERT INTO Names (prefix, name, note, lang) VALUES (:prefix, :name, :note, :lang");
+		q.prepare("INSERT INTO Names (prefix, name, note, lang) VALUES (:prefix, :name, :note, :lang)");
 		q.bindValue(":prefix", reader->ID());
 		q.bindValue(":name", name.first);
 		q.bindValue(":note", name.second);
@@ -70,13 +70,30 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file)
 	pref->setPath(reader->prefixPath());
 	if (reader->needToSetMemory())
 		pref->setMemory();
-	//пока что без поддержки дисков
+	/* cdrom working */
+	QString cdroot, image;
+	if (!dvdObj.isEmpty ())
+	{
+	QFileInfo dvdfi (dvdObj);
+	if (dvdfi.isFile ())
+	{
+	    image = dvdObj;
+	    cdroot = core->mountDir ();
+	}
+	else if (dvdfi.isDir ())
+	{
+	    image = "/dev/cdrom";
+	    cdroot = dvdObj;
+	}
+	if (!cdroot.isEmpty ())
+	   pref->setDiscAttributes (cdroot, image);
+    }
 	QProcessEnvironment env = pref->environment();
 	if (!reader->filesDirectory().isEmpty())
 		env.insert("FILESDIR", reader->filesDirectory());
 	QProcess *p = new QProcess (this);
 	p->setProcessEnvironment(env);
-	pref->makefix();;
+	pref->makefix();
 	QString exe = executable(file);
 	QString preinst = reader->preinstCommand();
 	if (!preinst.isEmpty())

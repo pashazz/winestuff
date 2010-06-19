@@ -24,7 +24,7 @@
 
 typedef QPair <QString, QString> Name;
 
-class SourceReader : public QObject
+class WINESTUFFSHARED_EXPORT SourceReader : public QObject
 {
 public:
 	Q_OBJECT
@@ -45,6 +45,8 @@ public:
 	 QString icon ();
 	 QString preinstCommand ();
 	 QString postinstCommand ();
+	 QStringList availableDiscs();
+	 QStringList discFileList (const QString &disc);
 	 static QString defaultWine (const QString &id); // default wine for prefix ID in this implementation
 	 bool needToSetMemory ();
 	 Name nameForLang (QString locale);

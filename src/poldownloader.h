@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <QtNetwork>
 #include "prefixcollection.h"
 
-class PolDownloader : public QObject
+class WINESTUFFSHARED_EXPORT PolDownloader : public QObject
 {
 	Q_OBJECT
 public:

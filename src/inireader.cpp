@@ -423,3 +423,22 @@ else
  {
 	 return QString ("winedir:wines/%1/usr/bin/wine").arg(id);
  }
+
+ QStringList SourceReader::discFileList (const QString &disc)
+ {
+     QFile file (QString ("%1/cdrom.d/%2").arg (workdir ()).arg (disc));
+     QTextStream stream (&file);
+     if (!file.open (QIODevice::ReadOnly | QIODevice::Text))
+	 return QStringList();
+
+     QStringList list;
+     while (!stream.atEnd ())
+	 list << stream.readLine ();
+     return list;
+ }
+
+ QStringList SourceReader::availableDiscs ()
+ {
+     QDir dir (workdir () + "/cdrom.d");
+     return dir.entryList (QDir::Files | QDir::Readable);
+ }

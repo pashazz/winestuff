@@ -16,13 +16,13 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-/*
+
 #ifndef DVDRUNNER_H
 #define DVDRUNNER_H
 
 #include <QtCore>
 #include "corelib.h"
-#include "prefix.h"
+#include "inireader.h"
 namespace Pashazz
 {
 enum DriveType
@@ -36,7 +36,8 @@ struct DiscInfo
 	QString icon;
 };
 };
-class DVDRunner : public QObject
+
+class WINESTUFFSHARED_EXPORT  DVDRunner : public QObject
 {
 	Q_OBJECT
 public:
@@ -47,9 +48,9 @@ public:
 	QString imageFile() {return realDrive;}
 	Pashazz::DriveType objectType () {return type;}
 	static Pashazz::DiscInfo * info (QString diskPath, corelib *lib);
-	Prefix *prefix() {return this->Wprefix;} // Возвращает объект Prefix для работы
+	SourceReader *sourceReader () {return this->reader;}
 	bool success() {return result;} //Закончилось ли распознавание успешно
-	void setPrefix (Prefix * prefix);
+	void setPrefix (SourceReader *reader);
 	void cleanup ();
 signals:
 	void insertNextCd (bool &result, int cd); //Пользователь должен вставить CD.
@@ -60,10 +61,10 @@ private:
 	bool multidisc;
 	bool cancelled;
 	bool detect();
-	static QString wrkdir (QString diskPath, QDir packageDir); //главная функция
+	QString wrkdir (QString diskPath); //главная функция
 	bool checkDisc(QString &diskPath);
 	bool prepare (bool nodetect = false); //метод для выполнения различных подготовок (монтирования и т.д.). Если WineGame распознал диск сам, то этот метод вызывается из конструктора.
-	Prefix *Wprefix;
+	SourceReader *reader;
 	QString diskPath, realDrive;
 	QString mount, umount;
 	Pashazz::DriveType type;
@@ -74,4 +75,4 @@ private slots:
 };
 
 #endif // DVDRUNNER_H
-*/
+

@@ -21,12 +21,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define UICLIENT_H
 
 #include <QtCore>
-
+#include "libwinegame_global.h"
 /*
   Этот класс необходим, чтобы предоставить пользователю разные варианты базового UI (напр. альтернативного UI на QtDeclarative)
   */
 
-class UiClient : public QObject
+class WINESTUFFSHARED_EXPORT UiClient : public QObject
 {
 Q_OBJECT
 public:

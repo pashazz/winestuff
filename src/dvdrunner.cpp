@@ -16,7 +16,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-/*
+
 #include "dvdrunner.h"
 #include <QtDebug>
 DVDRunner::DVDRunner(corelib *lib, QString path)
@@ -108,10 +108,10 @@ bool DVDRunner::prepare(bool nodetect)
 }
 	//3)Проверяем, возможно наша игра на нескольких дисках
 
-	if (Wprefix->isMulti())
+	if (reader->isMulticd ())
 	{
 		qDebug() << "Multidisc detected";
-		for (int i=1; i <= Wprefix->discCount(); i++)
+		for (int i=1; i <= reader->discCount(); i++)
 		{
 			if (i != 1)
 			{
@@ -170,49 +170,30 @@ bool DVDRunner::checkDisc(QString &diskPath) //проверяет диск. Ес
 		return true;
 }
 
-QString DVDRunner::wrkdir(QString diskPath, QDir packageDir)
-{
+QString DVDRunner::wrkdir(QString diskPath){
 	//Get workdir (dir of winegame package) (detecting code here)
 	//If not detected, return empty string
+    QDir disc (diskPath);
+     qDebug () << "DDT: Disk path is " << diskPath;
+    QStringList disclist = disc.entryList(QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
 
-	foreach (QString dirName, packageDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs))
+    foreach (QString conf,  SourceReader::configurations ())
+    {
+
+	//посчитаем кол-во эквивалентов
+	int i = 0;
+	foreach (QString str, list)
 	{
-		QDir myDir (packageDir.path() + QDir::separator() + dirName + "/cdrom.d");
-		foreach (QFileInfo info, myDir.entryInfoList(QDir::Files | QDir::Readable))
+		if (disclist.contains(str, Qt::CaseInsensitive))
 		{
-			//читаем файл .cdrom
-		QFile file (info.absoluteFilePath());
-		QTextStream stream (&file);
-		if (!file.open(QIODevice::Text | QIODevice::ReadOnly))
-		{
-			qDebug() << tr("DDT: [warning] unable to open file %1: error %2").arg(file.fileName()).arg(file.errorString());
-			continue;
+			i++;
 		}
-		QStringList list;
-		while (!stream.atEnd())
-		{
-			list.append(stream.readLine());
-		}
-		file.close();
-		//работаем со списком
-		QDir disc (diskPath);
-		qDebug () << "DDT: Disk path is " << diskPath;
-		QStringList disclist = disc.entryList(QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
-		//посчитаем кол-во эквивалентов
-		int i = 0;
-		foreach (QString str, list)
-		{
-			if (disclist.contains(str, Qt::CaseInsensitive))
-			{
-				i++;
-			}
 		}
 		if (i == disclist.count())
 			return packageDir.path() + QDir::separator() + dirName;
 	}
-	}
-	 return "";
- }
+    	 return "";
+     }
 
 void DVDRunner::setPrefix(Prefix *prefix)
 {
@@ -305,5 +286,3 @@ Pashazz::DiscInfo * DVDRunner::info(QString diskPath, corelib *lib) //Некот
 	delete pr;
 	return myInfo;
 }
-*/
-

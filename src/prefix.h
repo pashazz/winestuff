@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class PrefixCollection;
 
-class  Prefix : public QObject
+class WINESTUFFSHARED_EXPORT Prefix : public QObject
 {
 	Q_OBJECT
 friend class PrefixCollection; //for Prefix`s protected functions.
@@ -39,10 +39,11 @@ public:
 	void setID (const QString &id) {this->id = id;}
 	void setPath (const QString &path) {_path = path;}
 	void setWine (const QString &wine) {_wine = wine;}
-	void setDiscAttributes (QString diskRoot, QString imageFile = "")
+	void setDiscAttributes (QString diskRoot, QString imageFile = "/dev/cdrom")
 	{
 		_diskroot = diskRoot;
 		_imagefile = imageFile;
+		makeWineCdrom (diskRoot, imageFile);
 	}
 
 	/*Getters */
@@ -51,6 +52,7 @@ public:
 	QString ID () {return this->id;}
 	QString path () {return _path;}
 	QString wine() {return _wine;}
+	QString diskRoot () {return _diskRoot;}
 
 	/* Process env. */
 	QProcessEnvironment environment ();
