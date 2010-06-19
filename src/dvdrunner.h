@@ -29,12 +29,6 @@ enum DriveType
 {
 	Real = 1, Image = 2, Unknown = 0
 };
-struct DiscInfo
-{
-	QString name;
-	QString desc;
-	QString icon;
-};
 };
 
 class WINESTUFFSHARED_EXPORT  DVDRunner : public QObject
@@ -42,15 +36,14 @@ class WINESTUFFSHARED_EXPORT  DVDRunner : public QObject
 	Q_OBJECT
 public:
 	DVDRunner(corelib *lib, QString path);
-//	~DVDRunner();
+	virtual ~DVDRunner() {}
 	QString diskDirectory() {return diskPath;} //возвращает пустую строку, если монтирование завершилось неудачно
 	QString exe();
 	QString imageFile() {return realDrive;}
 	Pashazz::DriveType objectType () {return type;}
-	static Pashazz::DiscInfo * info (QString diskPath, corelib *lib);
 	SourceReader *sourceReader () {return this->reader;}
 	bool success() {return result;} //Закончилось ли распознавание успешно
-	void setPrefix (SourceReader *reader);
+	void setReader (SourceReader *reader);
 	void cleanup ();
 signals:
 	void insertNextCd (bool &result, int cd); //Пользователь должен вставить CD.
@@ -61,7 +54,7 @@ private:
 	bool multidisc;
 	bool cancelled;
 	bool detect();
-	QString wrkdir (QString diskPath); //главная функция
+	SourceReader * detectBy (QString diskPath); //главная функция
 	bool checkDisc(QString &diskPath);
 	bool prepare (bool nodetect = false); //метод для выполнения различных подготовок (монтирования и т.д.). Если WineGame распознал диск сам, то этот метод вызывается из конструктора.
 	SourceReader *reader;

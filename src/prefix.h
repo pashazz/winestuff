@@ -52,7 +52,7 @@ public:
 	QString ID () {return this->id;}
 	QString path () {return _path;}
 	QString wine() {return _wine;}
-	QString diskRoot () {return _diskRoot;}
+	QString diskRoot () {return _diskroot;}
 
 	/* Process env. */
 	QProcessEnvironment environment ();

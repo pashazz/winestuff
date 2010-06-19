@@ -140,7 +140,7 @@ bool DVDRunner::prepare(bool nodetect)
 		diskPath = core->discDir();
 	}
 	else
-		qDebug() << "game isn`t multicd, count" << Wprefix->discCount();
+		qDebug() << "DVDRunner: application isn`t multicd, count" << reader->discCount();
 	//вроде все.
 	return true;
 }
@@ -170,62 +170,52 @@ bool DVDRunner::checkDisc(QString &diskPath) //проверяет диск. Ес
 		return true;
 }
 
-QString DVDRunner::wrkdir(QString diskPath){
+SourceReader* DVDRunner::detectBy(QString diskPath)
+{
 	//Get workdir (dir of winegame package) (detecting code here)
 	//If not detected, return empty string
     QDir disc (diskPath);
-     qDebug () << "DDT: Disk path is " << diskPath;
     QStringList disclist = disc.entryList(QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
-
-    foreach (QString conf,  SourceReader::configurations ())
+	foreach (QString conf,  SourceReader::configurations (core->packageDirs()))
     {
-
-	//посчитаем кол-во эквивалентов
-	int i = 0;
-	foreach (QString str, list)
-	{
-		if (disclist.contains(str, Qt::CaseInsensitive))
+		SourceReader *reader = new SourceReader (conf, core, this);
+		foreach (QString disc, reader->availableDiscs())
 		{
-			i++;
-		}
-		}
-		if (i == disclist.count())
-			return packageDir.path() + QDir::separator() + dirName;
+			QStringList list (reader->discFileList(disc));
+			//посчитаем кол-во эквивалентов
+			int i = 0;
+			foreach (QString str, list)
+			{
+				if (disclist.contains(str, Qt::CaseInsensitive))
+					i++;
+			}
+			if (i == disclist.count())
+				return reader;
+			}
+		delete reader;
 	}
-    	 return "";
-     }
+		 return 0;
+	 }
 
-void DVDRunner::setPrefix(Prefix *prefix)
+
+void DVDRunner::setReader(SourceReader *reader)
 {
-	Wprefix = prefix;
+	this->reader = reader;
 	prepare(true); //true - отключаем детектинг (префикс установлен вручную)
 }
 
 bool DVDRunner::detect()
 {
-	QString packageDir = wrkdir(diskPath, QDir(core->packageDir()));
-	if (packageDir.isEmpty())
+	SourceReader *sreader = detectBy(diskPath);
+	if (sreader)
 	{
-		return false;
-	}
-	else
-	{
-		Wprefix = new Prefix (this, packageDir, core);
+		this->reader = sreader;
 		return true;
 	}
+	else
+		return false;
 }
 
-//DVDRunner::~DVDRunner ()
-//{
-//	qDebug() << "Destroy DVDRunner...";
-//	//размонтируем наш сидюк
-//	if (type == Pashazz::Image)
-//	{
-//		QProcess p (this);
-//		p.start(umount);
-//		p.waitForFinished(-1);
-//	}
-//}
 void DVDRunner::cleanup()
 {
 	//размонтируем наш сидюк
@@ -248,8 +238,8 @@ QString DVDRunner::exe ()
 	QString exe;
 	qDebug() << "diskDirectory() is" << diskPath;
 	//force application/setup
-	if (!Wprefix->setup().isEmpty()){
-	exe = diskPath + QDir::separator() + Wprefix->setup();
+	if (!reader->setup().isEmpty()){
+	exe = diskPath + QDir::separator() + reader->setup();
 	if (QFile::exists(exe))
 		return exe;
 	else
@@ -259,30 +249,16 @@ QString DVDRunner::exe ()
 	//Теперь просмотрим AutoRun
 	if (!core->autorun(diskPath).isEmpty())
 	{
-	QSettings autorun(core->autorun(diskPath), QSettings::IniFormat, this);
-	autorun.beginGroup("autorun");
-	if (!autorun.value("open").toString().isEmpty())
-	{
-	exe = diskPath + QDir::separator() + autorun.value("open").toString();
-	}
-	if (QFile::exists(exe))
-	return exe;
+		QSettings autorun(core->autorun(diskPath), QSettings::IniFormat, this);
+		autorun.beginGroup("autorun");
+		if (!autorun.value("open").toString().isEmpty())
+		{
+			exe = diskPath + QDir::separator() + autorun.value("open").toString();
+		}
+		if (QFile::exists(exe))
+			return exe;
 	}
 	//А теперь спросим EXE у пользователя.
 	core->client()->selectExe(tr("Select EXE file"), exe, diskPath);
 	return exe;
-}
-
-Pashazz::DiscInfo * DVDRunner::info(QString diskPath, corelib *lib) //Некоторая информация о диске (имя, иконка и т.д.). Если диск не определен, возвращается нулевой указатель
-{
-	QString workdir = wrkdir(diskPath, QDir(lib->packageDir()));
-	if (workdir.isEmpty())
-		return 0;
-	Pashazz::DiscInfo * myInfo = new Pashazz::DiscInfo;
-	Prefix *pr = new Prefix(0, workdir, lib);
-	myInfo->name = pr->name();
-	myInfo->desc = pr->note();
-	myInfo->icon = workdir + "/icon";
-	delete pr;
-	return myInfo;
 }
