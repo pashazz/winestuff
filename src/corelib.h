@@ -34,7 +34,7 @@ public:
 	static QString whichBin (QString bin);
 	bool removeDir (const QString &dir);
 	bool copyDir (const QString &dir, const QString &destination);
-	void init ();
+	void init (QString dbConnectionName = "");
 	bool unpackWine(QString distr, QString destination);
 	QString unixSystem () {return system;} //наша замена QSysInfo. На системах Win/Lin/Mac/Symbian возвращает пустую строку
 	bool syncPackages();
@@ -62,6 +62,8 @@ public:
 	QString shareDir () const;
 	UiClient * client () {return ui;}
 	int runGenericProcess(QProcess *process, const QString &program, QString message = "");
+	void setDatabase (QSqlDatabase database) {db = database;}
+	QSqlDatabase database () {return db;}
 private slots:
 	void error (QNetworkReply::NetworkError);
 	void setRange (qint64, qint64); //заглушка для QProgressDialog

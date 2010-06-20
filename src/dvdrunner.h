@@ -37,9 +37,8 @@ class WINESTUFFSHARED_EXPORT  DVDRunner : public QObject
 public:
 	DVDRunner(corelib *lib, QString path);
 	virtual ~DVDRunner() {}
-	QString diskDirectory() {return diskPath;} //возвращает пустую строку, если монтирование завершилось неудачно
+	QString diskDirectory(); //возвращает пустую строку, если монтирование завершилось неудачно
 	QString exe();
-	QString imageFile() {return realDrive;}
 	Pashazz::DriveType objectType () {return type;}
 	SourceReader *sourceReader () {return this->reader;}
 	bool success() {return result;} //Закончилось ли распознавание успешно

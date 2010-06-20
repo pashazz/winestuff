@@ -47,7 +47,7 @@ QString corelib::whichBin(QString bin) {
 	else
 		return "";
 }
-void corelib::init()
+void corelib::init(QString dbConnectionName)
 {
 if (!QFile::exists(whichBin("wine")))
 	{
@@ -63,7 +63,10 @@ if (!syncPackages())
 
 bool isMakeDb;
 isMakeDb = (!QFile::exists(wineDir() + "/installed.db"));
-QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+if (dbConnectionName.isEmpty())
+	db = QSqlDatabase::addDatabase("QSQLITE");
+else
+	db = QSqlDatabase::addDatabase("QSQLITE", dbConnectionName);
 db.setDatabaseName(wineDir() + "/installed.db");
 if (!db.open()){
 	ui->error(tr("Database error"), tr("Failed to open database for storing installed applications. See errors on console"));

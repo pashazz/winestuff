@@ -28,7 +28,6 @@ DVDRunner::DVDRunner(corelib *lib, QString path)
 	{
 		//Внимание, директории с исошками не поддерживаются (пока)
 		diskPath = path;
-		realDrive = "/dev/cdrom"; //hardcoded
 		type = Pashazz::Real;
 	}
 	else if (info.isFile())
@@ -261,4 +260,12 @@ QString DVDRunner::exe ()
 	//А теперь спросим EXE у пользователя.
 	core->client()->selectExe(tr("Select EXE file"), exe, diskPath);
 	return exe;
+}
+
+QString DVDRunner::diskDirectory()
+{
+	if (realDrive.isEmpty() || diskPath != core->mountDir())
+		return diskPath;
+	else
+		return realDrive;
 }
