@@ -107,7 +107,12 @@ int Prefix::runApplication(const QString &program, QString workingDirectory)
 		workingDirectory = QFileInfo(program).absolutePath();
 	QProcess *p = new QProcess (this);
 	p->setProcessEnvironment(environment());
-	return core->runGenericProcess(p, _wine + "\"" + program  + "\"", tr("Running Windows application"));
+	p->setWorkingDirectory(workingDirectory);
+	QEventLoop loop;
+	connect (p, SIGNAL(finished(int)), &loop, SLOT(quit()));
+	p->start(_wine, QStringList(program));
+	loop.exec();
+	return p->exitCode();
 	}
 
 QProcessEnvironment  Prefix::environment ()

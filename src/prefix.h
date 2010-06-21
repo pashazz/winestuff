@@ -53,6 +53,7 @@ public:
 	QString path () {return _path;}
 	QString wine() {return _wine;}
 	QString diskRoot () {return _diskroot;}
+	corelib* lib () {return core;}
 
 	/* Process env. */
 	QProcessEnvironment environment ();

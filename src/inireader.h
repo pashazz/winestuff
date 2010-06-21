@@ -43,6 +43,7 @@ public:
 	QStringList components ();
 	QString filesDirectory ();
 	QString icon ();
+	bool preset();
 	QString preinstCommand ();
 	QString postinstCommand ();
 	QStringList availableDiscs();

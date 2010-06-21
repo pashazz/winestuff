@@ -187,6 +187,8 @@ QString SourceReader::filesDirectory()
 	QDir dir ("packages:" + id);
 	if (dir.exists("files"))
 		return dir.absoluteFilePath("files");
+	else
+		return "";
 }
 
 QString SourceReader::icon()
@@ -194,6 +196,8 @@ QString SourceReader::icon()
 	QDir dir ("packages:" + id);
 	if (dir.exists("icon"))
 		return dir.absoluteFilePath("icon");
+	else
+		return "";
 }
 QString SourceReader::preinstCommand()
 {
@@ -334,7 +338,6 @@ bool SourceReader::isMulticd()
  bool SourceReader::needToSetMemory()
  {
 	 return s->value("wine/memory").toBool();
-
  }
 
  QStringList SourceReader::locales()
@@ -415,8 +418,11 @@ else
 		 if (!confs.contains(str))
 			 continue;
 		 SourceReader reader (str, core, 0);
-		 reader.checkWine();
+		bool res = reader.checkWine();
+		if (!res)
+			return false;
 	 }
+	 return true;
  }
 
  QString SourceReader::defaultWine(const QString &id)
@@ -441,4 +447,9 @@ else
  {
      QDir dir (workdir () + "/cdrom.d");
      return dir.entryList (QDir::Files | QDir::Readable);
+ }
+
+ bool SourceReader::preset()
+ {
+	 return s->value("wine/preset", false).toBool();
  }

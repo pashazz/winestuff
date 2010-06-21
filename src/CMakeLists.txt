@@ -24,6 +24,7 @@ find_package( Qt4 REQUIRED )
 		MESSAGE(FATAL ERROR "Qt SQL libraries are missing.")
             ENDIF(QT_QTSQL_FOUND)
 
+set (CMAKE_BUILD_TYPE Debug)
 include (${QT_USE_FILE})
 set (QHEADERS corelib.h  dvdrunner.h  poldownloader.h  prefix.h inireader.h  uiclient.h prefixcollection.h)
 set (HEADERS ${QHEADERS} libwinegame_global.h)

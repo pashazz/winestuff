@@ -45,6 +45,8 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
 		return 0;
 	}
+	else
+		qDebug() <<"Query success" <<q.lastQuery();
 	// записываем имена и notes для всех языков
 	foreach (QString locale,reader->locales())
 	{
@@ -140,10 +142,10 @@ QList <Prefix*> PrefixCollection::prefixes()
 	q.prepare("SELECT prefix FROM Apps");
 	if (!q.exec())
 	{
-		core->client()->error (tr("Failed to fetch prefixes"), tr("Error: %1").arg(q.lastError().text()));
+		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
 		return list;
 	}
-	while (q.next())
+		while (q.next())
 	{
 		list.append(getPrefix(q.value(0).toString()));
 	}
@@ -152,20 +154,19 @@ QList <Prefix*> PrefixCollection::prefixes()
 
 Name PrefixCollection::getName(QString locale, QString ID)
 {
+
 	Name names;
 	// First of all, check if this locale exists
 	QSqlQuery q(db);
-	q.prepare("SELECT COUNT (id) FROM Names WHERE lang=:lang AND prefix=:prid)");
-	q.bindValue(":lang", locale);
-	q.bindValue(":prid", ID);
+
+	q.prepare("SELECT COUNT (id) FROM Names WHERE lang=? AND prefix=?");
+	q.addBindValue(locale);
+	q.addBindValue(ID);
 	if (!q.exec())
 	{
-		qDebug() << "Unable to execute query, leave Names empty";
-		return names;
+		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
 	}
 	q.first();
-	if (q.value(0).toInt() == 0) //call getName() with C locale
-		return getName("C", ID);
 
 	//получаем name и note
 	q.prepare("SELECT name, note FROM Names WHERE lang=:lang AND prefix=:prid");
@@ -173,8 +174,7 @@ Name PrefixCollection::getName(QString locale, QString ID)
 	q.bindValue(":prid", ID);
 	if (!q.exec())
 	{
-		qDebug() << "Unable to execute query, leave Names empty";
-		return names;
+		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
 	}
 	q.first();
 	names.first = q.value(0).toString();
@@ -189,10 +189,11 @@ Prefix* PrefixCollection::getPrefix(QString id)
 	q.prepare("SELECT wineprefix, wine FROM Apps WHERE prefix=:id");
 	q.bindValue(":id", id);
 	if (!q.exec())
-	{
-		qDebug() << "Prefix: Cannot get prefix from DB" << q.lastError().text();
-		return 0;
-	}
+		if (!q.exec())
+		{
+			core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
+			return 0;
+		}
 	if (!q.first())
 		return 0;
 	prefix->setID(id);
@@ -219,8 +220,8 @@ bool PrefixCollection::updatePrefix(Prefix *newData, QString id)
 	q.bindValue(":id", id);
 	if (!q.exec())
 	{
-		qDebug() << "Prefix: Cannot update prefix in DB" << q.lastError().text();
-		return false;
+		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
+		return 0;
 	}
 	return true;
 }
