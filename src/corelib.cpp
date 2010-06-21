@@ -47,34 +47,34 @@ QString corelib::whichBin(QString bin) {
 	else
 		return "";
 }
-void corelib::init(QString dbConnectionName)
+void corelib::init(const QString &configPath, const QString &dbConnectionName)
 {
-if (!QFile::exists(whichBin("wine")))
+	if (!QFile::exists(whichBin("wine")))
 	{
 		qApp->exit(-4);
 	}
-initconf();
+	initconf(configPath);
 //скачаем пакеты
-if (!syncPackages())
-{
-	ui->error(tr("Initialzation error"), tr("Unable to download packages"));
-	qApp->exit(-7);
-}
+	if (!syncPackages())
+	{
+		ui->error(tr("Initialzation error"), tr("Unable to download packages"));
+		qApp->exit(-7);
+	}
 
-bool isMakeDb;
-isMakeDb = (!QFile::exists(wineDir() + "/installed.db"));
-if (dbConnectionName.isEmpty())
-	db = QSqlDatabase::addDatabase("QSQLITE");
-else
-	db = QSqlDatabase::addDatabase("QSQLITE", dbConnectionName);
-db.setDatabaseName(wineDir() + "/installed.db");
-if (!db.open()){
-	ui->error(tr("Database error"), tr("Failed to open database for storing installed applications. See errors on console"));
-	qDebug() << "DB: error: " << db.lastError().text();
-	qApp->exit(-24);
-}
-if (isMakeDb)
-	initDb();
+	bool isMakeDb;
+	isMakeDb = (!QFile::exists(wineDir() + "/installed.db"));
+	if (dbConnectionName.isEmpty())
+		db = QSqlDatabase::addDatabase("QSQLITE");
+	else
+		db = QSqlDatabase::addDatabase("QSQLITE", dbConnectionName);
+	db.setDatabaseName(wineDir() + "/installed.db");
+	if (!db.open()){
+		ui->error(tr("Database error"), tr("Failed to open database for storing installed applications. See errors on console"));
+		qDebug() << "DB: error: " << db.lastError().text();
+		qApp->exit(-24);
+	}
+	if (isMakeDb)
+		initDb();
 }
 
 
@@ -249,7 +249,7 @@ void corelib::runSingleExe(QStringList exe)
  proc.waitForFinished(-1);
 }
 
-bool corelib::initconf()
+bool corelib::initconf(const QString &configPath)
 {
 	//Init our configuration.
 	if (settings->value("VideoMemory").isNull())
@@ -257,10 +257,11 @@ bool corelib::initconf()
 	int mem = ui->getVideoMemory();
 	setVideoMemory(mem, true);
 }
-	setWineDir(QDir::homePath() + "/.winegame/windows", true);
-	setMountDir(QDir::homePath() + "/.winegame/mounts", true);
-	setDiscDir(QDir::homePath() + "/.winegame/disc",true);
-	setPackageDirs(QStringList(QDir::homePath() + "/.winegame/packages"), true);
+	QDir dir (configPath);
+	setWineDir(dir.absoluteFilePath("windows"), true);
+	setMountDir(dir.absoluteFilePath("mounts"), true);
+	setDiscDir(dir.absoluteFilePath("disc"), true);
+	setPackageDirs(QStringList(dir.absoluteFilePath("packages")), true);
 	setSyncMirrors(QStringList("http://winegame-project.ru/winepkg"), true);
 	if (QDir(discDir()).exists())
 	{

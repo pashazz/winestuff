@@ -34,7 +34,7 @@ public:
 	static QString whichBin (QString bin);
 	bool removeDir (const QString &dir);
 	bool copyDir (const QString &dir, const QString &destination);
-	void init (QString dbConnectionName = "");
+	void init (const QString &configPath, const QString &dbConnectionName = "");
 	bool unpackWine(QString distr, QString destination);
 	QString unixSystem () {return system;} //наша замена QSysInfo. На системах Win/Lin/Mac/Symbian возвращает пустую строку
 	bool syncPackages();
@@ -80,7 +80,7 @@ private:
 	/* About copying files */
 	bool copyCancelled;
 protected:
-	bool initconf ();
+	bool initconf (const QString &configPath);
 	inline QString config();
 	void initDb();
 	void setConfigValue (QString key, QVariant value, bool setIfEmpty);
