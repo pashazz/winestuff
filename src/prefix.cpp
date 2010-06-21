@@ -58,6 +58,7 @@ f.remove();
 void Prefix::makeDesktopIcon(const QString &name, const QString &program, const QString &icon)
 {
 	QFile file  (core->client()->desktopLocation() + QDir::separator() + name + ".desktop");
+	qDebug() << "Making desktop icon" << file.fileName();
 	QTextStream str (&file);
 	file.open(QIODevice::WriteOnly | QIODevice::Text);
 	str << "[Desktop Entry]\n";
