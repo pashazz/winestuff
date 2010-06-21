@@ -40,7 +40,6 @@ QString SourceReader::name()
 	}
 	else
 	{
- //cначала попробуем открыть просто .name
 		file.setFileName(workdir() + QDir::separator() + ".name");
 		if (file.exists())
 		{
@@ -56,6 +55,34 @@ QString SourceReader::name()
 }
 	return _name;
 }
+
+QString SourceReader::realName()
+{
+	QFile file (workdir() + QDir::separator() + ".name." + QLocale::system().name() );
+	if (file.exists())
+	{
+		file.open(QIODevice::ReadOnly | QIODevice::Text);
+		_name = file.readAll();
+		file.close();
+	}
+	else
+	{
+ //cначала попробуем открыть просто .name
+		file.setFileName(workdir() + QDir::separator() + ".name");
+		if (file.exists())
+		{
+			file.open(QIODevice::ReadOnly | QIODevice::Text);
+			_name = file.readAll();
+			file.close();
+		}
+		else
+		{
+		  _name = QDir(workdir()).dirName();
+		}
+	}
+	return _name;
+}
+
 
 QString SourceReader::note()
 {
@@ -81,6 +108,22 @@ QString SourceReader::note()
 	}
 	return _note;
 }
+QString SourceReader::realNote ()
+{
+	QString fileName;
+	if (QFile::exists(workdir() + "/.note." + QLocale::system().name())) //читаем локализованное примечание
+		fileName = workdir() + "/.note." + QLocale::system().name();
+	else if (QFile::exists((workdir() + "/.note")))
+		fileName = workdir() + "/.note";
+	else
+		return QString();
+	QFile file (fileName);
+	file.open(QIODevice::Text | QIODevice::ReadOnly);
+	_note = file.readAll();
+	file.close();
+return _note;
+}
+
 
  QStringList SourceReader::configurations (const QStringList &directories)
  {
@@ -89,13 +132,11 @@ QString SourceReader::note()
 	 {
 	 foreach (QString dir, QDir(directory).entryList(QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot))
 	 {
-		 if (!isPrefixInstalled(dir))
 			 list << dir;
 	 }
  }
 	 return list;
  }
-
 bool SourceReader::checkWine()
 {
 	if (!isPrefixInstalled(id) || s->value("wine/preset").toBool())
@@ -170,7 +211,9 @@ QString SourceReader::prefixPath()
 		return _prefix;
 	if (s->value("wine/preset").toBool())
 	{
-		emit presetPrefixNeed(_prefix);
+		QString prsid;
+		emit presetPrefixNeed(prsid);
+		_prefix = core->wineDir() + QDir::separator() + prsid;
 	}
 	else
 	{

@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "prefix.h"
 
 Prefix::Prefix (QObject *parent, corelib *lib)
-	:QObject(parent), core(lib) {}
+	:QObject(parent), core(lib), id(""), _path("") {}
 
 Prefix::Prefix (const QString &id, const QString &name, const QString &note, const QString &path, const QString &wine, QObject *parent, corelib *lib)
 	:QObject (parent), core(lib)
@@ -97,7 +97,7 @@ void Prefix::makefix()
 	file.close();
 }
 
-int Prefix::runApplication(const QString &program, QString workingDirectory)
+int Prefix::runApplication(const QString &program, QString workingDirectory, bool block)
 {
 	if (program.isEmpty())
 		return -100; //программа не указана
@@ -109,9 +109,15 @@ int Prefix::runApplication(const QString &program, QString workingDirectory)
 	p->setProcessEnvironment(environment());
 	p->setWorkingDirectory(workingDirectory);
 	QEventLoop loop;
+	if (block)
+	{ //блокируем действия юзера в программе модальным диалогом.
+		core->client()->showUserWaitMessage(tr("Running program %1, please wait").arg(QFileInfo(program).fileName()));
+	}
 	connect (p, SIGNAL(finished(int)), &loop, SLOT(quit()));
 	p->start(_wine, QStringList(program));
 	loop.exec();
+	if (block)
+		core->client()->closeWaitMessage();
 	return p->exitCode();
 	}
 
@@ -124,3 +130,15 @@ QProcessEnvironment  Prefix::environment ()
 		env.insert("CDROOT", _diskroot);
 	return env;
 	}
+
+void Prefix::launch_c()
+{
+	QProcess p;
+	QEventLoop loop;
+	connect (&p, SIGNAL(finished(int)), &loop, SLOT(quit()));
+	QDir c (_path + "/dosdevices/c:");
+	p.setWorkingDirectory(c.path());
+	p.setProcessEnvironment(environment());
+	p.start("xdg-open", QStringList(c.path()));
+	loop.exec();
+}

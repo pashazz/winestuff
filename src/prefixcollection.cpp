@@ -45,17 +45,33 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
 		return 0;
 	}
-	else
-		qDebug() <<"Query success" <<q.lastQuery();
-	// записываем имена и notes для всех языков
-	foreach (QString locale,reader->locales())
+	QString myName = reader->name();
+	QString myNote = reader->note();
+	qDebug() << "PrefixCollection: install program" << myName << myNote;
+	if (!reader->preset())
 	{
-		Name name = reader->nameForLang(locale);
+		foreach (QString locale,reader->locales())
+		{
+			Name name = reader->nameForLang(locale);
+			q.prepare("INSERT INTO Names (prefix, name, note, lang) VALUES (:prefix, :name, :note, :lang)");
+			q.bindValue(":prefix", reader->ID());
+			q.bindValue(":name", name.first);
+			q.bindValue(":note", name.second);
+			q.bindValue(":lang", locale);
+			if (!q.exec())
+			{
+				core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
+				return 0;
+			}
+		}
+	}
+	else
+	{
 		q.prepare("INSERT INTO Names (prefix, name, note, lang) VALUES (:prefix, :name, :note, :lang)");
 		q.bindValue(":prefix", reader->ID());
-		q.bindValue(":name", name.first);
-		q.bindValue(":note", name.second);
-		q.bindValue(":lang", locale);
+		q.bindValue(":name", myName);
+		q.bindValue(":note", myNote);
+		q.bindValue(":lang", "C"); //for user input we always use C locale.
 		if (!q.exec())
 		{
 			core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
@@ -63,32 +79,31 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 		}
 	}
 	Prefix *pref =  new Prefix (this,core);
-
 	//получаем данные от SourceReader
 	pref->setID(reader->ID());
 	pref->setWine (reader->wine());
-	pref->setName(reader->name());
-	pref->setNote(reader->note());
+	pref->setName(myName);
+	pref->setNote(myNote);
 	pref->setPath(reader->prefixPath());
 	if (reader->needToSetMemory())
 		pref->setMemory();
-	/* cdrom working */
-	QString cdroot, image;
 	if (!dvdObj.isEmpty ())
 	{
-	QFileInfo dvdfi (dvdObj);
-	if (dvdfi.isFile ())
-	{
-	    image = dvdObj;
-	    cdroot = core->mountDir ();
-	}
-	else if (dvdfi.isDir ())
-	{
-	    image = "/dev/cdrom";
-	    cdroot = dvdObj;
-	}
-	if (!cdroot.isEmpty ())
-	   pref->setDiscAttributes (cdroot, image);
+		/* cdrom working */
+		QString cdroot, image;
+		QFileInfo dvdfi (dvdObj);
+		if (dvdfi.isFile ())
+		{
+			image = dvdObj;
+			cdroot = core->mountDir ();
+		}
+		else if (dvdfi.isDir ())
+		{
+			image = "/dev/cdrom";
+			cdroot = dvdObj;
+		}
+		if (!cdroot.isEmpty ())
+			pref->setDiscAttributes (cdroot, image);
     }
 	QProcessEnvironment env = pref->environment();
 	if (!reader->filesDirectory().isEmpty())
@@ -96,12 +111,14 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 	QProcess *p = new QProcess (this);
 	p->setProcessEnvironment(env);
 	pref->makefix();
+	//launch winetricks
+	launchWinetricks(pref, reader->components());
 	QString exe = executable(file);
 	QString preinst = reader->preinstCommand();
 	if (!preinst.isEmpty())
 		core->runGenericProcess(p, preinst, tr("Running pre-installation trigger"));
 	//собсно наш exe
-	pref->runApplication(exe);
+	pref->runApplication(exe, "", true); //выводим мод. диалог
 	//теперь postinst
 	QString postinst = reader->postinstCommand();
 	if (!postinst.isEmpty())
@@ -154,7 +171,6 @@ QList <Prefix*> PrefixCollection::prefixes()
 
 Name PrefixCollection::getName(QString locale, QString ID)
 {
-
 	Name names;
 	// First of all, check if this locale exists
 	QSqlQuery q(db);
@@ -162,11 +178,15 @@ Name PrefixCollection::getName(QString locale, QString ID)
 	q.prepare("SELECT COUNT (id) FROM Names WHERE lang=? AND prefix=?");
 	q.addBindValue(locale);
 	q.addBindValue(ID);
-	if (!q.exec())
+	if ((!q.exec()) || (!q.first()))
 	{
 		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
+		return names;
+		}
+	if ((q.value(0).toInt() == 0) && (locale != "C"))
+	{
+		return getName("C", ID);
 	}
-	q.first();
 
 	//получаем name и note
 	q.prepare("SELECT name, note FROM Names WHERE lang=:lang AND prefix=:prid");
@@ -184,6 +204,8 @@ Name PrefixCollection::getName(QString locale, QString ID)
 
 Prefix* PrefixCollection::getPrefix(QString id)
 {
+	if (id.isEmpty())
+		return 0;
 	Prefix *prefix = new Prefix (this, core);
 	QSqlQuery q(db);
 	q.prepare("SELECT wineprefix, wine FROM Apps WHERE prefix=:id");
@@ -249,5 +271,7 @@ bool PrefixCollection::havePrefix(const QString &id)
 	if (id.isEmpty())
 		return false;
 	Prefix *prefix = getPrefix(id);
+	if (!prefix)
+		return false;
 	return (!prefix->ID().isEmpty()) || (!prefix->path().isEmpty());
 }

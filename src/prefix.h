@@ -49,7 +49,7 @@ public:
 	/*Getters */
 	QString name () {return _name;}
 	QString note () {return _note;}
-	QString ID () {return this->id;}
+	QString ID () {return id;}
 	QString path () {return _path;}
 	QString wine() {return _wine;}
 	QString diskRoot () {return _diskroot;}
@@ -58,9 +58,12 @@ public:
 	/* Process env. */
 	QProcessEnvironment environment ();
 	/* Other functions */
-	int runApplication (const QString &program, QString workingDirectory = "");
+	int runApplication (const QString &program, QString workingDirectory = "", bool block = false);
 	void makeDesktopIcon (const QString &name, const QString &program, const QString &icon);
 	void setMemory ();
+
+public slots:
+	void launch_c();
 protected:
 	/* Common functions */
 	void makefix();

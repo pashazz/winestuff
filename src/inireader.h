@@ -37,6 +37,8 @@ public:
 	QString ID () {return id;}
 	QString name();
 	QString note();
+	QString realName ();
+	QString realNote ();
 	QString setup();
 	QString prefixPath ();
 	QString wine ();
