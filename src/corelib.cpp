@@ -310,9 +310,7 @@ void corelib::setPackageDirs(const QStringList &dirs, bool isempty)
 			isempty = false;
 	}
 	}
-foreach (QString dir, dirs)
-	setConfigValue("PackageDir", dir, isempty);
-
+	setConfigValue("PackageDir", dirs.join(";"), isempty);
 }
 void corelib::setMountDir(QString dir, bool isempty)
 {
