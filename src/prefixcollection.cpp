@@ -34,6 +34,12 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 	//проверяем Wine
 	if(!reader->checkWine())
 		return 0;
+	if (havePrefix(reader->ID()))
+	{
+		Prefix *prefix (getPrefix(reader->ID()));
+		prefix->runApplication(file, "", true);
+		return prefix;
+	}
 	/* Записываем Prefix в базу данныхъ */
 	QSqlQuery q (db);
 	q.prepare("INSERT INTO Apps (prefix, wineprefix, wine) VALUES (:prefix, :wineprefix, :wine)");
@@ -47,7 +53,10 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 	}
 	QString myName = reader->name();
 	QString myNote = reader->note();
-	qDebug() << "PrefixCollection: install program" << myName << myNote;
+	if (reader->name().isEmpty() || reader->ID().isEmpty())
+		return 0;
+	if (!core->checkPrefixName(reader->ID()))
+		return 0;
 	if (!reader->preset())
 	{
 		foreach (QString locale,reader->locales())
@@ -145,7 +154,7 @@ void PrefixCollection::launchWinetricks(Prefix *prefix, const QStringList &args)
 {
 		QProcess *p = new QProcess (this);
 		p->setProcessEnvironment(prefix->environment());
-		qDebug() << tr("engine: [prefix]: starting winetricks");
+		qDebug() << "List of components that must be installed: " << args.join(" ");
 	foreach (QString arg, args)
 	{
 	core->runGenericProcess(p, "winetricks -q " + arg, tr("Installing component: %1").arg(arg));

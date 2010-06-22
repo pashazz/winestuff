@@ -29,10 +29,10 @@ corelib::corelib(QObject *parent, UiClient *client)
 	QDir::setSearchPaths("winedir", QStringList(wineDir()));
 	//Init translations object
 #ifdef Q_WS_X11
-QProcess p (this);
-p.start("uname");
-p.waitForFinished();
-system = p.readAllStandardOutput().toLower().trimmed().replace('\n', "");
+	QProcess p (this);
+	p.start("uname");
+	p.waitForFinished();
+	system = p.readAllStandardOutput().toLower().trimmed().replace('\n', "");
 #endif
 }
 
@@ -383,9 +383,8 @@ QString corelib::autorun(QString diskRoot)
 
 corelib::~corelib()
 {
-	QSqlDatabase db = QSqlDatabase::database();
-	db.close();
-
+db.close();
+/* TODO: размонтирование всего и вся */
 }
 
 QString corelib::getSudoProg()

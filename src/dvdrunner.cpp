@@ -253,9 +253,8 @@ QString DVDRunner::exe ()
 		if (!autorun.value("open").toString().isEmpty())
 		{
 			exe = diskPath + QDir::separator() + autorun.value("open").toString();
-		}
-		if (QFile::exists(exe))
 			return exe;
+		}
 	}
 	//А теперь спросим EXE у пользователя.
 	core->client()->selectExe(tr("Select EXE file"), exe, diskPath);
