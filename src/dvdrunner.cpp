@@ -240,7 +240,8 @@ QString DVDRunner::exe ()
 	QString exe;
 	qDebug() << "diskDirectory() is" << diskPath;
 	//force application/setup
-	if (!reader->setup().isEmpty()){
+	if (reader && (!reader->setup().isEmpty()))
+	{
 	exe = diskPath + QDir::separator() + reader->setup();
 	if (QFile::exists(exe))
 		return exe;
@@ -275,5 +276,5 @@ QString DVDRunner::diskDirectory()
 void DVDRunner::cancel()
 {
 	cancelled = true;
-	cleanup;
+	cleanup();
 }
