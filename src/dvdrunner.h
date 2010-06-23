@@ -46,7 +46,7 @@ public:
 	void cleanup ();
 	bool isMounted () {return mounted;}
 public slots:
-	void cancel() {cancelled = true;}
+	void cancel();
 signals:
 	void insertNextCd (bool &result, int cd); //Пользователь должен вставить CD.
 	void fileNeed (QString &exe, QString disc);

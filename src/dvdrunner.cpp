@@ -271,3 +271,9 @@ QString DVDRunner::diskDirectory()
 	else
 		return realDrive;
 }
+
+void DVDRunner::cancel()
+{
+	cancelled = true;
+	cleanup;
+}
