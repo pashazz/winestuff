@@ -44,6 +44,9 @@ public:
 	bool success() {return result;} //Закончилось ли распознавание успешно
 	void setReader (SourceReader *reader);
 	void cleanup ();
+	bool isMounted () {return mounted;}
+public slots:
+	void cancel() {cancelled = true;}
 signals:
 	void insertNextCd (bool &result, int cd); //Пользователь должен вставить CD.
 	void fileNeed (QString &exe, QString disc);

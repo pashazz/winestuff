@@ -219,7 +219,6 @@ Prefix* PrefixCollection::getPrefix(QString id)
 	QSqlQuery q(db);
 	q.prepare("SELECT wineprefix, wine FROM Apps WHERE prefix=:id");
 	q.bindValue(":id", id);
-	if (!q.exec())
 		if (!q.exec())
 		{
 			core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));

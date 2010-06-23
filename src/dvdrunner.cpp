@@ -76,7 +76,7 @@ DVDRunner::DVDRunner(corelib *lib, QString path)
 		core->client()->error(tr("Execution error"), tr("I/O error"));
 	}
 	qDebug() << "DDT: preparing disc....";
- result =	prepare ();
+	result =	prepare();
 }
 
 bool DVDRunner::prepare(bool nodetect)
@@ -90,10 +90,14 @@ bool DVDRunner::prepare(bool nodetect)
 		qDebug() << mount;
 		p.start(mount);
 		p.waitForFinished(-1);
-		mounted = true;
 		if (p.exitCode() != 0)
+		{
+			mounted = false;
 			return false;
-}
+		}
+		else
+			mounted = true;
+	}
 
 	//2) детектинг. Если юзер сам указал префикс, тогда аргумент nodetect должен быть true. Иначе detect попытается найти нужный пакет и создать объект Prefix
 	if (!nodetect)
@@ -138,8 +142,6 @@ bool DVDRunner::prepare(bool nodetect)
 		}
 		diskPath = core->discDir();
 	}
-	else
-		qDebug() << "DVDRunner: application isn`t multicd, count" << reader->discCount();
 	//вроде все.
 	return true;
 }
@@ -225,6 +227,7 @@ void DVDRunner::cleanup()
 		QProcess p (this);
 		p.start(umount);
 		p.waitForFinished(-1);
+		mounted = false;
 	}
 	core->client()->showProgressBar("Cleaning up....");
 	core->removeDir(core->discDir());
