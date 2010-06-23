@@ -213,7 +213,10 @@ QString SourceReader::prefixPath()
 	{
 		QString prsid;
 		emit presetPrefixNeed(prsid);
+		if (!prsid.isEmpty())
 		_prefix = core->wineDir() + QDir::separator() + prsid;
+		else
+			_prefix = "";
 	}
 	else
 	{

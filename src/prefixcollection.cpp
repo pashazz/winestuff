@@ -31,6 +31,12 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 {
 	if (!reader)
 		return 0;
+	if (reader->ID().isEmpty())
+		return 0;
+if (!core->checkPrefixName(reader->ID()))
+		return 0;
+if (reader->name().isEmpty())
+		return 0;
 	//проверяем Wine
 	if(!reader->checkWine())
 		return 0;
@@ -51,12 +57,6 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
 		return 0;
 	}
-	QString myName = reader->name();
-	QString myNote = reader->note();
-	if (reader->name().isEmpty() || reader->ID().isEmpty())
-		return 0;
-	if (!core->checkPrefixName(reader->ID()))
-		return 0;
 	if (!reader->preset())
 	{
 		foreach (QString locale,reader->locales())
@@ -78,8 +78,8 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 	{
 		q.prepare("INSERT INTO Names (prefix, name, note, lang) VALUES (:prefix, :name, :note, :lang)");
 		q.bindValue(":prefix", reader->ID());
-		q.bindValue(":name", myName);
-		q.bindValue(":note", myNote);
+		q.bindValue(":name", reader->name());
+		q.bindValue(":note", reader->note());
 		q.bindValue(":lang", "C"); //for user input we always use C locale.
 		if (!q.exec())
 		{
@@ -91,8 +91,10 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 	//получаем данные от SourceReader
 	pref->setID(reader->ID());
 	pref->setWine (reader->wine());
-	pref->setName(myName);
-	pref->setNote(myNote);
+	pref->setName(reader->name());
+	pref->setNote(reader->note());
+	if (reader->prefixPath().isEmpty())
+		return 0;
 	pref->setPath(reader->prefixPath());
 	if (reader->needToSetMemory())
 		pref->setMemory();
