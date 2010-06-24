@@ -26,7 +26,7 @@ class SourceReader : public QObject
 	Q_OBJECT
 public:
 	explicit SourceReader(QString prefixId, corelib *lib) :id(prefixId), core(lib) {}
-	virtual ~SourceReader(); {}
+	virtual ~SourceReader() {}
 	virtual static QStringList prefixes (const QString &directory) = 0;
 	virtual bool checkWine (QString prefixId) = 0;
 	virtual QString name() = 0;

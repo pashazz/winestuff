@@ -31,9 +31,9 @@ public:
 public:
 	explicit SourceReader(QString confId, corelib *lib, QObject *parent = 0) : QObject (parent), id(confId), core(lib), s(new QSettings("packages:" + id + "/control", QSettings::IniFormat, parent)) {}
 	~SourceReader() {}
-	static QStringList configurations (const QStringList &directories); //возвращает ДОСТУПНЫЕ конфигурации, т.е. те, в которые приложения НЕ БЫЛИ установлены.
 	static bool updateWines (const QStringList &prefixes, corelib *core);
 	bool checkWine ();
+	static QStringList configurations (const QStringList &directories);
 	QString ID () {return id;}
 	QString name();
 	QString note();

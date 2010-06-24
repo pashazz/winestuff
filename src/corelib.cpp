@@ -628,6 +628,7 @@ QStringList corelib::syncMirrors()
 	//не используем механизм QStringList для QSettings, т.к. нельзя. (отпадает возможность удобного ручного редактирования
 	return settings->value("hosts/sync").toString().split(";", QString::SkipEmptyParts);
 }
+
 void corelib::setSyncMirrors(QStringList urls, bool isempty)
 {
 	foreach (QString str, urls)
@@ -640,6 +641,7 @@ void corelib::setSyncMirrors(QStringList urls, bool isempty)
 	QString value  = urls.join(";");
 	setConfigValue("hosts/sync", value, isempty);
 }
+
 /*!
  Отменяет текущую операцию загрузки (см. corelib::downloadWine())
   */
