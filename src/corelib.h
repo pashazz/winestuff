@@ -46,6 +46,7 @@ public:
 	QString mountDir ();
 	QString videoMemory ();
 	QString discDir();
+	bool autoSync ();
 	bool forceFuseiso ();
 	void setForceFuseiso(bool value, bool isempty = false);
 	void syncSettings() {settings->sync();}
@@ -56,6 +57,7 @@ public:
 	void setVideoMemory (int memory, bool isempty = false);
 	void setDiscDir(QString dir, bool isempty = false);
 	void setSyncMirrors(QStringList urls, bool isempty = false);
+	void setAutosync (bool value, bool isempty = false);
 	QString configPath () {return _confpath;}
 	QStringList syncMirrors();
 	QString getSudoProg ();

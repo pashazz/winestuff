@@ -52,12 +52,14 @@ void corelib::init(const QString &configPath, const QString &dbConnectionName)
 	_confpath = configPath;
 	initconf(configPath);
 //скачаем пакеты
-	if (!syncPackages())
+	if (autoSync())
 	{
-		ui->error(tr("Initialzation error"), tr("Unable to download packages"));
-		qApp->exit(-7);
+		if (!syncPackages())
+		{
+			ui->error(tr("Initialzation error"), tr("Unable to download packages"));
+			qApp->exit(-7);
+		}
 	}
-
 	bool isMakeDb;
 	isMakeDb = (!QFile::exists(wineDir() + "/installed.db"));
 	if (dbConnectionName.isEmpty())
@@ -247,6 +249,7 @@ bool corelib::initconf(const QString &configPath)
 		setVideoMemory(mem, true);
 	}
 	QDir dir (configPath);
+	setAutosync(true, true); //Automating package sync by default
 	setWineDir(dir.absoluteFilePath("windows"), true);
 	setMountDir(dir.absoluteFilePath("mounts"), true);
 	setDiscDir(dir.absoluteFilePath("disc"), true);
@@ -621,6 +624,16 @@ int corelib::runGenericProcess(QProcess *process, const QString &program, QStrin
 	loop.exec();
 	ui->closeWaitMessage();
 	return process->exitCode();
+}
+
+void corelib::setAutosync(bool value, bool isempty)
+{
+	setConfigValue("AutoSync", value, isempty);
+}
+
+bool corelib::autoSync()
+{
+	return settings->value("AutoSync", false).toBool();
 }
 
 QStringList corelib::syncMirrors()
