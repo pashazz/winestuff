@@ -34,25 +34,25 @@ Prefix::Prefix (const QString &id, const QString &name, const QString &note, con
 
 void Prefix::setMemory()
 {
-QTemporaryFile f (this);
-QTextStream stream (&f);
-f.open();
-stream << "\n";
-stream << "REGEDIT4\n";
-stream << "[HKEY_CURRENT_USER\\Software\\Wine\\Direct3D]";
-stream << "\n";
-stream << "\"VideoMemorySize\"=";
-stream << QString("\"%1\"").arg(core->videoMemory());
-stream << "\n";
-f.close();
-QProcess p (this);
-QStringList args;
-args << "regedit";
-args << f.fileName();
-p.setProcessEnvironment(environment());
-p.start(wine(), args);
-p.waitForFinished(-1);
-f.remove();
+	QTemporaryFile f (this);
+	QTextStream stream (&f);
+	f.open();
+	stream << "\n";
+	stream << "REGEDIT4\n";
+	stream << "[HKEY_CURRENT_USER\\Software\\Wine\\Direct3D]";
+	stream << "\n";
+	stream << "\"VideoMemorySize\"=";
+	stream << QString("\"%1\"").arg(core->videoMemory());
+	stream << "\n";
+	f.close();
+	QProcess p (this);
+	QStringList args;
+	args << "regedit";
+	args << f.fileName();
+	p.setProcessEnvironment(environment());
+	p.start(wine(), args);
+	p.waitForFinished(-1);
+	f.remove();
 }
 
 void Prefix::makeDesktopIcon(const QString &name, const QString &program, const QString &icon)

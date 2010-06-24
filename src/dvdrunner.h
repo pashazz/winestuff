@@ -56,7 +56,6 @@ private:
 	bool multidisc;
 	bool cancelled;
 	bool detect();
-	SourceReader * detectBy (QString diskPath); //главная функция
 	bool checkDisc(QString &diskPath);
 	bool prepare (bool nodetect = false); //метод для выполнения различных подготовок (монтирования и т.д.). Если WineGame распознал диск сам, то этот метод вызывается из конструктора.
 	SourceReader *reader;

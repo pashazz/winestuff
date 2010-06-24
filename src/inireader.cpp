@@ -499,3 +499,35 @@ else
  {
 	 return s->value("wine/preset", false).toBool();
  }
+
+
+ bool SourceReader::detectApp(QString path)
+ {
+	 //Get workdir (dir of winegame package) (detecting code here)
+	 //If not detected, return empty string
+	 if (path.isEmpty())
+		 return false;
+	 if (!QFileInfo(path).exists())
+		 return false;
+	 QString diskPath;
+	 if (QFileInfo(path).isFile())
+		 diskPath = core->discDir();
+	 else
+		 diskPath = path;
+	 QDir disc (diskPath);
+	 QStringList disclist = disc.entryList(QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
+	 foreach (QString disc, availableDiscs())
+	 {
+		 QStringList list (discFileList(disc));
+		 //посчитаем кол-во эквивалентов
+		 int i = 0;
+		 foreach (QString str, list)
+		 {
+			 if (disclist.contains(str, Qt::CaseInsensitive))
+				 i++;
+		 }
+			 if (i == disclist.count())
+				 return true;
+		 }
+		  return false;
+	  }

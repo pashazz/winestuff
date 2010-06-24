@@ -49,10 +49,7 @@ QString corelib::whichBin(QString bin) {
 }
 void corelib::init(const QString &configPath, const QString &dbConnectionName)
 {
-	if (!QFile::exists(whichBin("wine")))
-	{
-		qApp->exit(-4);
-	}
+	_confpath = configPath;
 	initconf(configPath);
 //скачаем пакеты
 	if (!syncPackages())
@@ -87,7 +84,6 @@ bool corelib::unpackWine (QString distr, QString destination)
  proc->setWorkingDirectory(destination);
  QString unpackLine =  QString ("tar xvpf %1 -C %2").arg(distr).arg(destination);
 runGenericProcess(proc, unpackLine, tr("Unpacking wine...."));
- qDebug() <<QString("engine: Wine distribution %1 unpacked to %2").arg(distr).arg(destination);
  return proc->exitCode() == 0 ? true : false;
 	 }
 
@@ -119,14 +115,12 @@ if (reply->error() == QNetworkReply::OperationCanceledError)
 QByteArray buffer = reply->readAll();
 //Get MD5 sum info...
 //do not provide error info..
-qDebug() << "Download done...";
 QFile file (wineFileName);
-qDebug() << "Writing into file: " << file.fileName();
 if (file.open(QIODevice::WriteOnly))
 {
-		file.write(buffer);
-		file.close();
-	}
+	file.write(buffer);
+	file.close();
+}
 else
 {
 	qDebug() << "engine: error open file (WINEDISTR):" << file.errorString();
@@ -201,7 +195,7 @@ void corelib::setRange(qint64 aval, qint64 total)
 {
     int kbAval = aval;
     int kbTotal = total;
-ui->progressRange(kbAval, kbTotal);
+	ui->progressRange(kbAval, kbTotal);
 }
 
 void corelib::exitApp()
@@ -219,7 +213,7 @@ bool corelib::checkPrefixName(QString prefix)
 		return false;
 	if (prefix == "wineversion") //также
 		return false;
- return true;
+	return true;
 }
 
 void corelib::runSingleExe(QStringList exe)
@@ -239,7 +233,7 @@ void corelib::runSingleExe(QStringList exe)
 	QString wine =q.value(0).toString();
 	if (wine.isEmpty())
 	{
-	  qDebug() << "Wine from WineGame not found, use default";
+		qDebug() << "Wine from WineGame not found, use default";
 		wine = whichBin("wine");
 	}
 	QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -254,9 +248,9 @@ bool corelib::initconf(const QString &configPath)
 	//Init our configuration.
 	if (settings->value("VideoMemory").isNull())
 	{
-	int mem = ui->getVideoMemory();
-	setVideoMemory(mem, true);
-}
+		int mem = ui->getVideoMemory();
+		setVideoMemory(mem, true);
+	}
 	QDir dir (configPath);
 	setWineDir(dir.absoluteFilePath("windows"), true);
 	setMountDir(dir.absoluteFilePath("mounts"), true);
@@ -305,11 +299,12 @@ void corelib::setPackageDirs(const QStringList &dirs, bool isempty)
 {
 	if (isempty && (!packageDirs().isEmpty()))
 	{
-		foreach (QString dir, packageDirs()){
-		QFileInfo mdir (dir);
-		if ((!mdir.exists()) || (!mdir.isWritable()))
-			isempty = false;
-	}
+		foreach (QString dir, packageDirs())
+		{
+			QFileInfo mdir (dir);
+			if ((!mdir.exists()) || (!mdir.isWritable()))
+				isempty = false;
+		}
 	}
 	setConfigValue("PackageDir", dirs.join(";"), isempty);
 }
@@ -320,9 +315,9 @@ void corelib::setMountDir(QString dir, bool isempty)
 		QFileInfo myDir (mountDir());
 		if (forceFuseiso())
 		{
-		if ((!myDir.exists()) || (!myDir.isWritable()))
-			isempty = false;
-	}
+			if ((!myDir.exists()) || (!myDir.isWritable()))
+				isempty = false;
+		}
 		else
 		{
 			if ((!myDir.exists()) || (!myDir.isReadable()))
@@ -339,7 +334,7 @@ void corelib::setVideoMemory(int memory, bool isempty)
 	setConfigValue("VideoMemory", memory, isempty);
 	settings->sync(); //we need to force sync
 	//Sync all videomemory entries
-/*	foreach (QString d, packageDirs())
+	/*	foreach (QString d, packageDirs())
 	{
 		QDir dir(d);
 	foreach (QFileInfo info, dir.entryInfoList(QDir::Dirs | QDir::Readable))
@@ -557,71 +552,71 @@ bool corelib::syncPackages()
 			continue;
 	// инициализирую QtNetwork классы
 	//загружаю файл LAST
-	QEventLoop loop;
-	QNetworkAccessManager *manager = new QNetworkAccessManager (this);
-	QNetworkRequest req; //request для Url
-	req.setUrl(QUrl(mirror + "/LAST"));
-	req.setRawHeader("User-Agent", "Winegame-Browser 0.1");
-	QNetworkReply *reply = manager->get(req);
-	currentReply = reply;
-	connect (reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
-	connect (reply, SIGNAL(finished()), &loop, SLOT(quit()));
-	connect (reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
-	ui->showProgressBar(tr("Downloading winegame packagelist"), SLOT(cancelCurrentOperation()), this);
-	ui->progressText(tr("Downloading winegame release info...."));
-	loop.exec();
-	ui->endProgress();
-	QByteArray relInfo = reply->readAll();
-	if (relInfo.isEmpty())
-	{
-		qDebug() << "wgpkg: failed to fetch packages from" << mirror << "URL " << req.url();
-		return false;
-	}
-	//открываем ~/.winegame/packages/LAST
-	QFile file (packageDirs().first() + "/LAST");
-	if (!file.exists())
-		file.open(QIODevice::WriteOnly);
-	else
-	{
-		//читаем содержимое LAST, сравнивая его с relInfo
-		file.open(QIODevice::ReadOnly);
-		if (relInfo == file.readAll())
-			return true;
-		//закрываем файл и открываем его в режиме truncate
-		file.close();
-		file.open(QIODevice::WriteOnly | QIODevice::Truncate);
+		QEventLoop loop;
+		QNetworkAccessManager *manager = new QNetworkAccessManager (this);
+		QNetworkRequest req; //request для Url
+		req.setUrl(QUrl(mirror + "/LAST"));
+		req.setRawHeader("User-Agent", "Winegame-Browser 0.1");
+		QNetworkReply *reply = manager->get(req);
+		currentReply = reply;
+		connect (reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
+		connect (reply, SIGNAL(finished()), &loop, SLOT(quit()));
+		connect (reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
+		ui->showProgressBar(tr("Downloading winegame packagelist"), SLOT(cancelCurrentOperation()), this);
+		ui->progressText(tr("Downloading winegame release info...."));
+		loop.exec();
+		ui->endProgress();
+		QByteArray relInfo = reply->readAll();
+		if (relInfo.isEmpty())
+		{
+			qDebug() << "wgpkg: failed to fetch packages from" << mirror << "URL " << req.url();
+			return false;
 		}
-	//записываем relInfo
-	file.write(relInfo);
-	file.close();
-	//загружаю дистрибутив package-latest.tar.bz2
-	req.setUrl(QUrl(mirror + "/packages-latest.tar.bz2"));
-	QNetworkReply *reply2 = manager->get(req);
-	currentReply = reply2;
-	connect (reply2, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
-	connect (reply2, SIGNAL(finished()), &loop, SLOT(quit()));
-	connect (reply2, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
-	ui->showProgressBar(tr("Downloading winegame package index"), SLOT(cancelCurrentOperation()), this);
-	ui->progressText(tr("Downloading winegame packages..."));
-	loop.exec();
-	ui->endProgress();
-	//записываем в /tmp
-	QString tfile = QDir::tempPath() + "/index.tar.bz2";
-	file.setFileName(tfile);
-	file.open(QIODevice::WriteOnly);
-	file.write(reply2->readAll());
-	file.close();
-	bool res = unpackWine(tfile, packageDirs().first());
-	file.remove();
-	if (!res)
-		return false;
-}
+		//открываем ~/.winegame/packages/LAST
+		QFile file (packageDirs().first() + "/LAST");
+		if (!file.exists())
+			file.open(QIODevice::WriteOnly);
+		else
+		{
+			//читаем содержимое LAST, сравнивая его с relInfo
+			file.open(QIODevice::ReadOnly);
+			if (relInfo == file.readAll())
+			return true;
+			//закрываем файл и открываем его в режиме truncate
+			file.close();
+			file.open(QIODevice::WriteOnly | QIODevice::Truncate);
+		}
+		//записываем relInfo
+		file.write(relInfo);
+		file.close();
+		//загружаю дистрибутив package-latest.tar.bz2
+		req.setUrl(QUrl(mirror + "/packages-latest.tar.bz2"));
+		QNetworkReply *reply2 = manager->get(req);
+		currentReply = reply2;
+		connect (reply2, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
+		connect (reply2, SIGNAL(finished()), &loop, SLOT(quit()));
+		connect (reply2, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
+		ui->showProgressBar(tr("Downloading winegame package index"), SLOT(cancelCurrentOperation()), this);
+		ui->progressText(tr("Downloading winegame packages..."));
+		loop.exec();
+		ui->endProgress();
+		//записываем в /tmp
+		QString tfile = QDir::tempPath() + "/index.tar.bz2";
+		file.setFileName(tfile);
+		file.open(QIODevice::WriteOnly);
+		file.write(reply2->readAll());
+		file.close();
+		bool res = unpackWine(tfile, packageDirs().first());
+		file.remove();
+		if (!res)
+			return false;
+	}
 	return true;
 }
 
 int corelib::runGenericProcess(QProcess *process, const QString &program, QString message)
 {
- /*
+	/*
    Запускает программу program в процессе process, при этом
    показывая прогрессбар winegame через UiClient
    */

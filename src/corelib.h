@@ -56,6 +56,7 @@ public:
 	void setVideoMemory (int memory, bool isempty = false);
 	void setDiscDir(QString dir, bool isempty = false);
 	void setSyncMirrors(QStringList urls, bool isempty = false);
+	QString configPath () {return _confpath;}
 	QStringList syncMirrors();
 	QString getSudoProg ();
 	QString downloadWine(QString url);
@@ -76,7 +77,7 @@ private:
 	bool downloadExitCode;
 	QString system;
 	QNetworkReply *currentReply;
-
+	QString _confpath;
 	/* About copying files */
 	bool copyCancelled;
 protected:

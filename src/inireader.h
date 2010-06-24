@@ -48,8 +48,7 @@ public:
 	bool preset();
 	QString preinstCommand ();
 	QString postinstCommand ();
-	QStringList availableDiscs();
-	QStringList discFileList (const QString &disc);
+	bool detectApp (QString path);
 	static QString defaultWine (const QString &id); // default wine for prefix ID in this implementation
 	bool needToSetMemory ();
 	Name nameForLang (QString locale);
@@ -76,8 +75,9 @@ private:
 	QString distr();
 	void writeMD5(const QString &md5sum);
 	QString getMD5();
-
 	inline QString workdir();
+	QStringList availableDiscs();
+	QStringList discFileList (const QString &disc);
 };
 
 #endif

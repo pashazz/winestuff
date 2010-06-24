@@ -75,7 +75,6 @@ DVDRunner::DVDRunner(corelib *lib, QString path)
 		type = Pashazz::Unknown;
 		core->client()->error(tr("Execution error"), tr("I/O error"));
 	}
-	qDebug() << "DDT: preparing disc....";
 	result =	prepare();
 }
 
@@ -149,8 +148,6 @@ bool DVDRunner::prepare(bool nodetect)
 bool DVDRunner::checkDisc(QString &diskPath) //проверяет диск. Если пусто, спрашивает у пользователя новую директорию, поэтому diskPath передается по ссылке.
 {
 	QDir dpath (diskPath);
-	qDebug() << dpath.path() << "is disc";
-	qDebug() << dpath.entryList(QDir::NoDotAndDotDot | QDir::AllEntries);
 	checkdisc:
 	if ((dpath.entryList(QDir::NoDotAndDotDot | QDir::AllEntries).count() == 0) || (entrylist == dpath.entryList()))
 	{
@@ -171,33 +168,6 @@ bool DVDRunner::checkDisc(QString &diskPath) //проверяет диск. Ес
 		return true;
 }
 
-SourceReader* DVDRunner::detectBy(QString diskPath)
-{
-	//Get workdir (dir of winegame package) (detecting code here)
-	//If not detected, return empty string
-    QDir disc (diskPath);
-    QStringList disclist = disc.entryList(QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
-	foreach (QString conf,  SourceReader::configurations (core->packageDirs()))
-    {
-		SourceReader *reader = new SourceReader (conf, core, this);
-		foreach (QString disc, reader->availableDiscs())
-		{
-			QStringList list (reader->discFileList(disc));
-			//посчитаем кол-во эквивалентов
-			int i = 0;
-			foreach (QString str, list)
-			{
-				if (disclist.contains(str, Qt::CaseInsensitive))
-					i++;
-			}
-			if (i == disclist.count())
-				return reader;
-			}
-		delete reader;
-	}
-		 return 0;
-	 }
-
 
 void DVDRunner::setReader(SourceReader *reader)
 {
@@ -207,14 +177,18 @@ void DVDRunner::setReader(SourceReader *reader)
 
 bool DVDRunner::detect()
 {
-	SourceReader *sreader = detectBy(diskPath);
-	if (sreader)
+	foreach (QString conf, SourceReader::configurations(core->packageDirs()))
 	{
-		this->reader = sreader;
-		return true;
+		SourceReader *reader = new SourceReader(conf, core, this);
+		if (reader->detectApp(diskDirectory()))
+		{
+			this->reader = reader;
+			return true;
+		}
+		else //Just delete it
+			delete reader;
 	}
-	else
-		return false;
+	return false;
 }
 
 void DVDRunner::cleanup()
@@ -238,7 +212,6 @@ QString DVDRunner::exe ()
 {
  //Получает файл из autorun.inf и/или "setup"
 	QString exe;
-	qDebug() << "diskDirectory() is" << diskPath;
 	//force application/setup
 	if (reader && (!reader->setup().isEmpty()))
 	{

@@ -33,9 +33,9 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 		return 0;
 	if (reader->ID().isEmpty())
 		return 0;
-if (!core->checkPrefixName(reader->ID()))
+	if (!core->checkPrefixName(reader->ID()))
 		return 0;
-if (reader->name().isEmpty())
+	if (reader->name().isEmpty())
 		return 0;
 	//проверяем Wine
 	if(!reader->checkWine())
@@ -154,12 +154,12 @@ QString PrefixCollection::executable(QString file)
 
 void PrefixCollection::launchWinetricks(Prefix *prefix, const QStringList &args)
 {
-		QProcess *p = new QProcess (this);
-		p->setProcessEnvironment(prefix->environment());
-		qDebug() << "List of components that must be installed: " << args.join(" ");
+	QProcess *p = new QProcess (this);
+	p->setProcessEnvironment(prefix->environment());
+	qDebug() << "List of components that must be installed: " << args.join(" ");
 	foreach (QString arg, args)
 	{
-	core->runGenericProcess(p, "winetricks -q " + arg, tr("Installing component: %1").arg(arg));
+		core->runGenericProcess(p, "winetricks -q " + arg, tr("Installing component: %1").arg(arg));
 	}
 }
 
@@ -173,7 +173,7 @@ QList <Prefix*> PrefixCollection::prefixes()
 		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
 		return list;
 	}
-		while (q.next())
+	while (q.next())
 	{
 		list.append(getPrefix(q.value(0).toString()));
 	}
@@ -185,7 +185,6 @@ Name PrefixCollection::getName(QString locale, QString ID)
 	Name names;
 	// First of all, check if this locale exists
 	QSqlQuery q(db);
-
 	q.prepare("SELECT COUNT (id) FROM Names WHERE lang=? AND prefix=?");
 	q.addBindValue(locale);
 	q.addBindValue(ID);
@@ -193,12 +192,11 @@ Name PrefixCollection::getName(QString locale, QString ID)
 	{
 		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
 		return names;
-		}
+	}
 	if ((q.value(0).toInt() == 0) && (locale != "C"))
 	{
 		return getName("C", ID);
 	}
-
 	//получаем name и note
 	q.prepare("SELECT name, note FROM Names WHERE lang=:lang AND prefix=:prid");
 	q.bindValue(":lang", locale);
@@ -221,11 +219,11 @@ Prefix* PrefixCollection::getPrefix(QString id)
 	QSqlQuery q(db);
 	q.prepare("SELECT wineprefix, wine FROM Apps WHERE prefix=:id");
 	q.bindValue(":id", id);
-		if (!q.exec())
-		{
-			core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
-			return 0;
-		}
+	if (!q.exec())
+	{
+		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
+		return 0;
+	}
 	if (!q.first())
 		return 0;
 	prefix->setID(id);
@@ -267,9 +265,9 @@ bool PrefixCollection::remove(QString id)
 	core->runGenericProcess(&p, QString("rm -rf %1").arg(prefix->path()), tr("Removing prefix %1").arg(prefix->name()));
 	QSqlQuery q(db);
 	q.prepare("DELETE FROM Apps WHERE prefix=:pr");
-   q.bindValue(":pr", id);
+	q.bindValue(":pr", id);
    if (!q.exec())
-   {
+	{
 	   qDebug() << "WARNING: Unable to execute query for delete Prefix";
 	   return false;
    }
