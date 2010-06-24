@@ -96,48 +96,43 @@ QString corelib::downloadWine(QString url) //TODO: проверка на оши�
 	if (QFileInfo(wineFileName).exists())
 		return wineFileName;
 	ui->showNotify(tr("Don`t worry!"), tr("Now WineGame will download some files, that will need for get your applicaton running"));
-     QEventLoop loop;
-QNetworkAccessManager *manager = new QNetworkAccessManager (this);
-QNetworkRequest req; //request для Url
-req.setUrl(QUrl(url));
-req.setRawHeader("User-Agent", "Winegame-Browser 0.1");
-QNetworkReply *reply = manager->get(req);
-currentReply = reply;
-connect (reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
-connect (reply, SIGNAL(finished()), &loop, SLOT(quit()));
-connect (reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
-ui->showProgressBar(tr("Downloading Wine..."), SLOT(cancelCurrentOperation()), this);
-ui->progressText(tr("Downloading wine... %1").arg(url));
-loop.exec();
-ui->endProgress();
-if (reply->error() == QNetworkReply::OperationCanceledError)
-	return "CANCEL";
-QByteArray buffer = reply->readAll();
-//Get MD5 sum info...
-//do not provide error info..
-QFile file (wineFileName);
-if (file.open(QIODevice::WriteOnly))
-{
-	file.write(buffer);
-	file.close();
+	QEventLoop loop;
+	QNetworkAccessManager *manager = new QNetworkAccessManager (this);
+	QNetworkRequest req; //request для Url
+	req.setUrl(QUrl(url));
+	req.setRawHeader("User-Agent", "Winegame-Browser 0.1");
+	QNetworkReply *reply = manager->get(req);
+	currentReply = reply;
+	connect (reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
+	connect (reply, SIGNAL(finished()), &loop, SLOT(quit()));
+	connect (reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
+	ui->showProgressBar(tr("Downloading Wine..."), SLOT(cancelCurrentOperation()), this);
+	ui->progressText(tr("Downloading wine... %1").arg(url));
+	loop.exec();
+	ui->endProgress();
+	if (reply->error() == QNetworkReply::OperationCanceledError)
+		return "CANCEL";
+	QByteArray buffer = reply->readAll();
+	//Get MD5 sum info...
+	//do not provide error info..
+	QFile file (wineFileName);
+	if (file.open(QIODevice::WriteOnly))
+	{
+		file.write(buffer);
+		file.close();
+	}
+	else
+	{
+		qDebug() << "engine: error open file (WINEDISTR):" << file.errorString();
+		return "";
+	}
+	return downloadExitCode ? file.fileName() : "";
 }
-else
-{
-	qDebug() << "engine: error open file (WINEDISTR):" << file.errorString();
-        return "";
-}
-
-
-return downloadExitCode ? file.fileName() : "";
-}
-
 
 void corelib::error(QNetworkReply::NetworkError error)
 {
 	if  (error == QNetworkReply::NoError || error == QNetworkReply::OperationCanceledError)
-    {
        return;
-   }
     else
     {
 		QString errstr;
@@ -187,7 +182,7 @@ void corelib::error(QNetworkReply::NetworkError error)
 			break;
 		}
 		ui->error(tr("Network error"), tr("Something went wrong! %1.").arg(errstr));
-	  downloadExitCode = false;
+		downloadExitCode = false;
     }
 }
 
@@ -260,19 +255,19 @@ bool corelib::initconf(const QString &configPath)
 	if (QDir(discDir()).exists())
 	{
 	//подчищаем discDir
-	ui->showProgressBar(tr("Cleaning up"));
-	removeDir(discDir());
-	ui->endProgress();
-}
+		ui->showProgressBar(tr("Cleaning up"));
+		removeDir(discDir());
+		ui->endProgress();
+	}
 	//check if dirs exists
-QStringList paths = QStringList () << wineDir() << mountDir() /*<< discDir()*/ ;
-foreach (QString path, paths)
-{
-	QDir dir (path);
-	if (!dir.exists())
-		dir.mkpath(dir.path());
-}
-return true;
+	QStringList paths = QStringList () << wineDir() << mountDir() /*<< discDir()*/ ;
+	foreach (QString path, paths)
+	{
+		QDir dir (path);
+		if (!dir.exists())
+			dir.mkpath(dir.path());
+	}
+	return true;
 }
 
 QString corelib::wineDir() {
@@ -362,19 +357,18 @@ QString corelib::autorun(QString diskRoot)
 	autorunNames.append("Autorun.inf");
 	autorunNames.append("AUTORUN.INF");
 	autorunNames.append("AutoRun.inf");
- QDir dir (diskRoot);
- qDebug() << "autorun: diskroot" << diskRoot;
- foreach (QString fileName,  dir.entryList(QDir::Files | QDir::Readable))
- {
-	 if (autorunNames.contains(fileName, Qt::CaseSensitive))
+	QDir dir (diskRoot);
+	qDebug() << "autorun: diskroot" << diskRoot;
+	foreach (QString fileName,  dir.entryList(QDir::Files | QDir::Readable))
+	{
+		if (autorunNames.contains(fileName, Qt::CaseSensitive))
 	 {
-		 qDebug()  << diskRoot + QDir::separator() + fileName;
-		 return diskRoot + QDir::separator() + fileName;
-	 }
+			qDebug()  << diskRoot + QDir::separator() + fileName;
+			return diskRoot + QDir::separator() + fileName;
+		}
  }
- return "";
+	return "";
 }
-
 
 corelib::~corelib()
 {
@@ -441,7 +435,6 @@ bool corelib::removeDir(const QString & dir)
 	}
 	if (!dirObj.rmdir(dir))
 		return false;
-
 	return true;
 }
 
@@ -493,39 +486,38 @@ void corelib::cancelCopy()
 
 QString corelib::shareDir() const
 {
-QString shareDir;
-QDir dir (qApp->applicationDirPath());
-if (dir.dirName() == "bin") //like a system directory
-{
-	dir.cdUp();
-	dir.cd("share");
-	if (!dir.exists("winegame"))
-		return "";
-	dir.cd("winegame");
-	shareDir = dir.absolutePath();
-}
-
+	QString shareDir;
+	QDir dir (qApp->applicationDirPath());
+	if (dir.dirName() == "bin") //like a system directory
+	{
+		dir.cdUp();
+		dir.cd("share");
+		if (!dir.exists("winegame"))
+			return "";
+		dir.cd("winegame");
+		shareDir = dir.absolutePath();
+	}
 }
 
 void corelib::initDb()
 {
 	QSqlDatabase db = QSqlDatabase::database();
 	QSqlQuery q (db);
-   q.prepare("CREATE TABLE Apps (id INTEGER PRIMARY KEY, prefix TEXT, wineprefix TEXT, wine TEXT)");
-	 if (!q.exec())
-   {
-   ui->error( tr("Database error"), tr("Failed to create table for storing installed applications. See errors on console"));
-   qDebug() << "DB: Query error " << q.lastError().text();
-   qApp->exit (-24);
-	 }
-	 q.prepare("CREATE TABLE Names (id INTEGER PRIMARY KEY, prefix TEXT, name TEXT, note TEXT, lang TEXT)");
-	 if (!q.exec())
-   {
-   ui->error( tr("Database error"), tr("Failed to create table for storing installed applications. See errors on console"));
-   qDebug() << "DB: Query error " << q.lastError().text();
-   qApp->exit (-24);
-	 }
- }
+	q.prepare("CREATE TABLE Apps (id INTEGER PRIMARY KEY, prefix TEXT, wineprefix TEXT, wine TEXT)");
+	if (!q.exec())
+	{
+		ui->error( tr("Database error"), tr("Failed to create table for storing installed applications. See errors on console"));
+		qDebug() << "DB: Query error " << q.lastError().text();
+		qApp->exit (-24);
+	}
+	q.prepare("CREATE TABLE Names (id INTEGER PRIMARY KEY, prefix TEXT, name TEXT, note TEXT, lang TEXT)");
+	if (!q.exec())
+	{
+		ui->error( tr("Database error"), tr("Failed to create table for storing installed applications. See errors on console"));
+		qDebug() << "DB: Query error " << q.lastError().text();
+		qApp->exit (-24);
+	}
+}
 
 void corelib::setConfigValue(QString key, QVariant value, bool setIfEmpty)
 {
@@ -550,8 +542,8 @@ bool corelib::syncPackages()
 	{
 		if (mirror.isEmpty())
 			continue;
-	// инициализирую QtNetwork классы
-	//загружаю файл LAST
+		// инициализирую QtNetwork классы
+		//загружаю файл LAST
 		QEventLoop loop;
 		QNetworkAccessManager *manager = new QNetworkAccessManager (this);
 		QNetworkRequest req; //request для Url
