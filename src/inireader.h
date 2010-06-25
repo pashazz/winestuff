@@ -46,6 +46,7 @@ public:
 	QStringList components ();
 	QString filesDirectory ();
 	QString icon ();
+	Prefix::ApplicationType type();
 	bool preset();
 	QString preinstCommand ();
 	QString postinstCommand ();

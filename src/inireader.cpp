@@ -511,7 +511,7 @@ else
 		 return false;
 	 QString diskPath;
 	 if (QFileInfo(path).isFile())
-		 diskPath = core->discDir();
+		 diskPath = core->mountDir();
 	 else
 		 diskPath = path;
 	 QDir disc (diskPath);
@@ -527,10 +527,12 @@ else
 				 i++;
 		 }
 			 if (i == disclist.count())
+		 {
 				 return true;
 		 }
 		  return false;
 	  }
+ }
 
  Prefix::ApplicationType SourceReader::type()
  {
