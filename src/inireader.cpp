@@ -531,3 +531,26 @@ else
 		 }
 		  return false;
 	  }
+
+ Prefix::ApplicationType SourceReader::type()
+ {
+	 Prefix::ApplicationType type;
+	 const QString key = "application/category";
+	 if (s->value(key).toString() == "application")
+		 type = Prefix::Application;
+	 else if (s->value(key).toString() == "arcade")
+		 type = Prefix::Arcade;
+	 else if (s->value(key).toString() == "sports")
+		 type = Prefix::Sports;
+	 else if (s->value(key).toString() == "fps")
+		 type = Prefix::FistPersonShooter;
+	 else if (s->value(key).toString() == "strategy")
+		 type = Prefix::Strategy;
+	 else if (s->value(key).toString() == "rpg")
+		 type = Prefix::Roleplaying;
+	 else if (s->value(key).toString() == "action")
+		 type = Prefix::Action;
+	 else
+		 type = Prefix::Other;
+	 return type;
+ }

@@ -30,6 +30,10 @@ class WINESTUFFSHARED_EXPORT Prefix : public QObject
 	Q_OBJECT
 friend class PrefixCollection; //for Prefix`s protected functions.
 public:
+enum ApplicationType
+{
+	Other = 0, Application, Strategy, Roleplaying, Sports, FistPersonShooter, Arcade, Action
+};
 	Prefix (QObject *parent, corelib *lib);
 	Prefix (const QString &id,  const QString &name, const QString &note,  const QString &path, const QString &wine, QObject *parent, corelib *lib);
 	virtual ~Prefix () {}
@@ -45,6 +49,7 @@ public:
 		_imagefile = imageFile;
 		makeWineCdrom (diskRoot, imageFile);
 	}
+	void setType (Prefix::ApplicationType type) {_type = type;}
 
 	/*Getters */
 	QString name () {return _name;}
@@ -54,7 +59,7 @@ public:
 	QString wine() {return _wine;}
 	QString diskRoot () {return _diskroot;}
 	corelib* lib () {return core;}
-
+	Prefix::ApplicationType type() {return _type;}
 	/* Process env. */
 	QProcessEnvironment environment ();
 	/* Other functions */
@@ -78,6 +83,7 @@ private:
 	QString _diskroot;
 	QString _imagefile;
 	corelib *core;
+	Prefix::ApplicationType _type;
 };
 
 

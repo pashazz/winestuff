@@ -21,6 +21,7 @@
 #define INIREADER_H
 //#include "sourcereader.h"
 #include "corelib.h"
+#include "prefix.h"
 
 typedef QPair <QString, QString> Name;
 
