@@ -139,7 +139,7 @@ return _note;
  }
 bool SourceReader::checkWine()
 {
-	if (!isPrefixInstalled(id) || s->value("wine/preset").toBool())
+	if (s->value("wine/preset").toBool())
 		return true;
 
 	qDebug() << "checking wine... for " << name() ;
@@ -371,15 +371,6 @@ bool SourceReader::isMulticd()
 	 }
 	return s->value("disc/count").toInt();
 }
-
- bool SourceReader::isPrefixInstalled(QString prefixName, QSqlDatabase db)
- {
-	 QSqlQuery q (db);
-	 q.prepare("SELECT * FROM Apps WHERE prefix=:pr");
-	 q.bindValue(":pr", prefixName);
-	 q.exec();
-	 return q.first();
- }
 
  bool SourceReader::needToSetMemory()
  {

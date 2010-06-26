@@ -65,8 +65,6 @@ protected:
 	QString id;
 	corelib *core;
 	QSettings *s;
-	static bool isPrefixInstalled(QString prefixName, QSqlDatabase db = QSqlDatabase::database());
-private slots:
 
 private:
 	QString _name;
