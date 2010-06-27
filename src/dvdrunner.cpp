@@ -19,8 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "dvdrunner.h"
 #include <QtDebug>
-DVDRunner::DVDRunner(corelib *lib, QString path)
-	:QObject (0),core (lib), mounted (false), cancelled (false)
+DVDRunner::DVDRunner(corelib *lib, QString path, PluginWorker *worker)
+	:QObject (0),core (lib), mounted (false), cancelled (false), _worker(worker)
 {
 	//Пробуем определить тип
 	QFileInfo info (path);
@@ -177,19 +177,22 @@ void DVDRunner::setReader(SourceReader *reader)
 
 bool DVDRunner::detect()
 {
-	foreach (QString conf, SourceReader::configurations(core->packageDirs()))
+	foreach (FormatInterface *interface, _worker->plugins())
 	{
-		SourceReader *reader = new SourceReader(conf, core, this);
-		if (reader->detectApp(diskDirectory()))
+		foreach (SourceReader *reader, interface->readers(core, true))
 		{
-			this->reader = reader;
-			return true;
+			if (reader->detectApp(diskDirectory()))
+			{
+				this->reader = reader;
+				return true;
+			}
+			else //Just delete it
+				delete reader;
 		}
-		else //Just delete it
-			delete reader;
+		return false;
 	}
-	return false;
 }
+
 
 void DVDRunner::cleanup()
 {

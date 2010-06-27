@@ -17,29 +17,25 @@
 */
 
 
-#ifndef FORMATINTERFACE_H
-#define FORMATINTERFACE_H
-#include <QtCore>
-#include "corelib.h"
-#include "sourcereader.h"
+#ifndef PLUGINCORE_H
+#define PLUGINCORE_H
 
-namespace Pashazz
+#include <QObject>
+#include "formatinterface.h"
+
+class PluginWorker : public QObject
 {
-	enum Feautures
-	{
-		NoFeatures = 0, Detecting = 1, Multidisc = 2
-	};
-};
-class FormatInterface
-{
+    Q_OBJECT
 public:
-	virtual ~FormatInterface() {}
-	virtual QString title () = 0;
-	virtual QString author () = 0;
-	virtual bool hasFeature (Pashazz::Feautures feature) = 0;
-	virtual QList<SourceReader *> readers (corelib *core, bool includeDvd = false) = 0;
-	virtual bool updateAllWines (corelib *core) = 0;
+	explicit PluginWorker(QObject *parent, corelib *core);
+	QList <FormatInterface*> plugins ();
+	QStringList files ();
+	QString pluginsDir () {return plugdir;}
+private:
+	QList <FormatInterface*> _plugins;
+	QStringList fileNames;
+	QString plugdir;
+
 };
-Q_DECLARE_INTERFACE(FormatInterface,
-					"org.pashazz.winestuff.FormatInterface/0.2")
-#endif // FORMATINTERFACE_H
+
+#endif // PLUGINCORE_H

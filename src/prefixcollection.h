@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef PREFIXCOLL
 #define PREFIXCOLL
 #include "prefix.h"
-#include "inireader.h"
+#include "sourcereader.h"
 
 class WINESTUFFSHARED_EXPORT PrefixCollection : public QObject
 {

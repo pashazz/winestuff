@@ -126,6 +126,7 @@ bool PolDownloader::setWineVersion(QString version)
 void PolDownloader::fallback()
 {
 	//back to app`s wine
+	/*
 	QString wine;
 	if (QFile::exists(SourceReader::defaultWine(prefix->ID())))
 		wine = SourceReader::defaultWine(prefix->ID());
@@ -133,6 +134,7 @@ void PolDownloader::fallback()
 		wine = core->whichBin("wine");
 	prefix->setWine(wine);
 	pcoll->updatePrefix(prefix);
+	*/
 }
 
 QString PolDownloader::detectCurrentVersion()

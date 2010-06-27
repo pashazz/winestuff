@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <QtSql>
 #include "uiclient.h"
 #include "libwinegame_global.h"
+
+class PluginWorker;
+
 class  WINESTUFFSHARED_EXPORT corelib : public QObject
 {
     Q_OBJECT
@@ -67,11 +70,13 @@ public:
 	int runGenericProcess(QProcess *process, const QString &program, QString message = "");
 	void setDatabase (QSqlDatabase database) {db = database;}
 	QSqlDatabase database () {return db;}
+
 private slots:
 	void error (QNetworkReply::NetworkError);
 	void setRange (qint64, qint64); //заглушка для QProgressDialog
 	void exitApp();
 	void cancelCurrentOperation();
+
 private:
 	UiClient *ui;
 	QSettings *settings;
@@ -87,6 +92,8 @@ protected:
 	inline QString config();
 	void initDb();
 	void setConfigValue (QString key, QVariant value, bool setIfEmpty);
+	void loadPlugins ();
+	/*About plugins */
 public slots:
 	void cancelCopy();
 };

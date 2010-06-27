@@ -17,29 +17,11 @@
 */
 
 
-#ifndef FORMATINTERFACE_H
-#define FORMATINTERFACE_H
-#include <QtCore>
-#include "corelib.h"
 #include "sourcereader.h"
 
-namespace Pashazz
+SourceReader::SourceReader(QObject *parent, corelib *core, QString id) :
+    QObject(parent)
 {
-	enum Feautures
-	{
-		NoFeatures = 0, Detecting = 1, Multidisc = 2
-	};
-};
-class FormatInterface
-{
-public:
-	virtual ~FormatInterface() {}
-	virtual QString title () = 0;
-	virtual QString author () = 0;
-	virtual bool hasFeature (Pashazz::Feautures feature) = 0;
-	virtual QList<SourceReader *> readers (corelib *core, bool includeDvd = false) = 0;
-	virtual bool updateAllWines (corelib *core) = 0;
-};
-Q_DECLARE_INTERFACE(FormatInterface,
-					"org.pashazz.winestuff.FormatInterface/0.2")
-#endif // FORMATINTERFACE_H
+	this->core = core;
+	this->id = id;
+}

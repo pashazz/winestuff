@@ -22,7 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <QtCore>
 #include "corelib.h"
-#include "inireader.h"
+#include "plugincore.h"
+#include "sourcereader.h"
 namespace Pashazz
 {
 enum DriveType
@@ -35,7 +36,7 @@ class WINESTUFFSHARED_EXPORT  DVDRunner : public QObject
 {
 	Q_OBJECT
 public:
-	DVDRunner(corelib *lib, QString path);
+	DVDRunner(corelib *lib, QString path, PluginWorker *worker);
 	virtual ~DVDRunner() {}
 	QString diskDirectory(); //возвращает пустую строку, если монтирование завершилось неудачно
 	QString exe();
@@ -65,6 +66,7 @@ private:
 	int _max; //copyfile size
 	bool mounted;
 	QStringList entrylist;
+	PluginWorker *_worker;
 private slots:
 };
 

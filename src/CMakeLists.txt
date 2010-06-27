@@ -26,9 +26,9 @@ find_package( Qt4 REQUIRED )
 
 set (CMAKE_BUILD_TYPE Debug)
 include (${QT_USE_FILE})
-set (QHEADERS corelib.h  dvdrunner.h  poldownloader.h  prefix.h inireader.h  uiclient.h prefixcollection.h)
+set (QHEADERS corelib.h  dvdrunner.h  poldownloader.h  prefix.h sourcereader.h  uiclient.h prefixcollection.h plugincore.h)
 set (HEADERS ${QHEADERS}  formatinterface.h libwinegame_global.h)
-set (SOURCES corelib.cpp  dvdrunner.cpp  poldownloader.cpp  prefix.cpp inireader.cpp prefixcollection.cpp)
+set (SOURCES corelib.cpp  dvdrunner.cpp  poldownloader.cpp  prefix.cpp sourcereader.cpp prefixcollection.cpp plugincore.cpp)
 message (STATUS "Run 'make translations && make' to compile winestuff")
 
 qt4_wrap_cpp (MOC_SOURCES ${QHEADERS})

@@ -57,45 +57,21 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
 		return 0;
 	}
-	if (!reader->preset())
+	foreach (QString locale, reader->locales())
 	{
-		foreach (QString locale,reader->locales())
-		{
-			Name name = reader->nameForLang(locale);
-			q.prepare("INSERT INTO Names (prefix, name, note, lang) VALUES (:prefix, :name, :note, :lang)");
-			q.bindValue(":prefix", reader->ID());
-			q.bindValue(":name", name.first);
-			q.bindValue(":note", name.second);
-			q.bindValue(":lang", locale);
-			if (!q.exec())
-			{
-				core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
-				return 0;
-			}
-		}
-	}
-	else
+	Name name = reader->nameForLang(locale);
+	q.prepare("INSERT INTO Names (prefix, name, note, lang) VALUES (:prefix, :name, :note, :lang)");
+	q.bindValue(":prefix", reader->ID());
+	q.bindValue(":name", name.first);
+	q.bindValue(":note", name.second);
+	q.bindValue(":lang", locale);
+	if (!q.exec())
 	{
-		q.prepare("INSERT INTO Names (prefix, name, note, lang) VALUES (:prefix, :name, :note, :lang)");
-		q.bindValue(":prefix", reader->ID());
-		q.bindValue(":name", reader->name());
-		q.bindValue(":note", reader->note());
-		q.bindValue(":lang", "C"); //for user input we always use C locale.
-		if (!q.exec())
-		{
-			core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
-			return 0;
-		}
-	}
-	Prefix *pref =  new Prefix (this,core);
-	//получаем данные от SourceReader
-	pref->setID(reader->ID());
-	pref->setWine (reader->wine());
-	pref->setName(reader->name());
-	pref->setNote(reader->note());
-	if (reader->prefixPath().isEmpty())
+		core->client()->error(tr("Database error"), tr("Traceback: %1, query: %2").arg(q.lastError().text(), q.lastQuery()));
 		return 0;
-	pref->setPath(reader->prefixPath());
+	}
+}
+	Prefix *pref = reader->prefix();
 	if (reader->needToSetMemory())
 		pref->setMemory();
 	if (!dvdObj.isEmpty ())
@@ -114,17 +90,12 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 			cdroot = dvdObj;
 		}
 		if (!cdroot.isEmpty ())
-			pref->setDiscAttributes (cdroot, image);
+			reader->setDvd(image, cdroot);
     }
-	QProcessEnvironment env = pref->environment();
-	if (!reader->filesDirectory().isEmpty())
-		env.insert("FILESDIR", reader->filesDirectory());
-	QProcess *p = new QProcess (this);
-	p->setProcessEnvironment(env);
 	pref->makefix();
 	//launch winetricks
 	launchWinetricks(pref, reader->components());
-	QString exe = executable(file);
+	/*QString exe = executable(file);
 	QString preinst = reader->preinstCommand();
 	if (!preinst.isEmpty())
 		core->runGenericProcess(p, preinst, tr("Running pre-installation trigger"));
@@ -134,6 +105,8 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 	QString postinst = reader->postinstCommand();
 	if (!postinst.isEmpty())
 		core->runGenericProcess(p, postinst, tr("Running post-installation trigger"));
+	*/
+	reader->setup();
 	return pref;
 }
 

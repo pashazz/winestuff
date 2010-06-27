@@ -49,6 +49,8 @@ public:
    virtual void closeWaitMessage() = 0;//закрытие диалога
    /* say directory */
    virtual QString directoryDialog (const QString &description, const QString &startDirectory) = 0;
+   /* For questions about Prefix, etc */
+   virtual void  getText (const QString &title, const QString &message, QString &result);
 };
 
 #endif // UICLIENT_H
