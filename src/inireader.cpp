@@ -139,7 +139,7 @@ return _note;
  }
 bool SourceReader::checkWine()
 {
-	if (!isPrefixInstalled(id) || s->value("wine/preset").toBool())
+	if (s->value("wine/preset").toBool())
 		return true;
 
 	qDebug() << "checking wine... for " << name() ;
@@ -372,15 +372,6 @@ bool SourceReader::isMulticd()
 	return s->value("disc/count").toInt();
 }
 
- bool SourceReader::isPrefixInstalled(QString prefixName, QSqlDatabase db)
- {
-	 QSqlQuery q (db);
-	 q.prepare("SELECT * FROM Apps WHERE prefix=:pr");
-	 q.bindValue(":pr", prefixName);
-	 q.exec();
-	 return q.first();
- }
-
  bool SourceReader::needToSetMemory()
  {
 	 return s->value("wine/memory").toBool();
@@ -511,7 +502,7 @@ else
 		 return false;
 	 QString diskPath;
 	 if (QFileInfo(path).isFile())
-		 diskPath = core->discDir();
+		 diskPath = core->mountDir();
 	 else
 		 diskPath = path;
 	 QDir disc (diskPath);
@@ -527,7 +518,32 @@ else
 				 i++;
 		 }
 			 if (i == disclist.count())
+		 {
 				 return true;
 		 }
 		  return false;
 	  }
+ }
+
+ Prefix::ApplicationType SourceReader::type()
+ {
+	 Prefix::ApplicationType type;
+	 const QString key = "application/category";
+	 if (s->value(key).toString() == "application")
+		 type = Prefix::Application;
+	 else if (s->value(key).toString() == "arcade")
+		 type = Prefix::Arcade;
+	 else if (s->value(key).toString() == "sports")
+		 type = Prefix::Sports;
+	 else if (s->value(key).toString() == "fps")
+		 type = Prefix::FistPersonShooter;
+	 else if (s->value(key).toString() == "strategy")
+		 type = Prefix::Strategy;
+	 else if (s->value(key).toString() == "rpg")
+		 type = Prefix::Roleplaying;
+	 else if (s->value(key).toString() == "action")
+		 type = Prefix::Action;
+	 else
+		 type = Prefix::Other;
+	 return type;
+ }

@@ -31,6 +31,7 @@ public:
 	virtual ~PrefixCollection() {}
 	Prefix* install (SourceReader *reader, QString file, QString dvdObj = "");
 	bool remove (QString id);
+	corelib* library () {return core;}
 	QList<Prefix*> prefixes ();
 	Prefix* getPrefix (QString id);
 	void setLocale (QLocale locale) {loc = locale;}

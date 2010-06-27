@@ -21,6 +21,7 @@
 #define INIREADER_H
 //#include "sourcereader.h"
 #include "corelib.h"
+#include "prefix.h"
 
 typedef QPair <QString, QString> Name;
 
@@ -45,6 +46,7 @@ public:
 	QStringList components ();
 	QString filesDirectory ();
 	QString icon ();
+	Prefix::ApplicationType type();
 	bool preset();
 	QString preinstCommand ();
 	QString postinstCommand ();
@@ -63,8 +65,6 @@ protected:
 	QString id;
 	corelib *core;
 	QSettings *s;
-	static bool isPrefixInstalled(QString prefixName, QSqlDatabase db = QSqlDatabase::database());
-private slots:
 
 private:
 	QString _name;
