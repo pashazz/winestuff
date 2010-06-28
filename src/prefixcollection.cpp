@@ -95,34 +95,8 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 	pref->makefix();
 	//launch winetricks
 	launchWinetricks(pref, reader->components());
-	/*QString exe = executable(file);
-	QString preinst = reader->preinstCommand();
-	if (!preinst.isEmpty())
-		core->runGenericProcess(p, preinst, tr("Running pre-installation trigger"));
-	//собсно наш exe
-	pref->runApplication(exe, "", true); //выводим мод. диалог
-	//теперь postinst
-	QString postinst = reader->postinstCommand();
-	if (!postinst.isEmpty())
-		core->runGenericProcess(p, postinst, tr("Running post-installation trigger"));
-	*/
 	reader->setup();
 	return pref;
-}
-
-QString PrefixCollection::executable(QString file)
-{
-	if (file.endsWith(".exe", Qt::CaseInsensitive))
-		return file;
-	else if (file.endsWith(".msi", Qt::CaseInsensitive))
-		return QString ("msiexec \"%1\"").arg(file);
-	else if (file.endsWith(".bat", Qt::CaseInsensitive))
-		return QString("wineconsole.exe \"%1\"").arg(file);
-	else /* Oh my god */
-	{
-		qDebug() << "WARNING: Incompatible file";
-		return file;
-	}
 }
 
 void PrefixCollection::launchWinetricks(Prefix *prefix, const QStringList &args)

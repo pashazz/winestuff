@@ -19,42 +19,38 @@
 
 #ifndef INIREADER_H
 #define INIREADER_H
-//#include "sourcereader.h"
+#include "sourcereader.h"
 #include "corelib.h"
 #include "prefix.h"
 
 typedef QPair <QString, QString> Name;
 
-class WINESTUFFSHARED_EXPORT SourceReader : public QObject
+class WINESTUFFSHARED_EXPORT NativeReader : public SourceReader
 {
 public:
 	Q_OBJECT
 public:
-	explicit SourceReader(QString confId, corelib *lib, QObject *parent = 0) : QObject (parent), id(confId), core(lib), s(new QSettings("packages:" + id + "/control", QSettings::IniFormat, parent)) {}
-	~SourceReader() {}
-	static bool updateWines (const QStringList &prefixes, corelib *core);
+	explicit NativeReader(QString confId, corelib *lib, QObject *parent = 0) : SourceReader (parent, lib, confId), s(new QSettings("packages:" + id + "/control", QSettings::IniFormat, parent)) {}
+	~NativeReader() {}
 	bool checkWine ();
-	static QStringList configurations (const QStringList &directories);
-	QString ID () {return id;}
 	QString name();
 	QString note();
 	QString realName ();
 	QString realNote ();
-	QString setup();
+	bool setup();
+	void setDvd(const QString &device, const QString &path);
 	QString prefixPath ();
 	QString wine ();
 	QStringList components ();
-	QString filesDirectory ();
 	QString icon ();
 	Prefix::ApplicationType type();
-	bool preset();
-	QString preinstCommand ();
-	QString postinstCommand ();
+	Prefix *prefix();
 	bool detectApp (QString path);
 	static QString defaultWine (const QString &id); // default wine for prefix ID in this implementation
 	bool needToSetMemory ();
 	Name nameForLang (QString locale);
 	QStringList locales();
+	QString defaultWine();
 	bool isMulticd ();
 	short int discCount();
 signals:
@@ -62,15 +58,13 @@ signals:
 	void presetNameNeed (QString &name);
 	void presetNoteNeed (QString &note);
 protected:
-	QString id;
-	corelib *core;
 	QSettings *s;
 
 private:
 	QString _name;
 	QString _note;
 	QString _prefix;
-
+	QString _cdroot, _device;
 	bool downloadWine();
 	QString distr();
 	void writeMD5(const QString &md5sum);

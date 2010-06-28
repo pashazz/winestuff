@@ -41,8 +41,6 @@ public:
 	bool updatePrefix (Prefix *newData, QString id = ""); //если id пустой, то используется newData.id(). Указывайте QString id, только если он изменен.
 	bool havePrefix (const QString &id);
 protected:
-	static QString executable (QString file);
-
 	/*Functions for Prefix */
 	Name getName (QString locale, QString ID);
 

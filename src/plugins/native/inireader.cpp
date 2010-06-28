@@ -20,13 +20,13 @@
 #include "inireader.h"
 #include "limits"
 
-QString SourceReader::name()
+QString NativeReader::name()
 {
 	if (!_name.isEmpty())
 		return _name;
 	if (s->value("wine/preset").toBool())
 	{
-		emit presetNameNeed(_name);
+	 core->client()->getText(tr("Template"), tr("Enter template name, for example 'CoolGame v3'"), _name);
 	}
 	else
 	{
@@ -56,7 +56,7 @@ QString SourceReader::name()
 	return _name;
 }
 
-QString SourceReader::realName()
+QString NativeReader::realName()
 {
 	QFile file (workdir() + QDir::separator() + ".name." + QLocale::system().name() );
 	if (file.exists())
@@ -84,13 +84,13 @@ QString SourceReader::realName()
 }
 
 
-QString SourceReader::note()
+QString NativeReader::note()
 {
 	if (!_note.isEmpty())
 		return _note;
 	if (s->value ("wine/preset").toBool())
 	{
-		emit presetNoteNeed(_note);
+		core->client()->getText(tr("Template"), tr("Enter template`s note, for example 'It is a Cool Note'"), _note);
 	}
 	else
 	{
@@ -108,7 +108,7 @@ QString SourceReader::note()
 	}
 	return _note;
 }
-QString SourceReader::realNote ()
+QString NativeReader::realNote ()
 {
 	QString fileName;
 	if (QFile::exists(workdir() + "/.note." + QLocale::system().name())) //читаем локализованное примечание
@@ -125,19 +125,8 @@ return _note;
 }
 
 
- QStringList SourceReader::configurations (const QStringList &directories)
- {
-	 QStringList list;
-	 foreach (QString directory, directories)
-	 {
-	 foreach (QString dir, QDir(directory).entryList(QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot))
-	 {
-			 list << dir;
-	 }
- }
-	 return list;
- }
-bool SourceReader::checkWine()
+
+bool NativeReader::checkWine()
 {
 	if (s->value("wine/preset").toBool())
 		return true;
@@ -194,25 +183,22 @@ bool SourceReader::checkWine()
 	return true;
 }
 
-QString SourceReader::wine()
+QString NativeReader::wine()
 {
 if (s->value("wine/preset").toBool() || (distr().isEmpty()))
 	return core->whichBin("wine");
 else
 	return core->wineDir() + "/wines/" + id  + "/usr/bin/wine";
 }
-QString SourceReader::setup()
-{
-	return s->value("application/setup").toString();
-}
-QString SourceReader::prefixPath()
+/* todo: setup () */
+QString NativeReader::prefixPath()
 {
 	if (!_prefix.isEmpty())
 		return _prefix;
 	if (s->value("wine/preset").toBool())
 	{
 		QString prsid;
-		emit presetPrefixNeed(prsid);
+		core->client()->getText(tr("Template"), tr("Enter template`s ID. F.e.  if you type 'mygame', then your app will be installed in %1.").arg(core->wineDir() + "/mygame/drive_c"), prsid);
 		if (!prsid.isEmpty())
 		_prefix = core->wineDir() + QDir::separator() + prsid;
 		else
@@ -224,20 +210,13 @@ QString SourceReader::prefixPath()
 	}
 	return _prefix;
 }
-QStringList SourceReader::components()
+QStringList NativeReader::components()
 {
 	return s->value ("wine/components").toString().split(" ", QString::SkipEmptyParts);
 }
-QString SourceReader::filesDirectory()
-{
-	QDir dir ("packages:" + id);
-	if (dir.exists("files"))
-		return dir.absoluteFilePath("files");
-	else
-		return "";
-}
 
-QString SourceReader::icon()
+
+QString NativeReader::icon()
 {
 	QDir dir ("packages:" + id);
 	if (dir.exists("icon"))
@@ -245,31 +224,9 @@ QString SourceReader::icon()
 	else
 		return "";
 }
-QString SourceReader::preinstCommand()
-{
-	QDir dir ("packages:" + id);
-	if (dir.exists("preinst"))
-	{
-		QFileInfo info (dir.absoluteFilePath("preinst"));
-		if (info.isExecutable())
-			return info.absoluteFilePath();
-	}
-	return "";
-}
 
-QString SourceReader::postinstCommand()
-{
-	QDir dir ("packages:" + id);
-	if (dir.exists("postinst"))
-	{
-		QFileInfo info (dir.absoluteFilePath("postinst"));
-		if (info.isExecutable())
-			return info.absoluteFilePath();
-	}
-	return "";
-}
 
-bool SourceReader::downloadWine() {
+bool NativeReader::downloadWine() {
 	QString md5sum;
  if (!distr().isEmpty())
 	{
@@ -306,7 +263,7 @@ bool SourceReader::downloadWine() {
  return true;
 }
 
-QString SourceReader::distr()
+QString NativeReader::distr()
 {
 	QUrl url (s->value("wine/distr").toString());
 	if (url.isEmpty() || (!url.isValid()))
@@ -322,7 +279,7 @@ QString SourceReader::distr()
 		return url.toString();
 }
 
-void SourceReader::writeMD5(const QString &md5sum)
+void NativeReader::writeMD5(const QString &md5sum)
 {
 	if (s->value("wine/nomd5", false).toBool())
 		return;
@@ -335,7 +292,7 @@ void SourceReader::writeMD5(const QString &md5sum)
 	stream << md5sum;
 	file.close();
 }
-QString SourceReader::getMD5()
+QString NativeReader::getMD5()
 {
 	if (s->value("wine/nomd5", false).toBool())
 		return "";
@@ -358,11 +315,11 @@ QString SourceReader::getMD5()
 	return md5;
 }
 
-bool SourceReader::isMulticd()
+bool NativeReader::isMulticd()
 {
 	return s->value("disc/multicd").toBool();
 }
- short int SourceReader::discCount()
+ short int NativeReader::discCount()
 {
 	 if (s->value("disc/count").toInt() > SHRT_MAX)
 	 {
@@ -372,12 +329,12 @@ bool SourceReader::isMulticd()
 	return s->value("disc/count").toInt();
 }
 
- bool SourceReader::needToSetMemory()
+ bool NativeReader::needToSetMemory()
  {
 	 return s->value("wine/memory").toBool();
  }
 
- QStringList SourceReader::locales()
+ QStringList NativeReader::locales()
  {
 	 QDir dir ("packages:" + id);
 	 QStringList loc;
@@ -396,7 +353,7 @@ bool SourceReader::isMulticd()
   * List of locales can be got with locales()
   */
 
- Name SourceReader::nameForLang(QString locale)
+ Name NativeReader::nameForLang(QString locale)
  {
 	 Name names;
 	 QString nameFile, noteFile;
@@ -442,32 +399,12 @@ else
 	 return names;
  }
 
- QString SourceReader::workdir()
+ QString NativeReader::workdir()
  {
 	 return QDir ("packages:" + id).absolutePath();
  }
 
- bool SourceReader::updateWines (const QStringList &prefixes, corelib *core)
- {
-	 QStringList confs = SourceReader::configurations(core->packageDirs());
-	 foreach (QString str, prefixes)
-	 {
-		 if (!confs.contains(str))
-			 continue;
-		 SourceReader reader (str, core, 0);
-		bool res = reader.checkWine();
-		if (!res)
-			return false;
-	 }
-	 return true;
- }
-
- QString SourceReader::defaultWine(const QString &id)
- {
-	 return QString ("winedir:wines/%1/usr/bin/wine").arg(id);
- }
-
- QStringList SourceReader::discFileList (const QString &disc)
+ QStringList NativeReader::discFileList (const QString &disc)
  {
      QFile file (QString ("%1/cdrom.d/%2").arg (workdir ()).arg (disc));
      QTextStream stream (&file);
@@ -480,19 +417,13 @@ else
      return list;
  }
 
- QStringList SourceReader::availableDiscs ()
+ QStringList NativeReader::availableDiscs ()
  {
      QDir dir (workdir () + "/cdrom.d");
      return dir.entryList (QDir::Files | QDir::Readable);
  }
 
- bool SourceReader::preset()
- {
-	 return s->value("wine/preset", false).toBool();
- }
-
-
- bool SourceReader::detectApp(QString path)
+ bool NativeReader::detectApp(QString path)
  {
 	 //Get workdir (dir of winegame package) (detecting code here)
 	 //If not detected, return empty string
@@ -525,7 +456,7 @@ else
 	  }
  }
 
- Prefix::ApplicationType SourceReader::type()
+ Prefix::ApplicationType NativeReader::type()
  {
 	 Prefix::ApplicationType type;
 	 const QString key = "application/category";
@@ -546,4 +477,76 @@ else
 	 else
 		 type = Prefix::Other;
 	 return type;
+ }
+
+ bool NativeReader::setup()
+ {
+	 QProcess *p = new QProcess (this);
+	 Prefix *pref = prefix();
+	 p->setProcessEnvironment(pref->environment());
+	 QString file;
+	 if (_cdroot.isEmpty())
+		 core->client()->selectExe(tr("Select EXE/MSI/BAT file"), file);
+	 else
+	 {
+		 QDir cddir (_cdroot);
+		 QString setupForce = s->value("application/setup").toString();
+		 if ((!setupForce.isEmpty()) && cddir.exists(setupForce.split(" ", QString::SkipEmptyParts).at(0)))
+			 file = cddir.filePath(setupForce);
+		 else
+		 {
+			 //Retreive EXE from CD`s root
+			 QSettings stg (core->autorun(_cdroot),QSettings::IniFormat, this);
+			 QString open = stg.value("autorun/open").toString();
+			 if (!open.isEmpty())
+				 file = cddir.filePath(open);
+			 else
+				 core->client()->selectExe(tr("Select EXE/MSI/BAT file"), file);
+		 }
+	 }
+	 if (file.isEmpty())
+		 return false;
+ QString exe = executable(file);
+ QDir dir ("packages:" + id);
+ QString preinst = dir.absoluteFilePath("preinst");
+ if (QFile(preinst).exists())
+	 core->runGenericProcess(p, preinst, tr("Running pre-installation trigger"));
+ //собсно наш exe
+ pref->runApplication(exe, "", true); //выводим мод. диалог
+ //теперь postinst
+ QString postinst = dir.absoluteFilePath("posinst");
+if (!QFile(postinst).exists())
+	core->runGenericProcess(p, postinst, tr("Running post-installation trigger"));
+ }
+
+ Prefix * NativeReader::prefix()
+ {
+	 Prefix *prefix = new Prefix (this, core);
+	 prefix->setName(name());
+	 prefix->setName(note());
+	 prefix->setPath(prefixPath());
+	 prefix->setWine(wine());
+	 if ((!!_cdroot.isEmpty()) && (!_device.isEmpty()))
+	 {
+		 prefix->setDiscAttributes(_cdroot, _device);
+	 }
+	 prefix->setType(type());
+	 return prefix;
+ }
+
+ void NativeReader::setDvd(const QString &device, const QString &path)
+ {
+	 if (device.isEmpty())
+		 _device = "/dev/cdrom";
+	 else
+		 _device = device;
+	 _cdroot = path;
+ }
+
+ QString NativeReader::defaultWine()
+ {
+	 if (s->value("wine/distr").isNull())
+		 return core->whichBin("wine");
+	 else
+		 return QString ("winedir:wines/%1/usr/bin/wine").arg(id);
  }

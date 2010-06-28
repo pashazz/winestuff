@@ -46,8 +46,6 @@ public:
 	virtual QString wine () = 0;
 	virtual QStringList components () = 0;
 	virtual QString icon () = 0;
-	virtual QString preinstCommand () = 0;
-	virtual QString postinstCommand () = 0;
 	virtual bool detectApp (QString path) = 0;
 	virtual QString defaultWine () = 0;
 	virtual bool needToSetMemory () = 0;
@@ -56,6 +54,7 @@ public:
 protected:
 	QString id;
 	corelib *core;
+	QString executable (const QString &file);
 };
 
 #endif // SOURCEREADER_H

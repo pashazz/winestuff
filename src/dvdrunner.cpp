@@ -213,18 +213,7 @@ void DVDRunner::cleanup()
 
 QString DVDRunner::exe ()
 {
- //Получает файл из autorun.inf и/или "setup"
 	QString exe;
-	//force application/setup
-	if (reader && (!reader->setup().isEmpty()))
-	{
-	exe = diskPath + QDir::separator() + reader->setup();
-	if (QFile::exists(exe))
-		return exe;
-	else
-		qDebug() << "wrong exe: " << exe;
-	}
-
 	//Теперь просмотрим AutoRun
 	if (!core->autorun(diskPath).isEmpty())
 	{

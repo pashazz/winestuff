@@ -26,6 +26,9 @@ find_package( Qt4 REQUIRED )
 
 set (CMAKE_BUILD_TYPE Debug)
 include (${QT_USE_FILE})
+set (WSTDIR ${CMAKE_CURRENT_SOURCE_DIR})
+# Compile Native plug-in
+add_subdirectory(plugins/native)
 set (QHEADERS corelib.h  dvdrunner.h  poldownloader.h  prefix.h sourcereader.h  uiclient.h prefixcollection.h plugincore.h)
 set (HEADERS ${QHEADERS}  formatinterface.h libwinegame_global.h)
 set (SOURCES corelib.cpp  dvdrunner.cpp  poldownloader.cpp  prefix.cpp sourcereader.cpp prefixcollection.cpp plugincore.cpp)

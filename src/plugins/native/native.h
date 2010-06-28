@@ -17,26 +17,22 @@
 */
 
 
-#include "sourcereader.h"
-
-SourceReader::SourceReader(QObject *parent, corelib *core, QString id) :
-    QObject(parent)
+#ifndef NATIVE_H
+#define NATIVE_H
+#include "formatinterface.h"
+#include "inireader.h"
+class NativeFormat : public FormatInterface
 {
-	this->core = core;
-	this->id = id;
-}
+public:
+    NativeFormat();
+	QList <SourceReader *> readers(corelib *core, bool includeDvd);
+	QString author() {return "(C) Pavel Zinin - 2010. GNU LGPL licensed.";}
+	QString title () {return "Winestuff native format";}
+	bool hasFeature(Pashazz::Feautures feature);
+	bool updateAllWines(corelib *core);
 
-QString SourceReader::executable(const QString &file)
-{
-	if (file.endsWith(".exe", Qt::CaseInsensitive))
-		return file;
-	else if (file.endsWith(".msi", Qt::CaseInsensitive))
-		return QString ("msiexec \"%1\"").arg(file);
-	else if (file.endsWith(".bat", Qt::CaseInsensitive))
-		return QString("wineconsole.exe \"%1\"").arg(file);
-	else /* Oh my god */
-	{
-		qDebug() << "WARNING: Incompatible file";
-		return file;
-	}
-}
+private:
+	//Todo: packageDirs here
+};
+
+#endif // NATIVE_H
