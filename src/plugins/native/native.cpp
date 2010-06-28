@@ -71,3 +71,15 @@ bool NativeFormat::updateAllWines(corelib *core)
 	}
 	return true;
 }
+
+SourceReader *  NativeFormat::readerById(const QString &id, corelib *core)
+{
+	foreach (SourceReader *reader, readers(core, true))
+	{
+		if (reader->ID() == id)
+			return reader;
+	}
+	return 0;
+}
+
+Q_EXPORT_PLUGIN2(wst_native, NativeFormat)

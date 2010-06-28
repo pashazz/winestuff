@@ -6,6 +6,7 @@ else (${CMAKE_SYSTEM_NAME} MATCHES Linux)
 endif (${CMAKE_SYSTEM_NAME} MATCHES Linux)
 
 find_package( Qt4 REQUIRED )
+set(QT_USE_QTGUI 0)
             IF(QT_QTNETWORK_FOUND)
                 SET(QT_USE_QTNETWORK 1)
             ELSE(QT_QTNETWORK_FOUND)

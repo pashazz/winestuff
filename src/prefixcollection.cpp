@@ -33,10 +33,11 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 		return 0;
 	if (reader->ID().isEmpty())
 		return 0;
-	if (!core->checkPrefixName(reader->ID()))
+	if (reader->prefixPath().isEmpty())
 		return 0;
 	if (reader->name().isEmpty())
 		return 0;
+
 	//проверяем Wine
 	if(!reader->checkWine())
 		return 0;
@@ -95,7 +96,7 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 	pref->makefix();
 	//launch winetricks
 	launchWinetricks(pref, reader->components());
-	reader->setup();
+	reader->setup(file);
 	return pref;
 }
 

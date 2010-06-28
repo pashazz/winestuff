@@ -39,7 +39,7 @@ public:
 	virtual QString note() = 0;
 	virtual QString realName () = 0;
 	virtual QString realNote () = 0;
-	virtual bool setup() = 0;
+	virtual bool setup(const QString &file) = 0;
 	virtual void  setDvd (const QString &device, const QString &path) = 0;
 	virtual Prefix * prefix () = 0;
 	virtual QString prefixPath () = 0;
@@ -55,6 +55,7 @@ protected:
 	QString id;
 	corelib *core;
 	QString executable (const QString &file);
+	static bool isIdValid(const QString &id);
 };
 
 #endif // SOURCEREADER_H

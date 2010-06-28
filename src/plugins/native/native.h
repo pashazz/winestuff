@@ -21,8 +21,10 @@
 #define NATIVE_H
 #include "formatinterface.h"
 #include "inireader.h"
-class NativeFormat : public FormatInterface
+class NativeFormat : public QObject, public FormatInterface
 {
+	Q_OBJECT
+	Q_INTERFACES(FormatInterface)
 public:
     NativeFormat();
 	QList <SourceReader *> readers(corelib *core, bool includeDvd);
@@ -30,7 +32,7 @@ public:
 	QString title () {return "Winestuff native format";}
 	bool hasFeature(Pashazz::Feautures feature);
 	bool updateAllWines(corelib *core);
-
+	SourceReader * readerById (const QString &id, corelib *core);
 private:
 	//Todo: packageDirs here
 };

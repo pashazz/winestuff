@@ -40,3 +40,14 @@ QString SourceReader::executable(const QString &file)
 		return file;
 	}
 }
+
+bool SourceReader::isIdValid(const QString &id)
+{
+	QStringList invSymbols = QStringList () << ";"  << "wines" << "wineversion" << QDir::separator() << " ";
+	foreach (QString str, invSymbols)
+	{
+		if (id.contains(str, Qt::CaseInsensitive))
+			return false;
+	}
+	return true;
+}

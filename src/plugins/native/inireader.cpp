@@ -80,6 +80,8 @@ QString NativeReader::realName()
 		  _name = QDir(workdir()).dirName();
 		}
 	}
+	if (s->value("wine/preset").toBool())
+		_name += tr(" [template]");
 	return _name;
 }
 
@@ -197,12 +199,22 @@ QString NativeReader::prefixPath()
 		return _prefix;
 	if (s->value("wine/preset").toBool())
 	{
+		setPrefix:
 		QString prsid;
 		core->client()->getText(tr("Template"), tr("Enter template`s ID. F.e.  if you type 'mygame', then your app will be installed in %1.").arg(core->wineDir() + "/mygame/drive_c"), prsid);
 		if (!prsid.isEmpty())
-		_prefix = core->wineDir() + QDir::separator() + prsid;
+		{
+			_prefix = core->wineDir() + QDir::separator() + prsid;
+			if (QDir(_prefix).exists() || (!this->isIdValid(prsid)))
+			{
+				core->client()->error(tr("Enter an unique non-existent ID"), tr("This prefix is exists and/or invalid"));
+				goto setPrefix;
+			}
+			id = prsid;
+		}
 		else
 			_prefix = "";
+
 	}
 	else
 	{
@@ -479,33 +491,13 @@ else
 	 return type;
  }
 
- bool NativeReader::setup()
+ bool NativeReader::setup(const QString &file)
  {
 	 QProcess *p = new QProcess (this);
 	 Prefix *pref = prefix();
 	 p->setProcessEnvironment(pref->environment());
-	 QString file;
-	 if (_cdroot.isEmpty())
-		 core->client()->selectExe(tr("Select EXE/MSI/BAT file"), file);
-	 else
-	 {
-		 QDir cddir (_cdroot);
-		 QString setupForce = s->value("application/setup").toString();
-		 if ((!setupForce.isEmpty()) && cddir.exists(setupForce.split(" ", QString::SkipEmptyParts).at(0)))
-			 file = cddir.filePath(setupForce);
-		 else
-		 {
-			 //Retreive EXE from CD`s root
-			 QSettings stg (core->autorun(_cdroot),QSettings::IniFormat, this);
-			 QString open = stg.value("autorun/open").toString();
-			 if (!open.isEmpty())
-				 file = cddir.filePath(open);
-			 else
-				 core->client()->selectExe(tr("Select EXE/MSI/BAT file"), file);
-		 }
-	 }
-	 if (file.isEmpty())
-		 return false;
+	  if (file.isEmpty())
+		return false;
  QString exe = executable(file);
  QDir dir ("packages:" + id);
  QString preinst = dir.absoluteFilePath("preinst");
@@ -515,7 +507,7 @@ else
  pref->runApplication(exe, "", true); //выводим мод. диалог
  //теперь postinst
  QString postinst = dir.absoluteFilePath("posinst");
-if (!QFile(postinst).exists())
+if (QFile(postinst).exists())
 	core->runGenericProcess(p, postinst, tr("Running post-installation trigger"));
  }
 

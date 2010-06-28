@@ -37,7 +37,7 @@ public:
 	QString note();
 	QString realName ();
 	QString realNote ();
-	bool setup();
+	bool setup(const QString &file);
 	void setDvd(const QString &device, const QString &path);
 	QString prefixPath ();
 	QString wine ();

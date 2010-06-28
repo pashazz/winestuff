@@ -39,6 +39,7 @@ public:
 	virtual bool hasFeature (Pashazz::Feautures feature) = 0;
 	virtual QList<SourceReader *> readers (corelib *core, bool includeDvd = false) = 0;
 	virtual bool updateAllWines (corelib *core) = 0;
+	virtual SourceReader * readerById (const QString &id, corelib *core) = 0;
 };
 Q_DECLARE_INTERFACE(FormatInterface,
 					"org.pashazz.winestuff.FormatInterface/0.2")

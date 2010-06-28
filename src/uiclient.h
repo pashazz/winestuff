@@ -50,7 +50,7 @@ public:
    /* say directory */
    virtual QString directoryDialog (const QString &description, const QString &startDirectory) = 0;
    /* For questions about Prefix, etc */
-   virtual void  getText (const QString &title, const QString &message, QString &result);
+   virtual void  getText (const QString &title, const QString &message, QString &result) = 0;
 };
 
 #endif // UICLIENT_H
