@@ -19,12 +19,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "prefixcollection.h"
 
-PrefixCollection::PrefixCollection (QSqlDatabase database, corelib *lib, QObject *parent)
+PrefixCollection::PrefixCollection (QSqlDatabase database, corelib *lib, PluginWorker *worker, QObject *parent)
 	:QObject(parent)
 {
 	db = database;
+	wrk = worker;
 	core =lib;
 	loc = QLocale::system().name();
+	connect (lib, SIGNAL(videoMemoryChanged()), this, SLOT(updateVideoMemory()));
 }
 
 Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dvdObj)
@@ -229,4 +231,29 @@ bool PrefixCollection::havePrefix(const QString &id)
 	if (!prefix)
 		return false;
 	return (!prefix->ID().isEmpty()) || (!prefix->path().isEmpty());
+}
+
+void PrefixCollection::updateVideoMemory()
+{
+	foreach (Prefix *prefix, prefixes())
+	{
+		QString id = prefix->ID();
+		SourceReader *reader;
+		foreach (FormatInterface *plugin, wrk->plugins())
+		{
+			SourceReader *r = plugin->readerById(id, core);
+			if (r)
+			{
+				reader = r;
+				break;
+			}
+		}
+		if (reader)
+		{
+			if (reader->needToSetMemory())
+				prefix->setMemory();
+		}
+		else
+			prefix->setMemory();
+	}
 }

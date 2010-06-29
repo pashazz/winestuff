@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "uiclient.h"
 #include "libwinegame_global.h"
 
-class PluginWorker;
-
 class  WINESTUFFSHARED_EXPORT corelib : public QObject
 {
     Q_OBJECT
@@ -71,6 +69,8 @@ public:
 	void setDatabase (QSqlDatabase database) {db = database;}
 	QSqlDatabase database () {return db;}
 
+signals:
+	void videoMemoryChanged();
 private slots:
 	void error (QNetworkReply::NetworkError);
 	void setRange (qint64, qint64); //заглушка для QProgressDialog

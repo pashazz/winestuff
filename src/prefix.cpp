@@ -46,12 +46,8 @@ void Prefix::setMemory()
 	stream << "\n";
 	f.close();
 	QProcess p (this);
-	QStringList args;
-	args << "regedit";
-	args << f.fileName();
 	p.setProcessEnvironment(environment());
-	p.start(wine(), args);
-	p.waitForFinished(-1);
+	core->runGenericProcess(&p, QString ("%1 regedit %2").arg(wine()).arg(f.fileName()), tr("Updating video memory, application %1").arg(name()));
 	f.remove();
 }
 

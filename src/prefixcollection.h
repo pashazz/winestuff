@@ -21,13 +21,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef PREFIXCOLL
 #define PREFIXCOLL
 #include "prefix.h"
+#include "plugincore.h"
 #include "sourcereader.h"
 
 class WINESTUFFSHARED_EXPORT PrefixCollection : public QObject
 {
 	Q_OBJECT
 public:
-	PrefixCollection (QSqlDatabase database, corelib *lib, QObject *parent = 0);
+	PrefixCollection (QSqlDatabase database, corelib *lib, PluginWorker *worker, QObject *parent = 0);
 	virtual ~PrefixCollection() {}
 	Prefix* install (SourceReader *reader, QString file, QString dvdObj = "");
 	bool remove (QString id);
@@ -48,6 +49,9 @@ private:
 	QSqlDatabase db;
 	corelib *core;
 	QLocale loc;
+	PluginWorker *wrk;
+private slots:
+	void updateVideoMemory();
 };
 
 #endif // PREFIX_H

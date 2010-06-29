@@ -331,22 +331,7 @@ void corelib::setVideoMemory(int memory, bool isempty)
 		return;
 	setConfigValue("VideoMemory", memory, isempty);
 	settings->sync(); //we need to force sync
-	//Sync all videomemory entries
-	/*	foreach (QString d, packageDirs())
-	{
-		QDir dir(d);
-	foreach (QFileInfo info, dir.entryInfoList(QDir::Dirs | QDir::Readable))
-	{
-		//construct prefix obj
-		Prefix *prefix = new Prefix (this->parent(), info.absoluteFilePath(), this);
-		if (prefix->hasDBEntry())
-		{
-			prefix->checkWineDistr();
-			prefix->setMemory();
-		}
-	}
-}
-*/ //todo: port it to new architecture
+	emit videoMemoryChanged();
 }
 QString corelib::videoMemory()
 {

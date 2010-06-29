@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 PluginWorker::PluginWorker(QObject *parent, corelib *core) :
     QObject(parent)
 {
+	//! we will NOT load static plugins
+	/*
 	foreach (QObject *plugin, QPluginLoader::staticInstances())
 	{
 		FormatInterface *interface = qobject_cast<FormatInterface*>(plugin);
@@ -31,6 +33,7 @@ PluginWorker::PluginWorker(QObject *parent, corelib *core) :
 			qDebug() << "pluginloader: Plugin " << interface->title() << " loaded.";
 		}
 	}
+	*/
 	QDir dir (qApp->applicationDirPath()); //calculate pkgdir
 	if (dir.dirName() == "bin")
 	{
