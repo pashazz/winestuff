@@ -59,6 +59,7 @@ PluginWorker::PluginWorker(QObject *parent, corelib *core) :
 		if (interface)
 		{
 			_plugins.append(interface);
+			interface->on_loadPlugin(core);
 			fileNames << file.fileName();
 			qDebug() << "pluginloader: Plugin" << interface->title() << " loaded.";
 		}

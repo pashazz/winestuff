@@ -19,13 +19,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "corelib.h"
-//The core of WineGame. Commonly used func.
+/// The core of winestuff. Commonly used functions.
 corelib::corelib(QObject *parent, UiClient *client)
 	:QObject(parent), ui (client)
 {
 	//Init Settings object
 	settings = new QSettings (config(), QSettings::IniFormat, this);
-	QDir::setSearchPaths("packages", packageDirs());
 	QDir::setSearchPaths("winedir", QStringList(wineDir()));
 	//Init translations object
 #ifdef Q_WS_X11
@@ -51,15 +50,7 @@ void corelib::init(const QString &configPath, const QString &dbConnectionName)
 {
 	_confpath = configPath;
 	initconf(configPath);
-//скачаем пакеты
-	if (autoSync())
-	{
-		if (!syncPackages())
-		{
-			ui->error(tr("Initialzation error"), tr("Unable to download packages"));
-			qApp->exit(-7);
-		}
-	}
+
 	bool isMakeDb;
 	isMakeDb = (!QFile::exists(wineDir() + "/installed.db"));
 	if (dbConnectionName.isEmpty())
@@ -253,8 +244,6 @@ bool corelib::initconf(const QString &configPath)
 	setWineDir(dir.absoluteFilePath("windows"), true);
 	setMountDir(dir.absoluteFilePath("mounts"), true);
 	setDiscDir(dir.absoluteFilePath("disc"), true);
-	setPackageDirs(QStringList(dir.absoluteFilePath("packages")), true);
-	setSyncMirrors(QStringList("http://winegame-project.ru/winepkg"), true);
 	if (QDir(discDir()).exists())
 	{
 	//подчищаем discDir
@@ -263,7 +252,7 @@ bool corelib::initconf(const QString &configPath)
 		ui->endProgress();
 	}
 	//check if dirs exists
-	QStringList paths = QStringList () << wineDir() << mountDir() /*<< discDir()*/ ;
+	QStringList paths = QStringList () << wineDir() << mountDir();
 	foreach (QString path, paths)
 	{
 		QDir dir (path);
@@ -276,9 +265,7 @@ bool corelib::initconf(const QString &configPath)
 QString corelib::wineDir() {
 	return settings->value("WineDir").toString();
 }
-QStringList corelib::packageDirs() {
-	return settings->value("PackageDir").toString().split(';', QString::SkipEmptyParts);
-}
+
 QString corelib::mountDir() {
 	return settings->value("MountDir").toString();
 }
@@ -293,19 +280,7 @@ void corelib::setWineDir(QString dir, bool isempty)
 	}
 	setConfigValue("WineDir", dir, isempty);
 }
-void corelib::setPackageDirs(const QStringList &dirs, bool isempty)
-{
-	if (isempty && (!packageDirs().isEmpty()))
-	{
-		foreach (QString dir, packageDirs())
-		{
-			QFileInfo mdir (dir);
-			if ((!mdir.exists()) || (!mdir.isWritable()))
-				isempty = false;
-		}
-	}
-	setConfigValue("PackageDir", dirs.join(";"), isempty);
-}
+
 void corelib::setMountDir(QString dir, bool isempty)
 {
 	if (isempty && (!mountDir().isEmpty()))
@@ -524,76 +499,6 @@ void corelib::setConfigValue(QString key, QVariant value, bool setIfEmpty)
 	}
 }
 
-bool corelib::syncPackages()
-{
-	foreach (QString mirror, syncMirrors())
-	{
-		if (mirror.isEmpty())
-			continue;
-		// инициализирую QtNetwork классы
-		//загружаю файл LAST
-		QEventLoop loop;
-		QNetworkAccessManager *manager = new QNetworkAccessManager (this);
-		QNetworkRequest req; //request для Url
-		req.setUrl(QUrl(mirror + "/LAST"));
-		req.setRawHeader("User-Agent", "Winegame-Browser 0.1");
-		QNetworkReply *reply = manager->get(req);
-		currentReply = reply;
-		connect (reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
-		connect (reply, SIGNAL(finished()), &loop, SLOT(quit()));
-		connect (reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
-		ui->showProgressBar(tr("Downloading winegame packagelist"), SLOT(cancelCurrentOperation()), this);
-		ui->progressText(tr("Downloading winegame release info...."));
-		loop.exec();
-		ui->endProgress();
-		QByteArray relInfo = reply->readAll();
-		if (relInfo.isEmpty())
-		{
-			qDebug() << "wgpkg: failed to fetch packages from" << mirror << "URL " << req.url();
-			return false;
-		}
-		//открываем ~/.winegame/packages/LAST
-		QFile file (packageDirs().first() + "/LAST");
-		if (!file.exists())
-			file.open(QIODevice::WriteOnly);
-		else
-		{
-			//читаем содержимое LAST, сравнивая его с relInfo
-			file.open(QIODevice::ReadOnly);
-			if (relInfo == file.readAll())
-			return true;
-			//закрываем файл и открываем его в режиме truncate
-			file.close();
-			file.open(QIODevice::WriteOnly | QIODevice::Truncate);
-		}
-		//записываем relInfo
-		file.write(relInfo);
-		file.close();
-		//загружаю дистрибутив package-latest.tar.bz2
-		req.setUrl(QUrl(mirror + "/packages-latest.tar.bz2"));
-		QNetworkReply *reply2 = manager->get(req);
-		currentReply = reply2;
-		connect (reply2, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
-		connect (reply2, SIGNAL(finished()), &loop, SLOT(quit()));
-		connect (reply2, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
-		ui->showProgressBar(tr("Downloading winegame package index"), SLOT(cancelCurrentOperation()), this);
-		ui->progressText(tr("Downloading winegame packages..."));
-		loop.exec();
-		ui->endProgress();
-		//записываем в /tmp
-		QString tfile = QDir::tempPath() + "/index.tar.bz2";
-		file.setFileName(tfile);
-		file.open(QIODevice::WriteOnly);
-		file.write(reply2->readAll());
-		file.close();
-		bool res = unpackWine(tfile, packageDirs().first());
-		file.remove();
-		if (!res)
-			return false;
-	}
-	return true;
-}
-
 int corelib::runGenericProcess(QProcess *process, const QString &program, QString message)
 {
 	/*
@@ -621,24 +526,6 @@ bool corelib::autoSync()
 	return settings->value("AutoSync", false).toBool();
 }
 
-QStringList corelib::syncMirrors()
-{
-	//не используем механизм QStringList для QSettings, т.к. нельзя. (отпадает возможность удобного ручного редактирования
-	return settings->value("hosts/sync").toString().split(";", QString::SkipEmptyParts);
-}
-
-void corelib::setSyncMirrors(QStringList urls, bool isempty)
-{
-	foreach (QString str, urls)
-	{
-		if (!QUrl(str).isValid())
-			urls.removeOne(str);
-	}
-	if (urls.isEmpty())
-		return;
-	QString value  = urls.join(";");
-	setConfigValue("hosts/sync", value, isempty);
-}
 
 /*!
  Отменяет текущую операцию загрузки (см. corelib::downloadWine())

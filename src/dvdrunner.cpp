@@ -179,7 +179,7 @@ bool DVDRunner::detect()
 {
 	foreach (FormatInterface *interface, _worker->plugins())
 	{
-		foreach (SourceReader *reader, interface->readers(core, true))
+		foreach (SourceReader *reader, interface->readers(true))
 		{
 			if (reader->detectApp(diskDirectory()))
 			{

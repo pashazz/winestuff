@@ -38,12 +38,10 @@ public:
 	void init (const QString &configPath, const QString &dbConnectionName = "");
 	bool unpackWine(QString distr, QString destination);
 	QString unixSystem () {return system;} //наша замена QSysInfo. На системах Win/Lin/Mac/Symbian возвращает пустую строку
-	bool syncPackages();
 	static bool checkPrefixName (QString);
 	void runSingleExe (QStringList exe) ;
 	/// Блок настроек
 	QString wineDir ();
-	QStringList packageDirs ();
 	QString mountDir ();
 	QString videoMemory ();
 	QString discDir();
@@ -53,14 +51,11 @@ public:
 	void syncSettings() {settings->sync();}
 	static QString autorun (QString diskRoot);
 	void setWineDir (QString dir, bool isempty =false);
-	void setPackageDirs (const QStringList  &dirs, bool isempty = false);
 	void setMountDir (QString dir, bool isempty = false);
 	void setVideoMemory (int memory, bool isempty = false);
 	void setDiscDir(QString dir, bool isempty = false);
-	void setSyncMirrors(QStringList urls, bool isempty = false);
 	void setAutosync (bool value, bool isempty = false);
 	QString configPath () {return _confpath;}
-	QStringList syncMirrors();
 	QString getSudoProg ();
 	QString downloadWine(QString url);
 	QString shareDir () const;

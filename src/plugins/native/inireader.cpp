@@ -193,7 +193,7 @@ QStringList NativeReader::components()
 
 QString NativeReader::icon()
 {
-	QDir dir ("packages:" + id);
+	QDir dir ("nativepackages:" + id);
 	if (dir.exists("icon"))
 		return dir.absoluteFilePath("icon");
 	else
@@ -313,7 +313,7 @@ bool NativeReader::isMulticd()
  {
 	 if (s->value("wine/preset").toBool())
 		 return QStringList ("C");
-	 QDir dir ("packages:" + id);
+	 QDir dir ("nativepackages:" + id);
 	 QStringList loc;
 	 QStringList  filters = QStringList () << ".name*" << ".note*";
 	 foreach (QFileInfo file, dir.entryInfoList(filters, QDir::Files | QDir::Readable))
@@ -337,12 +337,12 @@ bool NativeReader::isMulticd()
 	 {
 		 QString nameFile, noteFile;
 		 if (locale == "C")
-			 nameFile = QString ("packages:%1/.name").arg(id);
+			 nameFile = QString ("nativepackages:%1/.name").arg(id);
 		 else
 		 {
-			 nameFile = QString ("packages:%1/.name.%2").arg(id).arg(locale);
+			 nameFile = QString ("nativepackages:%1/.name.%2").arg(id).arg(locale);
 	 if (!QFile::exists(nameFile))
-		 nameFile = QString ("packages:%1/.name").arg(id);
+		 nameFile = QString ("nativepackages:%1/.name").arg(id);
  }
 	 if (QFile::exists(nameFile))
 		 {
@@ -359,12 +359,12 @@ bool NativeReader::isMulticd()
 		 names.first = id;
 // The same for notefile
 	 if (locale == "C")
-		 noteFile = 	 nameFile = QString ("packages:%1/.note").arg(id);
+		 noteFile = 	 nameFile = QString ("nativepackages:%1/.note").arg(id);
 	 else
 	 {
-		 noteFile = QString("packages:%1/.note.%2").arg(id).arg(locale);
+		 noteFile = QString("nativepackages:%1/.note.%2").arg(id).arg(locale);
 		 if (!QFile::exists(noteFile))
-			 nameFile = QString ("packages:%1/.note").arg(id);
+			 nameFile = QString ("nativepackages:%1/.note").arg(id);
 	 }
 	 if (QFile::exists(noteFile))
 	 {
@@ -386,7 +386,7 @@ bool NativeReader::isMulticd()
 
  QString NativeReader::workdir()
  {
-	 return QDir ("packages:" + id).absolutePath();
+	 return QDir ("nativepackages:" + id).absolutePath();
  }
 
  QStringList NativeReader::discFileList (const QString &disc)
@@ -472,7 +472,7 @@ bool NativeReader::isMulticd()
 	  if (file.isEmpty())
 		return false;
  QString exe = executable(file);
- QDir dir ("packages:" + id);
+ QDir dir ("nativepackages:" + id);
  QString preinst = dir.absoluteFilePath("preinst");
  if (QFile(preinst).exists())
 	 core->runGenericProcess(p, preinst, tr("Running pre-installation trigger"));

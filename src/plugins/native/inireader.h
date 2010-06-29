@@ -31,7 +31,7 @@ class WINESTUFFSHARED_EXPORT NativeReader : public SourceReader
 public:
 	Q_OBJECT
 public:
-	explicit NativeReader(QString confId, corelib *lib, QObject *parent = 0) : SourceReader (parent, lib, confId), s(new QSettings("packages:" + id + "/control", QSettings::IniFormat, parent)) {}
+	explicit NativeReader(QString confId, corelib *lib, QObject *parent = 0) : SourceReader (parent, lib, confId), s(new QSettings("nativepackages:" + id + "/control", QSettings::IniFormat, parent)) {}
 	~NativeReader() {}
 	bool checkWine ();
 	QString name();

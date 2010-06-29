@@ -21,20 +21,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define NATIVE_H
 #include "formatinterface.h"
 #include "inireader.h"
+
+typedef QList<QUrl> QUrlList;
+
 class NativeFormat : public QObject, public FormatInterface
 {
 	Q_OBJECT
 	Q_INTERFACES(FormatInterface)
 public:
     NativeFormat();
-	QList <SourceReader *> readers(corelib *core, bool includeDvd);
+	QList <SourceReader *> readers(bool includeDvd);
 	QString author() {return "(C) Pavel Zinin - 2010. GNU LGPL licensed.";}
 	QString title () {return "Winestuff native format";}
 	bool hasFeature(Pashazz::Feautures feature);
-	bool updateAllWines(corelib *core);
-	SourceReader * readerById (const QString &id, corelib *core);
+	bool updateAllWines();
+	SourceReader * readerById (const QString &id);
+	void on_loadPlugin(corelib *lib);
 private:
 	//Todo: packageDirs here
+	QStringList packageDirs();
+	QUrlList syncMirrors();
+	QString _coreDirectory;
+	QString mirrorFile, dirsFile;
+	void checkFiles();
+	corelib *core;
 };
 
 #endif // NATIVE_H

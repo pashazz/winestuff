@@ -35,12 +35,13 @@ class FormatInterface
 {
 public:
 	virtual ~FormatInterface() {}
+	virtual void on_loadPlugin(corelib *lib) = 0;
 	virtual QString title () = 0;
 	virtual QString author () = 0;
 	virtual bool hasFeature (Pashazz::Feautures feature) = 0;
-	virtual QList<SourceReader *> readers (corelib *core, bool includeDvd = false) = 0;
-	virtual bool updateAllWines (corelib *core) = 0;
-	virtual SourceReader * readerById (const QString &id, corelib *core) = 0;
+	virtual QList<SourceReader *> readers (bool includeDvd = false) = 0;
+	virtual bool updateAllWines () = 0;
+	virtual SourceReader * readerById (const QString &id) = 0;
 };
 Q_DECLARE_INTERFACE(FormatInterface,
 					"org.pashazz.winestuff.FormatInterface/0.2")

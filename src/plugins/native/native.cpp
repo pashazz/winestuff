@@ -22,12 +22,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 NativeFormat::NativeFormat()
 {
+	mirrorFile = "native.mirrors";
+	dirsFile = "native.dirs";
 }
 
-QList <SourceReader *> NativeFormat::readers(corelib *core, bool includeDvd)
+void NativeFormat::on_loadPlugin(corelib *lib)
+{
+	core = lib;
+	_coreDirectory = core->configPath();
+	checkFiles();
+	updateAllWines();
+}
+
+QList <SourceReader *> NativeFormat::readers(bool includeDvd)
 {
 	Q_UNUSED(includeDvd);
-	QStringList dirlist = core->packageDirs();
+	QStringList dirlist = packageDirs();
 	QList <SourceReader *> readers;
 	foreach (QString dir, dirlist)
 	{
@@ -56,9 +66,62 @@ bool NativeFormat::hasFeature(Pashazz::Feautures feature)
 	}
 }
 
-bool NativeFormat::updateAllWines(corelib *core)
+bool NativeFormat::updateAllWines()
 {
-	QStringList dirlist = core->packageDirs();
+	//first of all, set coredir
+	_coreDirectory = core->configPath();
+	checkFiles(); //create files if doesn`t exist
+	//check packages
+	foreach (QUrl mirror, syncMirrors())
+	{
+		if (mirror.isEmpty())
+			continue;
+		// инициализирую QtNetwork классы
+		//загружаю файл LAST
+		QEventLoop loop;
+		QNetworkAccessManager *manager = new QNetworkAccessManager (this);
+		QNetworkRequest req; //request для Url
+		req.setUrl(QUrl(mirror.toString() + "/LAST"));
+		req.setRawHeader("User-Agent", "Winegame-Browser 0.1");
+		QNetworkReply *reply = manager->get(req);
+		connect (reply, SIGNAL(finished()), &loop, SLOT(quit()));
+		core->client()->showUserWaitMessage(tr("Updating Packages..."));
+		loop.exec();
+		core->client()->closeWaitMessage();
+		QByteArray relInfo = reply->readAll();
+		if (relInfo.isEmpty())
+		{
+			qDebug() << "wgpkg: failed to fetch packages from" << mirror << "URL " << req.url();
+			return false;
+		}
+		//открываем ~/.winegame/packages/LAST
+		QFile file (packageDirs().first() + "/LAST");
+		if (!file.exists())
+			file.open(QIODevice::WriteOnly);
+		else
+		{
+			//читаем содержимое LAST, сравнивая его с relInfo
+			file.open(QIODevice::ReadOnly);
+			if (relInfo == file.readAll())
+				file.close();
+
+			//закрываем файл и открываем его в режиме truncate
+			file.close();
+			file.open(QIODevice::WriteOnly | QIODevice::Truncate);
+		}
+		//записываем relInfo
+		file.write(relInfo);
+		file.close();
+		//загружаю дистрибутив package-latest.tar.bz2
+
+		QString tfile = core->downloadWine(mirror.toString() + "/package-latest.tar.bz2");
+		bool res = core->unpackWine(tfile, packageDirs().first());
+		if (!res)
+			return false;
+	}
+
+	//Check wines.
+	QStringList dirlist = packageDirs();
 	foreach (QString dir, dirlist)
 	{
 		foreach (QString pkg, QDir(dir).entryList(QDir::Dirs | QDir::NoDotAndDotDot))
@@ -73,14 +136,127 @@ bool NativeFormat::updateAllWines(corelib *core)
 	return true;
 }
 
-SourceReader *  NativeFormat::readerById(const QString &id, corelib *core)
+SourceReader *  NativeFormat::readerById(const QString &id)
 {
-	foreach (SourceReader *reader, readers(core, true))
+	foreach (SourceReader *reader, readers(true))
 	{
 		if (reader->ID() == id)
 			return reader;
 	}
 	return 0;
+}
+
+void NativeFormat::checkFiles()
+{
+	if (_coreDirectory.isEmpty())
+		return;
+	QTextStream stream;
+	QFile mirrorfile (_coreDirectory + QDir::separator() + mirrorFile);
+	stream.setDevice(&mirrorfile);
+	if (mirrorfile.exists())
+	{
+		int i = 0;
+		//try to reaad all the file, heh
+		mirrorfile.open(QIODevice::ReadOnly | QIODevice::Text);
+		//ignore strings starts with '#'
+		while (!stream.atEnd())
+		{
+			QString str = stream.readLine().trimmed();
+			if ((!str.isEmpty()) || (!str.startsWith('#')))
+				i++;
+		}
+		mirrorfile.close();
+		if (i == 0)
+			goto dontexist;
+	}
+	else
+	{
+		dontexist:
+		mirrorfile.open(QIODevice::WriteOnly | QIODevice::Text);
+		mirrorfile.write("http://winegame-project.ru/winepkg");
+		mirrorfile.close();
+	}
+	//do the same for dirfile
+	mirrorfile.setFileName(_coreDirectory + QDir::separator() + dirsFile);
+	stream.setDevice(&mirrorfile);
+	if (mirrorfile.exists())
+	{
+		int i = 0;
+		//try to reaad all the file, heh
+		mirrorfile.open(QIODevice::ReadOnly | QIODevice::Text);
+		//ignore strings starts with '#'
+		while (!stream.atEnd())
+		{
+			QString str = stream.readLine().trimmed();
+			if ((!str.isEmpty()) || (!str.startsWith('#')))
+				i++;
+		}
+		mirrorfile.close();
+		if (i == 0)
+			goto dontexist2;
+
+	}
+	else
+	{
+		dontexist2:
+		mirrorfile.open(QIODevice::WriteOnly | QIODevice::Text);
+		stream << QString("%1/packages").arg(_coreDirectory);
+		mirrorfile.close();
+	}
+}
+
+QStringList NativeFormat::packageDirs()
+{
+	QFile file (_coreDirectory + QDir::separator() + dirsFile);
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+		return QStringList();
+	//Eixed.  Read file
+	QTextStream stream (&file);
+	QStringList list;
+	while (!stream.atEnd())
+	{
+		QString path = stream.readLine().trimmed();
+		if (path.isEmpty() || path.startsWith('#'))
+			continue;
+
+		QDir dir (path);
+		if (!dir.exists())
+		{
+			qDebug() <<"native: directory " << path << "do not exist. Trying to create....";
+			if (!dir.mkpath(dir.path()))
+			{
+				qDebug() << "native: failed to create directory" << path;
+				continue;
+			}
+		}
+		list << path;
+	}
+	if (QDir::searchPaths("nativepackages") != list)
+		QDir::setSearchPaths("nativepackages", list);
+	return list;
+}
+
+QUrlList NativeFormat::syncMirrors()
+{
+	QFile file (_coreDirectory + QDir::separator() + mirrorFile);
+	if ((!file.exists()) || (!file.open(QIODevice::ReadOnly | QIODevice::Text)))
+	{
+		return QUrlList();
+	}
+	QTextStream stream (&file);
+	QUrlList list;
+	while (!stream.atEnd())
+	{
+		QString urlpath = stream.readLine().trimmed();
+		if (urlpath.isEmpty() || urlpath.startsWith('#'))
+			continue;
+		QUrl url (urlpath);
+		if (url.isValid())
+			list << url;
+		else
+			qDebug() << "native: " << "Url " << urlpath << "is not valid...";
+	}
+	return list;
 }
 
 Q_EXPORT_PLUGIN2(wst_native, NativeFormat)

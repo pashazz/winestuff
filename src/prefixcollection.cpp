@@ -241,7 +241,7 @@ void PrefixCollection::updateVideoMemory()
 		SourceReader *reader;
 		foreach (FormatInterface *plugin, wrk->plugins())
 		{
-			SourceReader *r = plugin->readerById(id, core);
+			SourceReader *r = plugin->readerById(id);
 			if (r)
 			{
 				reader = r;
