@@ -1,19 +1,20 @@
 /*
-    Winegame - small utility to prepare Wine and install win32 apps in it.
-    Copyright (C) 2010 Pavel Zinin <pzinin@gmail.com>
+ libwst_native - native plugin for winestuff
+Copyright (C) 2010 Pavel Zinin <pzinin@gmail.com>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 
@@ -25,44 +26,21 @@ QString NativeReader::name()
 	if (!_name.isEmpty())
 		return _name;
 	if (s->value("wine/preset").toBool())
-	{
 	 core->client()->getText(tr("Template"), tr("Enter template name, for example 'CoolGame v3'"), _name);
-	}
 	else
-	{
-	//ищем файл .name в данном workdir()
-	QFile file (workdir() + QDir::separator() + ".name." + QLocale::system().name() );
-	if (file.exists())
-	{
-		file.open(QIODevice::ReadOnly | QIODevice::Text);
-		_name = file.readAll();
-		file.close();
-	}
-	else
-	{
-		file.setFileName(workdir() + QDir::separator() + ".name");
-		if (file.exists())
-		{
-			file.open(QIODevice::ReadOnly | QIODevice::Text);
-			_name = file.readAll();
-			file.close();
-		}
-		else
-		{
-		  _name = QDir(workdir()).dirName();
-		}
-	}
-}
+	_name = realName();
+
 	return _name;
 }
 
 QString NativeReader::realName()
 {
 	QFile file (workdir() + QDir::separator() + ".name." + QLocale::system().name() );
+	QString myName;
 	if (file.exists())
 	{
 		file.open(QIODevice::ReadOnly | QIODevice::Text);
-		_name = file.readAll();
+		myName = file.readAll();
 		file.close();
 	}
 	else
@@ -72,47 +50,34 @@ QString NativeReader::realName()
 		if (file.exists())
 		{
 			file.open(QIODevice::ReadOnly | QIODevice::Text);
-			_name = file.readAll();
+			myName = file.readAll();
 			file.close();
 		}
 		else
 		{
-		  _name = QDir(workdir()).dirName();
+		  myName = QDir(workdir()).dirName();
 		}
 	}
 	if (s->value("wine/preset").toBool())
-		_name += tr(" [template]");
-	return _name;
+		myName += tr(" [template]");
+	return myName;
 }
-
 
 QString NativeReader::note()
 {
 	if (!_note.isEmpty())
 		return _note;
 	if (s->value ("wine/preset").toBool())
-	{
-		core->client()->getText(tr("Template"), tr("Enter template`s note, for example 'It is a Cool Note'"), _note);
-	}
-	else
-	{
-		QString fileName;
-		if (QFile::exists(workdir() + "/.note." + QLocale::system().name())) //читаем локализованное примечание
-			fileName = workdir() + "/.note." + QLocale::system().name();
-		else if (QFile::exists((workdir() + "/.note")))
-			fileName = workdir() + "/.note";
+			core->client()->getText(tr("Template"), tr("Enter template`s note, for example 'It is a Cool Note'"), _note);
 		else
-			return QString();
-		QFile file (fileName);
-		file.open(QIODevice::Text | QIODevice::ReadOnly);
-		_note = file.readAll();
-		file.close();
-	}
+			_note = realNote();
+
 	return _note;
 }
 QString NativeReader::realNote ()
 {
 	QString fileName;
+	QString myNote;
 	if (QFile::exists(workdir() + "/.note." + QLocale::system().name())) //читаем локализованное примечание
 		fileName = workdir() + "/.note." + QLocale::system().name();
 	else if (QFile::exists((workdir() + "/.note")))
@@ -121,12 +86,10 @@ QString NativeReader::realNote ()
 		return QString();
 	QFile file (fileName);
 	file.open(QIODevice::Text | QIODevice::ReadOnly);
-	_note = file.readAll();
+	myNote = file.readAll();
 	file.close();
-return _note;
+	return myNote;
 }
-
-
 
 bool NativeReader::checkWine()
 {
@@ -348,6 +311,8 @@ bool NativeReader::isMulticd()
 
  QStringList NativeReader::locales()
  {
+	 if (s->value("wine/preset").toBool())
+		 return QStringList ("C");
 	 QDir dir ("packages:" + id);
 	 QStringList loc;
 	 QStringList  filters = QStringList () << ".name*" << ".note*";
@@ -368,17 +333,19 @@ bool NativeReader::isMulticd()
  Name NativeReader::nameForLang(QString locale)
  {
 	 Name names;
-	 QString nameFile, noteFile;
-	 if (locale == "C")
-		 nameFile = QString ("packages:%1/.name").arg(id);
-else
+	 if (!s->value("wine/preset").toBool())
 	 {
-	  nameFile = QString ("packages:%1/.name.%2").arg(id).arg(locale);
+		 QString nameFile, noteFile;
+		 if (locale == "C")
+			 nameFile = QString ("packages:%1/.name").arg(id);
+		 else
+		 {
+			 nameFile = QString ("packages:%1/.name.%2").arg(id).arg(locale);
 	 if (!QFile::exists(nameFile))
 		 nameFile = QString ("packages:%1/.name").arg(id);
  }
 	 if (QFile::exists(nameFile))
-	 {
+		 {
 		 QFile file (nameFile);
 		 if (file.open(QIODevice::ReadOnly | QIODevice::Text))
 		 {
@@ -395,10 +362,10 @@ else
 		 noteFile = 	 nameFile = QString ("packages:%1/.note").arg(id);
 	 else
 	 {
-	  noteFile = QString("packages:%1/.note.%2").arg(id).arg(locale);
-	 if (!QFile::exists(noteFile))
-		 nameFile = QString ("packages:%1/.note").arg(id);
- }
+		 noteFile = QString("packages:%1/.note.%2").arg(id).arg(locale);
+		 if (!QFile::exists(noteFile))
+			 nameFile = QString ("packages:%1/.note").arg(id);
+	 }
 	 if (QFile::exists(noteFile))
 	 {
 		 QFile file (noteFile);
@@ -408,6 +375,12 @@ else
 			 file.close();
 		 }
  }
+ }
+	 else
+	 {
+		names.first = name();
+		names.second = note();
+	 }
 	 return names;
  }
 
@@ -515,7 +488,7 @@ if (QFile(postinst).exists())
  {
 	 Prefix *prefix = new Prefix (this, core);
 	 prefix->setName(name());
-	 prefix->setName(note());
+	 prefix->setNote(note());
 	 prefix->setPath(prefixPath());
 	 prefix->setWine(wine());
 	 if ((!!_cdroot.isEmpty()) && (!_device.isEmpty()))

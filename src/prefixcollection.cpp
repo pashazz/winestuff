@@ -31,8 +31,7 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 {
 	if (!reader)
 		return 0;
-	if (reader->ID().isEmpty())
-		return 0;
+
 	if (reader->prefixPath().isEmpty())
 		return 0;
 	if (reader->name().isEmpty())
