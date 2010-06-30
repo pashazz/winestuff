@@ -40,7 +40,7 @@ public:
 	virtual QString author () = 0;
 	virtual bool hasFeature (Pashazz::Feautures feature) = 0;
 	virtual QList<SourceReader *> readers (bool includeDvd = false) = 0;
-	virtual bool updateAllWines () = 0;
+	virtual bool updateAllWines (PrefixCollection *collection) = 0;
 	virtual SourceReader * readerById (const QString &id) = 0;
 };
 Q_DECLARE_INTERFACE(FormatInterface,

@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define NATIVE_H
 #include "formatinterface.h"
 #include "inireader.h"
+#include "prefixcollection.h"
 
 typedef QList<QUrl> QUrlList;
 
@@ -34,7 +35,7 @@ public:
 	QString author() {return "(C) Pavel Zinin - 2010. GNU LGPL licensed.";}
 	QString title () {return "Winestuff native format";}
 	bool hasFeature(Pashazz::Feautures feature);
-	bool updateAllWines();
+	bool updateAllWines(PrefixCollection *collection);
 	SourceReader * readerById (const QString &id);
 	void on_loadPlugin(corelib *lib);
 private:

@@ -57,7 +57,7 @@ public:
 	void setAutosync (bool value, bool isempty = false);
 	QString configPath () {return _confpath;}
 	QString getSudoProg ();
-	QString downloadWine(QString url);
+	QString downloadWine(QString url, bool force = false);
 	QString shareDir () const;
 	UiClient * client () {return ui;}
 	int runGenericProcess(QProcess *process, const QString &program, QString message = "");

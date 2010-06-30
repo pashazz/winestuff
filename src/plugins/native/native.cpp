@@ -31,7 +31,6 @@ void NativeFormat::on_loadPlugin(corelib *lib)
 	core = lib;
 	_coreDirectory = core->configPath();
 	checkFiles();
-	updateAllWines();
 }
 
 QList <SourceReader *> NativeFormat::readers(bool includeDvd)
@@ -66,11 +65,8 @@ bool NativeFormat::hasFeature(Pashazz::Feautures feature)
 	}
 }
 
-bool NativeFormat::updateAllWines()
+bool NativeFormat::updateAllWines(PrefixCollection *collection)
 {
-	//first of all, set coredir
-	_coreDirectory = core->configPath();
-	checkFiles(); //create files if doesn`t exist
 	//check packages
 	foreach (QUrl mirror, syncMirrors())
 	{
@@ -103,8 +99,10 @@ bool NativeFormat::updateAllWines()
 			//читаем содержимое LAST, сравнивая его с relInfo
 			file.open(QIODevice::ReadOnly);
 			if (relInfo == file.readAll())
+			{
+				goto checkwines;
 				file.close();
-
+			}
 			//закрываем файл и открываем его в режиме truncate
 			file.close();
 			file.open(QIODevice::WriteOnly | QIODevice::Truncate);
@@ -114,12 +112,13 @@ bool NativeFormat::updateAllWines()
 		file.close();
 		//загружаю дистрибутив package-latest.tar.bz2
 
-		QString tfile = core->downloadWine(mirror.toString() + "/package-latest.tar.bz2");
+		QString tfile = core->downloadWine(mirror.toString() + "/packages-latest.tar.bz2", true);
 		bool res = core->unpackWine(tfile, packageDirs().first());
 		if (!res)
 			return false;
 	}
 
+		checkwines:
 	//Check wines.
 	QStringList dirlist = packageDirs();
 	foreach (QString dir, dirlist)
@@ -129,8 +128,11 @@ bool NativeFormat::updateAllWines()
 			NativeReader *reader = new NativeReader(pkg, core);
 			if (reader->ID().isEmpty())
 				continue;
-			if (!reader->checkWine())
+			if (collection->havePrefix(reader->ID()))
+			{
+				if (!reader->checkWine())
 				return false;
+			}
 		}
 	}
 	return true;

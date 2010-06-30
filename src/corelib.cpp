@@ -80,14 +80,19 @@ runGenericProcess(proc, unpackLine, tr("Unpacking wine...."));
  return proc->exitCode() == 0 ? true : false;
 	 }
 
-QString corelib::downloadWine(QString url) //TODO: проверка на ошибки.
+QString corelib::downloadWine(QString url, bool force) //TODO: проверка на ошибки.
 {
 	downloadExitCode = true;
     QUrl myurl = QUrl(url);
     QFileInfo inf (myurl.path());
 	QString wineFileName = QDir::tempPath() + QDir::separator() + inf.fileName();
 	if (QFileInfo(wineFileName).exists())
-		return wineFileName;
+	{
+		if (force)
+			QFile::remove(wineFileName);
+		else
+			return wineFileName;
+	}
 	ui->showNotify(tr("Don`t worry!"), tr("Now WineGame will download some files, that will need for get your applicaton running"));
 	QEventLoop loop;
 	QNetworkAccessManager *manager = new QNetworkAccessManager (this);
@@ -99,8 +104,8 @@ QString corelib::downloadWine(QString url) //TODO: проверка на оши�
 	connect (reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(setRange(qint64,qint64)));
 	connect (reply, SIGNAL(finished()), &loop, SLOT(quit()));
 	connect (reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
-	ui->showProgressBar(tr("Downloading Wine..."), SLOT(cancelCurrentOperation()), this);
-	ui->progressText(tr("Downloading wine... %1").arg(url));
+	ui->showProgressBar(tr("Downloading"), SLOT(cancelCurrentOperation()), this);
+	ui->progressText(tr("Downloading file: %1").arg(url));
 	loop.exec();
 	ui->endProgress();
 	if (reply->error() == QNetworkReply::OperationCanceledError)
