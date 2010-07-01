@@ -392,7 +392,7 @@ bool corelib::removeDir(const QString & dir)
 	int i = 0;
 	int max = dirObj.entryList(QDir::Readable | QDir::NoDotAndDotDot | QDir::AllEntries).count();
 	ui->progressText(tr("Removing %1").arg(dir));
-	foreach (QString fileName, dirObj.entryList(QDir::Readable | QDir::NoDotAndDotDot | QDir::AllEntries))
+	foreach (QString fileName, dirObj.entryList(QDir::Readable | QDir::NoDotAndDotDot | QDir::AllEntries /*| QDir::NoSymLinks*/))
 	{
 		i++;
 		ui->progressRange(i, max);
