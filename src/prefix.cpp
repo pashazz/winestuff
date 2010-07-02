@@ -56,7 +56,11 @@ void Prefix::makeDesktopIcon(const QString &name, const QString &program, const 
 	QFile file  (core->client()->desktopLocation() + QDir::separator() + name + ".desktop");
 	qDebug() << "Making desktop icon" << file.fileName();
 	QTextStream str (&file);
-	file.open(QIODevice::WriteOnly | QIODevice::Text);
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
+	{
+		qDebug() << "Prefix: unable to open file" << file.fileName();
+		return;
+	}
 	str << "[Desktop Entry]\n";
 	str << QString ("Name=%1\n").arg(name);
 	str << "Type=Application\n";
