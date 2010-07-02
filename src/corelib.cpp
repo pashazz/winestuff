@@ -77,8 +77,8 @@ bool corelib::unpackWine (QString distr, QString destination)
  proc->setWorkingDirectory(destination);
  QString unpackLine =  QString ("tar xvpf %1 -C %2").arg(distr).arg(destination);
 runGenericProcess(proc, unpackLine, tr("Unpacking wine...."));
- return proc->exitCode() == 0 ? true : false;
-	 }
+return proc->exitCode() == 0 ? true : false;
+}
 
 QString corelib::downloadWine(QString url, bool force) //TODO: проверка на ошибки.
 {
