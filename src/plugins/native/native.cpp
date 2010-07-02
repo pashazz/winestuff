@@ -116,29 +116,9 @@ bool NativeFormat::updateAllWines(PrefixCollection *collection)
 		QString tfile = core->downloadWine(mirror.toString() + "/packages-latest.tar.bz2", true);
 		if (!QFile::exists(tfile))
 			return false;
-		QDir dir (packageDirs().at(i));
-		bool backup = false;
-		//Back up previous packages
-		if (dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot).count() > 0) { //do a backup.
-			if (dir.rename(packageDirs().at(i), packageDirs().at(i) + ".bak"))
-			{
-				dir.mkpath(packageDirs().at(i));
-				dir.setPath(packageDirs().at(i) + ".bak");
-				backup = true;
-			}
-	}
 		bool res = core->unpackWine(tfile, packageDirs().at(i));
 		if (!res)
-		{
-			if (backup)
-			{
-				dir.rmdir(packageDirs().at(i));
-				dir.rename(dir.path(), packageDirs().at(i)); //Restore backup
-			}
 			return false;
-		}
-		else if (backup)
-			core->removeDir(dir.path()); //Remove backup
 		i++;
 	}
 
