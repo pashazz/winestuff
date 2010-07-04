@@ -115,7 +115,7 @@ int Prefix::runApplication(const QString &program, QString workingDirectory, boo
 		core->client()->showUserWaitMessage(tr("Running program %1, please wait").arg(QFileInfo(program).fileName()));
 	}
 	connect (p, SIGNAL(finished(int)), &loop, SLOT(quit()));
-	p->start(_wine, QStringList(program));
+	p->start(_wine, program.split(" ", QString::SkipEmptyParts));
 	loop.exec();
 	if (block)
 		core->client()->closeWaitMessage();
