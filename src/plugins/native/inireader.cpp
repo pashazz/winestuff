@@ -98,7 +98,7 @@ bool NativeReader::checkWine()
 
 	qDebug() << "checking wine... for " << name() ;
    /// проверяет дистрибутив Wine для префикса. Если проверка не удается, загружает дистрибутив заново.
-	QFile file (_prefix + QDir::separator() + ".wine");
+	QFile file (prefixPath() + QDir::separator() + ".wine");
 	if (distr().isEmpty())
 	{
 		//TODO - удаление кастомного wine. если он более не нужен
