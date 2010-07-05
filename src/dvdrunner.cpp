@@ -226,7 +226,8 @@ QString DVDRunner::exe ()
 		}
 	}
 	//А теперь спросим EXE у пользователя.
-	core->client()->selectExe(tr("Select EXE file"), exe, diskPath);
+	if (reader->needFile())
+		core->client()->selectExe(tr("Select EXE file"), exe, diskPath);
 	return exe;
 }
 

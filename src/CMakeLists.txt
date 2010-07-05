@@ -5,6 +5,8 @@ else (${CMAKE_SYSTEM_NAME} MATCHES Linux)
   message (FATAL ERROR "Only Linux is supported by Winestuff")
 endif (${CMAKE_SYSTEM_NAME} MATCHES Linux)
 
+option (WISOTOOL "Build WisoTool experimental plug-in" OFF)
+
 find_package( Qt4 REQUIRED )
 set(QT_USE_QTGUI 0)
             IF(QT_QTNETWORK_FOUND)
@@ -30,9 +32,12 @@ include (${QT_USE_FILE})
 set (WSTDIR ${CMAKE_CURRENT_SOURCE_DIR})
 # Compile Native plug-in
 add_subdirectory(plugins/native)
-#compile winestuff agent
-#add_subdirectory(tools/wst-agent) #not planned for 0.2
 
+
+if (WISOTOOL MATCHES ON)
+  #compile wisotool plug-in
+  add_subdirectory(plugins/wisotool)
+endif (WISOTOOL MATCHES ON)
 set (QHEADERS corelib.h  dvdrunner.h  poldownloader.h  prefix.h sourcereader.h  uiclient.h prefixcollection.h plugincore.h)
 set (HEADERS ${QHEADERS}  formatinterface.h libwinegame_global.h)
 set (SOURCES corelib.cpp  dvdrunner.cpp  poldownloader.cpp  prefix.cpp sourcereader.cpp prefixcollection.cpp plugincore.cpp)

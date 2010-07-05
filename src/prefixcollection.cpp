@@ -42,8 +42,22 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 	//проверяем Wine
 	if(!reader->checkWine())
 		return 0;
+	QString cdroot, image;
+	QFileInfo dvdfi (dvdObj);
+	if (dvdfi.isFile ())
+	{
+		image = dvdObj;
+		cdroot = core->mountDir ();
+	}
+	else if (dvdfi.isDir ())
+	{
+		image = "/dev/cdrom";
+		cdroot = dvdObj;
+	}
 	if (havePrefix(reader->ID()))
 	{
+		if (file.isEmpty())
+			core->client()->selectExe(tr("Select executable file"), file, QDir::homePath());
 		Prefix *prefix (getPrefix(reader->ID()));
 		prefix->runApplication(file, "", true);
 		return prefix;
@@ -79,18 +93,7 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 	if (!dvdObj.isEmpty ())
 	{
 		/* cdrom working */
-		QString cdroot, image;
-		QFileInfo dvdfi (dvdObj);
-		if (dvdfi.isFile ())
-		{
-			image = dvdObj;
-			cdroot = core->mountDir ();
-		}
-		else if (dvdfi.isDir ())
-		{
-			image = "/dev/cdrom";
-			cdroot = dvdObj;
-		}
+
 		if (!cdroot.isEmpty ())
 			reader->setDvd(image, cdroot);
     }

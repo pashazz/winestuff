@@ -466,22 +466,62 @@ bool NativeReader::isMulticd()
 
  bool NativeReader::setup(const QString &file)
  {
+	 if (file.isEmpty())
+		 return false;
 	 QProcess *p = new QProcess (this);
 	 Prefix *pref = prefix();
 	 p->setProcessEnvironment(pref->environment());
-	  if (file.isEmpty())
-		return false;
- QString exe = executable(file);
- QDir dir ("nativepackages:" + id);
- QString preinst = dir.absoluteFilePath("preinst");
- if (QFile(preinst).exists())
-	 core->runGenericProcess(p, preinst, tr("Running pre-installation trigger"));
- //собсно наш exe
- pref->runApplication(exe, "", true); //выводим мод. диалог
- //теперь postinst
- QString postinst = dir.absoluteFilePath("posinst");
-if (QFile(postinst).exists())
-	core->runGenericProcess(p, postinst, tr("Running post-installation trigger"));
+	 //Override DLLs
+	 s->beginGroup("dlls");
+	 if (!s->value("builtin").isNull())
+	 {
+		 QStringList values = s->value("builtin").toString().split(" ",QString::SkipEmptyParts);
+		 foreach (QString dll, values)
+		 {
+			 override_dll(dll, "builtin");
+		 }
+	 }
+
+	 if (!s->value("native").isNull())
+	 {
+		 QStringList values = s->value("native").toString().split(" ",QString::SkipEmptyParts);
+		 foreach (QString dll, values)
+		 {
+			 override_dll(dll, "native");
+		 }
+	 }
+
+	 if (!s->value("native-builtin").isNull())
+	 {
+		 QStringList values = s->value("native").toString().split(" ",QString::SkipEmptyParts);
+		 foreach (QString dll, values)
+		 {
+			 override_dll(dll, "native,builtin");
+		 }
+	 }
+	 if (!s->value("builtin-native").isNull())
+	 {
+		 QStringList values = s->value("native").toString().split(" ",QString::SkipEmptyParts);
+		 foreach (QString dll, values)
+		 {
+			 override_dll(dll, "builtin,native");
+		 }
+	 }
+	 s->endGroup();
+	 //End of DLL overriding
+
+	  QString exe = executable(file);
+	  QDir dir ("nativepackages:" + id);
+	  QString preinst = dir.absoluteFilePath("preinst");
+	  if (QFile(preinst).exists())
+		  core->runGenericProcess(p, preinst, tr("Running pre-installation trigger"));
+	  //собсно наш exe
+	  pref->runApplication(exe, "", true); //выводим мод. диалог
+	  //теперь postinst
+	  QString postinst = dir.absoluteFilePath("posinst");
+	  if (QFile(postinst).exists())
+		  core->runGenericProcess(p, postinst, tr("Running post-installation trigger"));
+	  return true;
  }
 
  Prefix * NativeReader::prefix()
@@ -514,4 +554,28 @@ if (QFile(postinst).exists())
 		 return core->whichBin("wine");
 	 else
 		 return QString ("winedir:wines/%1/usr/bin/wine").arg(id);
+ }
+
+ void NativeReader::override_dll(const QString &dll, const QString &type)
+ {
+	 QStringList possibleTypes = QStringList() << "native" << "builtin" << "native,builtin" << "builtin,native";
+	 if (!possibleTypes.contains(type))
+	 {
+		 qDebug() << "Incorrect DLL overriding type: " << type;
+		 return;
+	 }
+	Prefix *prefix = this->prefix();
+	 QTemporaryFile file;
+	 file.open();
+	 QTextStream stream (&file);
+	 stream << "\n";
+	 stream << "REGEDIT4\n";
+	 stream << "[HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides]";
+	 stream << "\n";
+	 stream << QString ("\"*%1\"=\"%2\"").arg(dll, type);
+	 stream << "\n";
+	 file.close();
+	 QProcess proc (this);
+	 proc.setProcessEnvironment(prefix->environment());
+	core->runGenericProcess(&proc, QString ("%1 regedit %2").arg(wine(), file.fileName()), tr("Registering DLLs"));
  }

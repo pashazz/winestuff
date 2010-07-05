@@ -126,6 +126,8 @@ QProcessEnvironment  Prefix::environment ()
 {
 	QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 	env.insert("WINEPREFIX", _path);
+	env.insert("WINEDEBUG", "-all");
+	env.insert("GUI", "1");
 	env.insert("WINE", _wine);
 	if (!_diskroot.isEmpty())
 		env.insert("CDROOT", _diskroot);

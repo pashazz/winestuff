@@ -47,6 +47,7 @@ public:
 	Prefix::ApplicationType type();
 	Prefix *prefix();
 	bool detectApp (QString path);
+	bool needFile() {return true;}
 	static QString defaultWine (const QString &id); // default wine for prefix ID in this implementation
 	bool needToSetMemory ();
 	Name nameForLang (QString locale);
@@ -60,7 +61,7 @@ signals:
 	void presetNoteNeed (QString &note);
 protected:
 	QSettings *s;
-
+	void override_dll (const QString &dll, const QString &type);
 private:
 	QString _name;
 	QString _note;

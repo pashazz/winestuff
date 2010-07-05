@@ -41,6 +41,7 @@ public:
 	virtual QString realName () = 0;
 	virtual QString realNote () = 0;
 	virtual bool setup(const QString &file) = 0;
+	virtual bool needFile () = 0;
 	virtual void  setDvd (const QString &device, const QString &path) = 0;
 	virtual Prefix * prefix () = 0;
 	virtual QString prefixPath () = 0;
