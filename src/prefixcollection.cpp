@@ -57,7 +57,7 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 	if (havePrefix(reader->ID()))
 	{
 		if (file.isEmpty())
-			core->client()->selectExe(tr("Select executable file"), file, QDir::homePath());
+			core->client()->selectExe(tr("Select executable file"), file, QDir::currentPath());
 		Prefix *prefix (getPrefix(reader->ID()));
 		prefix->runApplication(file, "", true);
 		return prefix;

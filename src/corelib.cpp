@@ -231,9 +231,9 @@ void corelib::runSingleExe(QStringList exe)
 	}
 	QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 	env.insert("WINEDEBUG", "-all");
- QProcess proc (this);
- proc.start(wine, exe);
- proc.waitForFinished(-1);
+	QProcess proc (this);
+	proc.start(wine, exe);
+	proc.waitForFinished(-1);
 }
 
 bool corelib::initconf(const QString &configPath)
