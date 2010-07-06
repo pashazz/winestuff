@@ -29,7 +29,7 @@ PrefixCollection::PrefixCollection (QSqlDatabase database, corelib *lib, PluginW
 	connect (lib, SIGNAL(videoMemoryChanged()), this, SLOT(updateVideoMemory()));
 }
 
-Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dvdObj)
+Prefix* PrefixCollection::install(SourceReader *reader, QString file, const QStringList &dvdObj)
 {
 	if (!reader)
 		return 0;
@@ -43,21 +43,15 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, QString dv
 	if(!reader->checkWine())
 		return 0;
 	QString cdroot, image;
-	QFileInfo dvdfi (dvdObj);
-	if (dvdfi.isFile ())
+	if (dvdObj.count()  == 2)
 	{
-		image = dvdObj;
-		cdroot = core->mountDir ();
+		cdroot  = dvdObj.at(0);
+		image = dvdObj.at(1);
 	}
-	else if (dvdfi.isDir ())
-	{
-		image = "/dev/cdrom";
-		cdroot = dvdObj;
-	}
+	if (file.isEmpty())
+		core->client()->selectExe(tr("Select executable file"), file, QDir::currentPath());
 	if (havePrefix(reader->ID()))
 	{
-		if (file.isEmpty())
-			core->client()->selectExe(tr("Select executable file"), file, QDir::currentPath());
 		Prefix *prefix (getPrefix(reader->ID()));
 		prefix->runApplication(file, "", true);
 		return prefix;

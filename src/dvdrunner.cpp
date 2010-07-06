@@ -181,7 +181,7 @@ bool DVDRunner::detect()
 	{
 		foreach (SourceReader *reader, interface->readers(true))
 		{
-			if (reader->detectApp(diskDirectory()))
+			if (reader->detectApp(diskPath))
 			{
 				this->reader = reader;
 				return true;
@@ -214,6 +214,7 @@ void DVDRunner::cleanup()
 QString DVDRunner::exe ()
 {
 	QString exe;
+	QDir::setCurrent(diskPath);
 	//Теперь просмотрим AutoRun
 	if (!core->autorun(diskPath).isEmpty())
 	{
@@ -225,18 +226,12 @@ QString DVDRunner::exe ()
 			return exe;
 		}
 	}
-	//А теперь спросим EXE у пользователя.
-	if (reader->needFile())
-		core->client()->selectExe(tr("Select EXE file"), exe, diskPath);
 	return exe;
 }
 
 QString DVDRunner::diskDirectory()
 {
-	if (realDrive.isEmpty() || diskPath != core->mountDir())
-		return diskPath;
-	else
-		return realDrive;
+	return diskPath;
 }
 
 void DVDRunner::cancel()

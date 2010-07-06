@@ -416,12 +416,8 @@ bool NativeReader::isMulticd()
 		 return false;
 	 if (!QFileInfo(path).exists())
 		 return false;
-	 QString diskPath;
-	 if (QFileInfo(path).isFile())
-		 diskPath = core->mountDir();
-	 else
-		 diskPath = path;
-	 QDir disc (diskPath);
+
+	 QDir disc (path);
 	 QStringList disclist = disc.entryList(QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
 	 foreach (QString disc, availableDiscs())
 	 {
@@ -437,8 +433,8 @@ bool NativeReader::isMulticd()
 		 {
 				 return true;
 		 }
-		  return false;
 	  }
+	 return false;
  }
 
  Prefix::ApplicationType NativeReader::type()
