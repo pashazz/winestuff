@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 	if (args.count() == 0 || args.at(0) == "--help")
 	{
 		showUsageMessage();
-		a.quit();
+		return 0;
 	}
 	//initialize stream
 	QString streamTarget = getOutputFile(args);
