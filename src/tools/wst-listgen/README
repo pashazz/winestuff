@@ -1,0 +1,19 @@
+1. What`s this?
+
+  It is wst-listgen, a simple utility for generating file lists.
+  These lists will be needed for disk detecting.
+ 
+2. How to compile it?
+
+  Just type 'qmake && make'. It`s a simple binary 'wst-listgen',
+  and there`s no action for 'make install'
+  
+3. Why don`t include it in CMakeLists.txt?
+ 
+ Because it`s a developer tool. Also, code of this tool is included
+ in winegame GUI.
+ 
+4. How to use it?
+
+ ./wst-listgen --help
+  
