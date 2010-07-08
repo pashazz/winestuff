@@ -62,6 +62,7 @@ signals:
 protected:
 	QSettings *s;
 	void override_dll (const QString &dll, const QString &type);
+	int possibleCount (QDir dir);
 private:
 	QString _name;
 	QString _note;

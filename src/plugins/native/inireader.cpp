@@ -440,7 +440,8 @@ bool NativeReader::isMulticd()
 	 foreach (QString disc, availableDiscs())
 	 {
 		 QStringList list (discFileList(disc));
-		 if (list.count() < dir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot).count())
+		// if (list.count() < dir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot).count())
+		 if (list.count() < possibleCount(dir))
 			 return false; //список на входе должен быть не меньше списка корневой директории диска.
 		 foreach (QString str, list)
 		 {
@@ -592,3 +593,16 @@ bool NativeReader::isMulticd()
 	 proc.setProcessEnvironment(prefix->environment());
 	core->runGenericProcess(&proc, QString ("%1 regedit %2").arg(wine(), file.fileName()), tr("Registering DLLs"));
  }
+
+ int NativeReader::possibleCount(QDir dir)
+ {
+	  int i = 0;
+	 foreach (QFileInfo directory, dir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name))
+	 {
+		 i++;
+		 if (directory.isDir())
+			i += possibleCount(QDir(directory.absoluteFilePath()));
+	 }
+	 return i;
+ }
+
