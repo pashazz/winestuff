@@ -416,8 +416,8 @@ bool NativeReader::isMulticd()
 		 return false;
 	 if (!QFileInfo(path).exists())
 		 return false;
-
-	 QDir disc (path);
+	 //old code
+	/* QDir disc (path);
 	 QStringList disclist = disc.entryList(QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
 	 foreach (QString disc, availableDiscs())
 	 {
@@ -434,6 +434,23 @@ bool NativeReader::isMulticd()
 				 return true;
 		 }
 	  }
+	  */
+	 //new code
+	 QDir dir (path);
+	 foreach (QString disc, availableDiscs())
+	 {
+		 QStringList list (discFileList(disc));
+		 if (list.count() < dir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot).count())
+			 return false; //список на входе должен быть не меньше списка корневой директории диска.
+		 foreach (QString str, list)
+		 {
+			 if (dir.exists(str) && QFileInfo(str).isRelative()) //поддерживаются только относительные пути
+				 continue;
+			 else
+				 return false;
+		 }
+		 return true;
+	 }
 	 return false;
  }
 
