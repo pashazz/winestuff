@@ -416,25 +416,6 @@ bool NativeReader::isMulticd()
 		 return false;
 	 if (!QFileInfo(path).exists())
 		 return false;
-	 //old code
-	/* QDir disc (path);
-	 QStringList disclist = disc.entryList(QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
-	 foreach (QString disc, availableDiscs())
-	 {
-		 QStringList list (discFileList(disc));
-		 //посчитаем кол-во эквивалентов
-		 int i = 0;
-		 foreach (QString str, list)
-		 {
-			 if (disclist.contains(str, Qt::CaseInsensitive))
-				 i++;
-		 }
-			 if (i == disclist.count())
-		 {
-				 return true;
-		 }
-	  }
-	  */
 	 //new code
 	 QDir dir (path);
 	 foreach (QString disc, availableDiscs())
@@ -447,6 +428,8 @@ bool NativeReader::isMulticd()
 		 {
 			 if (dir.exists(str) && QFileInfo(str).isRelative()) //поддерживаются только относительные пути
 				 continue;
+			 else if (dir.exists(str.toLower()) && QFileInfo(str.toLower()).isRelative())
+				 continue; //hack for FuseISO.
 			 else
 				 return false;
 		 }

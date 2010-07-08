@@ -5,3 +5,4 @@ r2:cancelling of operations implemented
 r3:RELEASE 0.1
 r4:new classes: SourceReader, PrefixCollection, many new functions
 r5:formats now extendable via plugins, moving all SourceReader code into libwst_native.so, SourceReader now a class with pure virtual functions
+r6:new disc-detecting format, added program tools/wst-listgen
