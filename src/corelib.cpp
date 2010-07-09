@@ -224,6 +224,8 @@ void corelib::runSingleExe(QStringList exe)
 	q.exec();
 	q.first();
 	QString wine =q.value(0).toString();
+	//закрываем базу.
+	db.close();
 	if (wine.isEmpty())
 	{
 		qDebug() << "Wine from WineGame not found, use default";
