@@ -92,7 +92,7 @@ bool PolDownloader::checkSHA1(QString file)
 bool PolDownloader::downloadWine(QString version)
 {
 //Проверяем, есть ли уже данный вайн
-QFile file (core->wineDir() + "/wineversion/" + version + "/usr/bin/wine");
+QFile file (core->wineDir() + "/wineversion/wines/" + version + "/usr/bin/wine");
 if (file.exists())
 {
 	qDebug() << " Wine downloaded, skipping....";
@@ -108,7 +108,7 @@ else if (archive == "CANCEL") //else because more code is needed at this point.
 	return false;
 if (!checkSHA1(archive))
 	return false; //experimental
-if(!core->unpackWine(archive, core->wineDir()))
+if(!core->unpackWine(archive, core->wineDir() + "/wines/"))
 	return false;
 
 return true;
@@ -119,12 +119,13 @@ bool PolDownloader::setWineVersion(QString version)
 	//trying to download wine
 	if (!downloadWine(version))
 		return false;
-	prefix->setWine(core->wineDir() + "/wineversion/" + version + "/usr/bin/wine");
+	prefix->setWine(core->wineDir() + "/wines/wineversion/" + version + "/usr/bin/wine");
 	pcoll->updatePrefix(prefix);
 	return true;
 }
 void PolDownloader::fallback()
 {
+	core->client()->showNotify(tr("Sorry..."), tr("This feature is disabled"));
 	//back to app`s wine
 	/*
 	QString wine;
