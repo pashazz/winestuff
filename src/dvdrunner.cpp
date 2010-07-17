@@ -86,7 +86,7 @@ bool DVDRunner::prepare(bool nodetect)
 	if (type == Pashazz::Image  && (!mounted))
 	{
 		QProcess p (this);
-		qDebug() << mount;
+		qDebug() << "Mounting disk image with" << mount;
 		p.start(mount);
 		p.waitForFinished(-1);
 		if (p.exitCode() != 0)
@@ -97,7 +97,8 @@ bool DVDRunner::prepare(bool nodetect)
 		else
 			mounted = true;
 	}
-
+	else if (type == Pashazz::Real && (!mounted)) //Как бы монтирует система, поэтому мы только выставляем mounted в true
+		mounted = true; //Собственно
 	//2) детектинг. Если юзер сам указал префикс, тогда аргумент nodetect должен быть true. Иначе detect попытается найти нужный пакет и создать объект Prefix
 	if (!nodetect)
 	{
@@ -204,6 +205,10 @@ void DVDRunner::cleanup()
 		QProcess p (this);
 		p.start(umount);
 		p.waitForFinished(-1);
+		qDebug() << "dvd: DEBUG: **************************";
+		qDebug() << "Unmount command: " << umount;
+		qDebug() << "Unmount result: error " << p.readAllStandardError() << "std:" << p.readAllStandardOutput();
+		qDebug() << "Code:" << p.exitCode() << "Status " << p.exitStatus();
 		mounted = false;
 	}
 	core->client()->showProgressBar("Cleaning up....");
