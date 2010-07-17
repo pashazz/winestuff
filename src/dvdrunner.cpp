@@ -200,15 +200,13 @@ void DVDRunner::cleanup()
 	//размонтируем наш сидюк
 	if (type == Pashazz::Image)
 	{
+		if (QDir::currentPath() == diskPath)
+			QDir::setCurrent(QDir::homePath());
 		if (!cancelled)
 			core->client()->infoDialog(tr("Information"), tr("Press OK/Enter when application`s installation ends"));
 		QProcess p (this);
 		p.start(umount);
 		p.waitForFinished(-1);
-		qDebug() << "dvd: DEBUG: **************************";
-		qDebug() << "Unmount command: " << umount;
-		qDebug() << "Unmount result: error " << p.readAllStandardError() << "std:" << p.readAllStandardOutput();
-		qDebug() << "Code:" << p.exitCode() << "Status " << p.exitStatus();
 		mounted = false;
 	}
 	core->client()->showProgressBar("Cleaning up....");
