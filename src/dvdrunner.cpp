@@ -86,7 +86,6 @@ bool DVDRunner::prepare(bool nodetect)
 	if (type == Pashazz::Image  && (!mounted))
 	{
 		QProcess p (this);
-		qDebug() << "Mounting disk image with" << mount;
 		p.start(mount);
 		p.waitForFinished(-1);
 		if (p.exitCode() != 0)
@@ -102,12 +101,8 @@ bool DVDRunner::prepare(bool nodetect)
 	//2) детектинг. Если юзер сам указал префикс, тогда аргумент nodetect должен быть true. Иначе detect попытается найти нужный пакет и создать объект Prefix
 	if (!nodetect)
 	{
-		qDebug() << "Detecting disc....";
 		if (!detect ())
-		{
-			qDebug() << "Unable to detect disc";
 			return false;
-		}
 }
 	//3)Проверяем, возможно наша игра на нескольких дисках
 
