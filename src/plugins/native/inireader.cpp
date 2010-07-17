@@ -93,12 +93,9 @@ QString NativeReader::realNote ()
 
 bool NativeReader::checkWine()
 {
-	if (s->value("wine/preset").toBool())
-		return true;
-
 	qDebug() << "checking wine... for " << name() ;
    /// проверяет дистрибутив Wine для префикса. Если проверка не удается, загружает дистрибутив заново.
-	QFile file (prefixPath() + QDir::separator() + ".wine");
+	QFile file (QFileInfo(wine()).dir().filePath(".md5sum"));
 	if (distr().isEmpty())
 	{
 		//TODO - удаление кастомного wine. если он более не нужен
@@ -122,6 +119,7 @@ bool NativeReader::checkWine()
 
 	if ((!file.exists()) || (!QFile::exists(wine())))
 	{
+		qDebug() << "winechecker: file not found:" << file.fileName() << "- creating new file and download wine";
 		//Загружаем Wine
 		if (!downloadWine())
 		{
@@ -150,7 +148,7 @@ bool NativeReader::checkWine()
 
 QString NativeReader::wine()
 {
-if (s->value("wine/preset").toBool() || (distr().isEmpty()))
+if (distr().isEmpty())
 	return core->whichBin("wine");
 else
 	return core->wineDir() + "/wines/" + id  + "/usr/bin/wine";
@@ -202,9 +200,9 @@ QString NativeReader::icon()
 
 
 bool NativeReader::downloadWine() {
-	QString md5sum;
  if (!distr().isEmpty())
 	{
+	 QString md5sum;
 	 QString wineDistr = distr();
 	 qDebug() << "wine distrib" << wineDistr;
 	 //здесь запускаем процесс закачки и распаковки данного дистрибутива Wine
@@ -216,16 +214,16 @@ bool NativeReader::downloadWine() {
 	 if (distrname.isEmpty())
 	 {
 		 core->client()->error(tr("Unable to download Wine"), tr("Error info: Failed to download Wine for %1" ).arg(name()));
+		 QFile::remove(distrname);
 		 return false;
 	 }
 	 else if (distrname == "CANCEL")
-	 {
 		 return false;
-	 }
 	 if (!core->unpackWine(distrname, destination))
 	 {
 		 core->client()->error(tr("Unable to unpack Wine"), tr("Error info: Failed to unpack %1 into %2").arg(distrname).arg(destination));
 		 return false;
+		 QFile::remove(distrname);
 	 }
 	 md5sum = getMD5();
 	 if (!md5sum.isEmpty())
@@ -258,11 +256,14 @@ void NativeReader::writeMD5(const QString &md5sum)
 {
 	if (s->value("wine/nomd5", false).toBool())
 		return;
-
-	QFile file (prefixPath() +QDir::separator() + ".wine");
-	if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
+	if (distr().isEmpty())
 		return;
-	qDebug() << "engine: writing md5 for " << name() << "sum " << md5sum;
+	QFile file (QFileInfo(wine()).dir().filePath(".md5sum"));
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
+	{
+		qDebug() << "winechecker: cannot open file" << file.fileName();
+		return;
+	}
 	QTextStream stream (&file);
 	stream << md5sum;
 	file.close();
@@ -286,7 +287,6 @@ QString NativeReader::getMD5()
 	loop.exec();
 	QTextStream stream (reply);
 	QString md5 = stream.readAll();
-	qDebug() << "md5sum:" << md5 << "for app" << name();
 	return md5;
 }
 
