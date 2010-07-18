@@ -41,28 +41,26 @@ public:
 	static bool checkPrefixName (QString);
 	void runSingleExe (QStringList exe) ;
 	/// Блок настроек
-	QString wineDir ();
-	QString mountDir ();
-	QString videoMemory ();
-	QString discDir();
-	bool autoSync ();
-	bool forceFuseiso ();
+	QString wineDir () const;
+	QString mountDir () const;
+	QString videoMemory () const;
+	bool autoSync () const;
+	bool forceFuseiso () const;
 	void setForceFuseiso(bool value, bool isempty = false);
-	void syncSettings() {settings->sync();}
+	void syncSettings() const {settings->sync();}
 	static QString autorun (QString diskRoot);
 	void setWineDir (QString dir, bool isempty =false);
 	void setMountDir (QString dir, bool isempty = false);
 	void setVideoMemory (int memory, bool isempty = false);
-	void setDiscDir(QString dir, bool isempty = false);
 	void setAutosync (bool value, bool isempty = false);
-	QString configPath () {return _confpath;}
-	QString getSudoProg ();
+	QString configPath () const {return _confpath;}
+	QString getSudoProg () const;
 	QString downloadWine(QString url, bool force = false);
-	QString shareDir () const;
 	UiClient * client () {return ui;}
 	int runGenericProcess(QProcess *process, const QString &program, QString message = "");
 	void setDatabase (QSqlDatabase database) {db = database;}
-	QSqlDatabase database () {return db;}
+	QSqlDatabase database () const {return db;}
+	QString shareDir() const;
 
 signals:
 	void videoMemoryChanged();
@@ -84,7 +82,7 @@ private:
 	bool copyCancelled;
 protected:
 	bool initconf (const QString &configPath);
-	inline QString config();
+	inline QString config() const;
 	void initDb();
 	void setConfigValue (QString key, QVariant value, bool setIfEmpty);
 	void loadPlugins ();

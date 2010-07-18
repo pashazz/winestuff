@@ -250,14 +250,6 @@ bool corelib::initconf(const QString &configPath)
 	setAutosync(true, true); //Automating package sync by default
 	setWineDir(dir.absoluteFilePath("windows"), true);
 	setMountDir(dir.absoluteFilePath("mounts"), true);
-	setDiscDir(dir.absoluteFilePath("disc"), true);
-	if (QDir(discDir()).exists())
-	{
-	//подчищаем discDir
-		ui->showProgressBar(tr("Cleaning up"));
-		removeDir(discDir());
-		ui->endProgress();
-	}
 	//check if dirs exists
 	QStringList paths = QStringList () << wineDir() << mountDir();
 	foreach (QString path, paths)
@@ -269,11 +261,11 @@ bool corelib::initconf(const QString &configPath)
 	return true;
 }
 
-QString corelib::wineDir() {
+QString corelib::wineDir() const {
 	return settings->value("WineDir").toString();
 }
 
-QString corelib::mountDir() {
+QString corelib::mountDir() const {
 	return settings->value("MountDir").toString();
 }
 void corelib::setWineDir(QString dir, bool isempty)
@@ -315,7 +307,7 @@ void corelib::setVideoMemory(int memory, bool isempty)
 	settings->sync(); //we need to force sync
 	emit videoMemoryChanged();
 }
-QString corelib::videoMemory()
+QString corelib::videoMemory() const
 {
 	return settings->value("VideoMemory").toString();
 }
@@ -347,7 +339,7 @@ db.close();
 /* TODO: размонтирование всего и вся */
 }
 
-QString corelib::getSudoProg()
+QString corelib::getSudoProg() const
 {
 	QStringList programs = QStringList () << "kdesu" << "gksu" << "xdg-su";
 	foreach (QString str, programs)
@@ -359,7 +351,7 @@ QString corelib::getSudoProg()
 	return "";
 }
 
-bool corelib::forceFuseiso()
+bool corelib::forceFuseiso() const
 {
 	return settings->value("ForceFuseiso", false).toBool();
 }
@@ -371,17 +363,7 @@ void corelib::setForceFuseiso(bool value, bool isempty)
 	setConfigValue("ForceFuseiso", value, isempty);
 }
 
-void corelib::setDiscDir(QString dir, bool isempty)
-{
-	setConfigValue("DiscDir", dir, isempty);
-}
-
-QString corelib::discDir()
-{
-	return settings->value("DiscDir").toString();
-}
-
-QString corelib::config()
+QString corelib::config() const
 {
 	if (QProcessEnvironment::systemEnvironment().contains("XDG_CONFIG_HOME"))
 		return QProcessEnvironment::systemEnvironment().value("XDG_CONFIG_HOME") + QDir::separator() + "winegame.conf";
@@ -529,7 +511,7 @@ void corelib::setAutosync(bool value, bool isempty)
 	setConfigValue("AutoSync", value, isempty);
 }
 
-bool corelib::autoSync()
+bool corelib::autoSync() const
 {
 	return settings->value("AutoSync", false).toBool();
 }

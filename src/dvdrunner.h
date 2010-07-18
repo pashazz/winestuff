@@ -49,16 +49,14 @@ public:
 	bool isMounted () {return mounted;}
 public slots:
 	void cancel();
+	void eject (bool &ok);
 signals:
-	void insertNextCd (bool &result, int cd); //Пользователь должен вставить CD.
-	void fileNeed (QString &exe, QString disc);
 private:
 	corelib *core;
 	bool result;
 	bool multidisc;
 	bool cancelled;
 	bool detect();
-	bool checkDisc(QString &diskPath);
 	bool prepare (bool nodetect = false); //метод для выполнения различных подготовок (монтирования и т.д.). Если WineGame распознал диск сам, то этот метод вызывается из конструктора.
 	SourceReader *reader;
 	QString diskPath, realDrive;
@@ -66,7 +64,6 @@ private:
 	Pashazz::DriveType type;
 	int _max; //copyfile size
 	bool mounted;
-	QStringList entrylist;
 	PluginWorker *_worker;
 private slots:
 };

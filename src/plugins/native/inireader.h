@@ -53,8 +53,6 @@ public:
 	Name nameForLang (QString locale);
 	QStringList locales();
 	QString defaultWine();
-	bool isMulticd ();
-	short int discCount();
 signals:
 	void presetPrefixNeed(QString &prefix);
 	void presetNameNeed (QString &name);

@@ -290,21 +290,8 @@ QString NativeReader::getMD5()
 	return md5;
 }
 
-bool NativeReader::isMulticd()
-{
-	return s->value("disc/multicd").toBool();
-}
- short int NativeReader::discCount()
-{
-	 if (s->value("disc/count").toInt() > SHRT_MAX)
-	 {
-		 core->client()->error(tr("Package error"), "Olololo error");
-		 return 0;
-	 }
-	return s->value("disc/count").toInt();
-}
 
- bool NativeReader::needToSetMemory()
+bool NativeReader::needToSetMemory()
  {
 	 return s->value("wine/memory").toBool();
  }

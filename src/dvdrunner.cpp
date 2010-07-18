@@ -104,66 +104,9 @@ bool DVDRunner::prepare(bool nodetect)
 		if (!detect ())
 			return false;
 }
-	//3)Проверяем, возможно наша игра на нескольких дисках
 
-	if (reader->isMulticd ())
-	{
-		qDebug() << "Multidisc detected";
-		for (int i=1; i <= reader->discCount(); i++)
-		{
-			if (i != 1)
-			{
-				bool result = false;
-				insertnextcd:
-				core->client()->insertNextCd(result, QVariant(i).toString());
-				if (!result)
-				{
-					qDebug () << "Exiting (by user).....";
-					break;
-				}
-				else
-				{
-					if (!checkDisc(diskPath))
-						goto insertnextcd;
-				}
-			}
-			entrylist = QDir(diskPath).entryList();
-			if (!core->copyDir(diskPath, core->discDir()))
-			{
-				qDebug() << "Unable to copy directory..." << diskPath;
-				core->client()->endProgress();
-				return false;
-			}
-		}
-		diskPath = core->discDir();
-	}
-	//вроде все.
 	return true;
 }
-
-bool DVDRunner::checkDisc(QString &diskPath) //проверяет диск. Если пусто, спрашивает у пользователя новую директорию, поэтому diskPath передается по ссылке.
-{
-	QDir dpath (diskPath);
-	checkdisc:
-	if ((dpath.entryList(QDir::NoDotAndDotDot | QDir::AllEntries).count() == 0) || (entrylist == dpath.entryList()))
-	{
-		// Спрашиваем у клиента директорию.
-		diskPath = core->client()->directoryDialog(tr("Select disc directory...."), dpath.cleanPath(dpath.path() + "/.."));
-		if (diskPath.isEmpty())
-		{ //Возвращаем значение diskPath
-			diskPath = dpath.absolutePath();
-			return false;
-		}
-		else
-		{//проверяем значение
-			dpath.setPath(diskPath);
-			goto checkdisc;
-		}
-	}
-	else
-		return true;
-}
-
 
 void DVDRunner::setReader(SourceReader *reader)
 {
@@ -202,11 +145,9 @@ void DVDRunner::cleanup()
 		QProcess p (this);
 		p.start(umount);
 		p.waitForFinished(-1);
-		mounted = false;
+		if (p.exitStatus() == QProcess::NormalExit)
+			mounted = false;
 	}
-	core->client()->showProgressBar("Cleaning up....");
-	core->removeDir(core->discDir());
-	core->client()->endProgress();
 }
 
 QString DVDRunner::exe ()
@@ -236,4 +177,58 @@ void DVDRunner::cancel()
 {
 	cancelled = true;
 	cleanup();
+}
+
+void DVDRunner::eject(bool &ok)
+{
+	//run Eject process
+	if (reader->prefix()->runApplication("eject") == 0)
+		ok = true;
+	else
+	{
+		ok = false;
+		return;
+	}
+	//wait
+	if (type == Pashazz::Real)
+	{
+		core->client()->infoDialog(tr("Insert disc"), tr("Insert disc and press Enter/OK. Don`t forget to mount it. If you need to use disk image or custom location of files, then just press Enter/OK.")); //и теперь после этого опрашиваем diskPath
+		if (QDir(diskPath).entryList(QDir::AllEntries | QDir::NoDotAndDotDot).count() > 0)
+			return; //все, на этом мы закончили, diskPath изменять не надо.
+	}
+	//спрашиваем у клиента точнку монт. или iso
+	QString path;
+	bool isDir = false;
+	core->client()->selectNextDisc(isDir, path);
+	if (path.isEmpty())
+	{
+		ok = false;
+		return;
+	}
+	else
+		cleanup();
+	if (type == Pashazz::Image && mounted) //что-то тутявно не так, видимо юзер отмену нажал, нехорошо
+	{
+		ok = false;
+		return;
+	}
+	if (isDir)
+	{
+		diskPath = path;
+		reader->prefix()->setDiscAttributes(diskPath);
+		type = Pashazz::Real;
+	}
+	else
+	{
+		//монтирую образ
+		QProcess p (this);
+		if (core->runGenericProcess(&p, mount, tr("Mounting image")) != 0)
+		{
+			ok = false;
+			return;
+		}
+		diskPath = core->mountDir();
+		reader->prefix()->setDiscAttributes(diskPath, path);
+		type = Pashazz::Image;
+	}
 }

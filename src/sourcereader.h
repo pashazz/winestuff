@@ -26,15 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "prefix.h"
 typedef QPair <QString, QString> Name;
 
-class SourceReader : public QObject
+class WINESTUFFSHARED_EXPORT SourceReader : public QObject
 {
 	Q_OBJECT
 public:
 	explicit SourceReader(QObject *parent, corelib *core, QString id);
 	virtual ~SourceReader() {}
 	virtual bool checkWine () = 0;
-	virtual bool isMulticd () = 0;
-	virtual short int discCount() = 0;
 	QString ID () {return id;}
 	virtual QString name() = 0;
 	virtual QString note() = 0;

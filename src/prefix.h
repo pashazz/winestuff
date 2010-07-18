@@ -28,12 +28,12 @@ class PrefixCollection;
 class WINESTUFFSHARED_EXPORT Prefix : public QObject
 {
 	Q_OBJECT
-friend class PrefixCollection; //for Prefix`s protected functions.
+	friend class PrefixCollection; //for Prefix`s protected functions.
 public:
-enum ApplicationType
-{
-	Other = 0, Application, Strategy, Roleplaying, Sports, FistPersonShooter, Arcade, Action
-};
+	enum ApplicationType
+	{
+		Other = 0, Application, Strategy, Roleplaying, Sports, FistPersonShooter, Arcade, Action
+			};
 	Prefix (QObject *parent, corelib *lib);
 	Prefix (const QString &id,  const QString &name, const QString &note,  const QString &path, const QString &wine, QObject *parent, corelib *lib);
 	virtual ~Prefix () {}

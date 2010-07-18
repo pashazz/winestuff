@@ -42,7 +42,8 @@ public:
    virtual QString desktopLocation () = 0; //Папка рабочего стола (может определяться по-разному в зависимости от типа UI). Используется для создания ярлыка Freedesktop
    virtual bool questionDialog (const QString &title, const QString &text) = 0; //Запрос ДА/НЕТ (true/false)
    virtual void infoDialog (const QString &title, const QString &text) = 0; //Показ информации _И ОЖИДАНИЕ РЕАКЦИИ ПОЛЬЗОВАТЕЛЯ_. Проще говоря, мессейджбокс OK
-   virtual void selectExe (const QString &title, QString &file, QString home = "") = 0; //диалог выбора файла Exe.
+   virtual void selectExe (const QString &title, QString &file,  QString home = "") = 0; //диалог выбора файла Exe.
+   virtual bool selectNextDisc (bool &isDir, QString &file);
    virtual void insertNextCd (bool &result, QString count) = 0;
    /* Wait message */
    virtual void showUserWaitMessage (const QString &message) = 0; //показать модальный диалог (или что-то типа того, чтобы пользователь понял, что идет операция).
