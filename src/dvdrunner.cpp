@@ -140,8 +140,6 @@ bool DVDRunner::detect()
 
 void DVDRunner::cleanup()
 {
-	if (QDir::currentPath() == diskPath)
-		QDir::setCurrent(QDir::homePath());
 	//размонтируем наш сидюк
 	if (type == Pashazz::Image)
 	{
@@ -156,7 +154,6 @@ void DVDRunner::cleanup()
 QString DVDRunner::exe ()
 {
 	QString exe;
-	QDir::setCurrent(diskPath);
 	//Теперь просмотрим AutoRun
 	if (!core->autorun(diskPath).isEmpty())
 	{
@@ -200,16 +197,15 @@ void DVDRunner::eject(bool &ok)
 	p.waitForFinished(-1);
 	if (p.exitCode() != 0)
 	{
-		ok = false;
 		qDebug() <<  "DEBUG: UNABLE TO EJECT: " << p.readAllStandardError();
-		return;
 	}
 
 	//wait
 	if (type == Pashazz::Real)
 	{
 		core->client()->infoDialog(tr("Insert disc"), tr("Insert disc and press Enter/OK. Don`t forget to mount it. If you need to use disk image or custom location of files, then just press Enter/OK.")); //и теперь после этого опрашиваем diskPath
-		if (QDir(diskPath).entryList(QDir::AllEntries | QDir::NoDotAndDotDot) != entrylist)
+		QStringList myList = QDir(diskPath).entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
+		if (myList != entrylist && (!myList.isEmpty()))
 		{
 			ok = true;
 			return; //все, на этом мы закончили, diskPath изменять не надо.
@@ -253,6 +249,9 @@ void DVDRunner::eject(bool &ok)
 			ok = false;
 			return;
 		}
+		else
+			mounted = true;
 	}
 	ok = true;
+	core->client()->showNotify(tr("Disk is switched"), tr("Disk is switched to %1").arg(path));
 }

@@ -80,11 +80,9 @@ void Prefix::makeWineCdrom(const QString &path, const QString &device)
 		return;
 	qDebug() << "engine: make DOS CD/DVD drive D" << path << "at" << device;
 	QDir dir (_path + "/dosdevices");
-	if (dir.exists("d:"))
-		dir.remove("d:");
-	if (dir.exists("d::"))
-		dir.remove("d::");
-	QFile::link(path, _path + "/dosdevices/d:"); //Drive letter D: is hardcoded
+	dir.remove("d:");
+	dir.remove("d::");
+	QFile::link(path, dir.filePath("d:"));
 	if (!device.isEmpty())
 		QFile::link(device, _path + "/dosdevices/d::");
 }

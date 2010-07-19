@@ -53,7 +53,7 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, const QStr
 	if (havePrefix(reader->ID()))
 	{
 		Prefix *prefix (getPrefix(reader->ID()));
-		prefix->runApplication(file, "", splash);
+		prefix->runApplication(file, "", splash); //because of 'wine eject'
 		return prefix;
 	}
 	/* Записываем Prefix в базу данныхъ */

@@ -499,7 +499,12 @@ bool NativeReader::needToSetMemory()
 	  if (QFile(preinst).exists())
 		  core->runGenericProcess(p, preinst, tr("Running pre-installation trigger"));
 	  //собсно наш exe
-	  pref->runApplication(exe, "", false); //НЕ выводим мод. диалог
+	  QString wdir;
+//	  if (s->value("disc/multicd").toBool())
+		  wdir = QDir::rootPath();
+		  //  else
+		//  wdir = QFileInfo (exe).path();
+	  pref->runApplication(exe, wdir, false); //НЕ выводим мод. диалог
 	  //теперь postinst
 	  QString postinst = dir.absoluteFilePath("posinst");
 	  if (QFile(postinst).exists())
