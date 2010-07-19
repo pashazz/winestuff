@@ -51,8 +51,7 @@ public:
 public slots:
 	void cancel();
 	void eject (bool &ok);
-signals:
-	void prefixForSwitch (Prefix*);
+
 private:
 	corelib *core;
 	bool result;
@@ -67,7 +66,6 @@ private:
 	int _max; //copyfile size
 	bool mounted;
 	PluginWorker *_worker;
-private slots:
 };
 
 #endif // DVDRUNNER_H

@@ -190,11 +190,9 @@ void DVDRunner::eject(bool &ok)
 		core->client()->error(tr("Not implemented"), tr("This feature isn`t available yet for this configuration."));
 		return;
 	}
-	Prefix *prefix; //нужный префикс
-	if ((!reader) || (!reader->prefix()))
-		emit prefixForSwitch (prefix);
-	else
-		prefix = reader->prefix();
+	Prefix *prefix = reader->prefix(); //нужный префикс
+	/* TODO! Cделать eject возможным для установки в сущ. префиксы. */
+
 	//run Eject process
 	QProcess p;
 	p.setProcessEnvironment(prefix->environment());
