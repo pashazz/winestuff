@@ -29,7 +29,7 @@ PrefixCollection::PrefixCollection (QSqlDatabase database, corelib *lib, PluginW
 	connect (lib, SIGNAL(videoMemoryChanged()), this, SLOT(updateVideoMemory()));
 }
 
-Prefix* PrefixCollection::install(SourceReader *reader, QString file, const QStringList &dvdObj)
+Prefix* PrefixCollection::install(SourceReader *reader, QString file, const QStringList &dvdObj, bool splash)
 {
 	if (!reader)
 		return 0;
@@ -53,7 +53,7 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, const QStr
 	if (havePrefix(reader->ID()))
 	{
 		Prefix *prefix (getPrefix(reader->ID()));
-		prefix->runApplication(file, "", true);
+		prefix->runApplication(file, "", splash);
 		return prefix;
 	}
 	/* Записываем Prefix в базу данныхъ */
@@ -84,13 +84,8 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, const QStr
 	Prefix *pref = reader->prefix();
 	if (reader->needToSetMemory())
 		pref->setMemory();
-	if (!dvdObj.isEmpty ())
-	{
-		/* cdrom working */
-
-		if (!cdroot.isEmpty ())
-			reader->setDvd(image, cdroot);
-    }
+	if (!cdroot.isEmpty ())
+		reader->setDvd(image, cdroot);
 	pref->makefix();
 	//launch winetricks
 	launchWinetricks(pref, reader->components());

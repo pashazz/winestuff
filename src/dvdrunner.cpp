@@ -34,41 +34,7 @@ DVDRunner::DVDRunner(corelib *lib, QString path, PluginWorker *worker)
 	{
 		realDrive = path;
 		diskPath = core->mountDir();
-		//Пробуем примонтировать образ в diskPath
-		if (core->getSudoProg().isEmpty() || core->forceFuseiso()) {
-		mount = QString("fuseiso \"%1\" \"%2\"").arg(realDrive).arg(diskPath);
-		umount = QString("fusermount -u \"%1\"").arg(diskPath);
-	}
-		else
-		{
-			QString sudo = core->getSudoProg();
-			QString mountString = QString ("mount -o loop \"%1\" \"%2\"").arg(realDrive).arg(diskPath);
-			QString umountString = QString ("umount \"%1\"").arg(diskPath);
-			if (sudo == "kdesu" && QProcessEnvironment::systemEnvironment().contains("KDE_FULL_SESSION"))
-			{
-				mount = QString ("kdesu -i %1 \"%2\"").arg("winegame").arg(mountString);
-				umount = QString ("kdesu -i %1 \"%2\"").arg("winegame").arg(umountString);
-			}
-			else if (sudo == "gksu")
-			{
-			 QString mountMsg = tr("Enter password to mount ISO image");
-			 QString umountMsg = tr("Enter password to unmount ISO image");
-			 mount = QString ("gksu -m \"%1\" -D %2 \"%3\"").arg(mountMsg).arg("WineStuff").arg(mountString);
-			 umount = QString ("gksu -m \"%1\" -D %2 \"%3\"").arg(umountMsg).arg("WineStuff").arg(umountString);
-				  }
-			else if (sudo == "xdg-su")
-			{
-				mount = QString ("xdg-su -c \"%1\"").arg(mountString);
-				umount = QString ("xdg-su -c \"%1\"").arg(umountString);
-			}
-			else
-			{
-				//force fuseiso
-				mount = QString("fuseiso \"%1\" \"%2\"").arg(realDrive).arg(diskPath);
-				umount = QString("fusermount -u \"%1\"").arg(diskPath);
-			}
-		}
-		type = Pashazz::Image;
+		updateMount();
 	}
 	else
 	{
@@ -76,6 +42,45 @@ DVDRunner::DVDRunner(corelib *lib, QString path, PluginWorker *worker)
 		core->client()->error(tr("Execution error"), tr("I/O error"));
 	}
 	result =	prepare();
+}
+void DVDRunner::updateMount()
+{
+	//Пробуем примонтировать образ в diskPath
+	if (core->getSudoProg().isEmpty() || core->forceFuseiso())
+	{
+	mount = QString("fuseiso \"%1\" \"%2\"").arg(realDrive).arg(diskPath);
+	umount = QString("fusermount -u \"%1\"").arg(diskPath);
+}
+	else
+	{
+		QString sudo = core->getSudoProg();
+		QString mountString = QString ("mount -o loop \"%1\" \"%2\"").arg(realDrive).arg(diskPath);
+		QString umountString = QString ("umount \"%1\"").arg(diskPath);
+		if (sudo == "kdesu" && QProcessEnvironment::systemEnvironment().contains("KDE_FULL_SESSION"))
+		{
+			mount = QString ("kdesu -i %1 \"%2\"").arg("winegame").arg(mountString);
+			umount = QString ("kdesu -i %1 \"%2\"").arg("winegame").arg(umountString);
+		}
+		else if (sudo == "gksu")
+		{
+		 QString mountMsg = tr("Enter password to mount ISO image");
+		 QString umountMsg = tr("Enter password to unmount ISO image");
+		 mount = QString ("gksu -m \"%1\" -D %2 \"%3\"").arg(mountMsg).arg("WineStuff").arg(mountString);
+		 umount = QString ("gksu -m \"%1\" -D %2 \"%3\"").arg(umountMsg).arg("WineStuff").arg(umountString);
+			  }
+		else if (sudo == "xdg-su")
+		{
+			mount = QString ("xdg-su -c \"%1\"").arg(mountString);
+			umount = QString ("xdg-su -c \"%1\"").arg(umountString);
+		}
+		else
+		{
+			//force fuseiso
+			mount = QString("fuseiso \"%1\" \"%2\"").arg(realDrive).arg(diskPath);
+			umount = QString("fusermount -u \"%1\"").arg(diskPath);
+		}
+	}
+	type = Pashazz::Image;
 }
 
 bool DVDRunner::prepare(bool nodetect)
@@ -135,13 +140,11 @@ bool DVDRunner::detect()
 
 void DVDRunner::cleanup()
 {
+	if (QDir::currentPath() == diskPath)
+		QDir::setCurrent(QDir::homePath());
 	//размонтируем наш сидюк
 	if (type == Pashazz::Image)
 	{
-		if (QDir::currentPath() == diskPath)
-			QDir::setCurrent(QDir::homePath());
-		if (!cancelled)
-			core->client()->infoDialog(tr("Information"), tr("Press OK/Enter when application`s installation ends"));
 		QProcess p (this);
 		p.start(umount);
 		p.waitForFinished(-1);
@@ -181,25 +184,46 @@ void DVDRunner::cancel()
 
 void DVDRunner::eject(bool &ok)
 {
-	//run Eject process
-	if (reader->prefix()->runApplication("eject") == 0)
-		ok = true;
-	else
+	QStringList entrylist = QDir(diskPath).entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
+	if (!reader)
 	{
-		ok = false;
+		core->client()->error(tr("Not implemented"), tr("This feature isn`t available yet for this configuration."));
 		return;
 	}
+	Prefix *prefix; //нужный префикс
+	if ((!reader) || (!reader->prefix()))
+		emit prefixForSwitch (prefix);
+	else
+		prefix = reader->prefix();
+	//run Eject process
+	QProcess p;
+	p.setProcessEnvironment(prefix->environment());
+	p.start(prefix->wine(), QStringList("eject"));
+	p.waitForFinished(-1);
+	if (p.exitCode() != 0)
+	{
+		ok = false;
+		qDebug() <<  "DEBUG: UNABLE TO EJECT: " << p.readAllStandardError();
+		return;
+	}
+
 	//wait
 	if (type == Pashazz::Real)
 	{
 		core->client()->infoDialog(tr("Insert disc"), tr("Insert disc and press Enter/OK. Don`t forget to mount it. If you need to use disk image or custom location of files, then just press Enter/OK.")); //и теперь после этого опрашиваем diskPath
-		if (QDir(diskPath).entryList(QDir::AllEntries | QDir::NoDotAndDotDot).count() > 0)
+		if (QDir(diskPath).entryList(QDir::AllEntries | QDir::NoDotAndDotDot) != entrylist)
+		{
+			ok = true;
 			return; //все, на этом мы закончили, diskPath изменять не надо.
+		}
 	}
 	//спрашиваем у клиента точнку монт. или iso
 	QString path;
 	bool isDir = false;
-	core->client()->selectNextDisc(isDir, path);
+	QString dir;
+	if (type == Pashazz::Image)
+		dir = QFileInfo (realDrive).absolutePath();
+	core->client()->selectNextDisc(isDir, path, dir);
 	if (path.isEmpty())
 	{
 		ok = false;
@@ -215,20 +239,22 @@ void DVDRunner::eject(bool &ok)
 	if (isDir)
 	{
 		diskPath = path;
-		reader->prefix()->setDiscAttributes(diskPath);
+		prefix->setDiscAttributes(diskPath);
 		type = Pashazz::Real;
 	}
 	else
 	{
 		//монтирую образ
+		diskPath = core->mountDir();
+		realDrive = path;
+		prefix->setDiscAttributes(diskPath, realDrive);
+		updateMount();
 		QProcess p (this);
 		if (core->runGenericProcess(&p, mount, tr("Mounting image")) != 0)
 		{
 			ok = false;
 			return;
 		}
-		diskPath = core->mountDir();
-		reader->prefix()->setDiscAttributes(diskPath, path);
-		type = Pashazz::Image;
 	}
+	ok = true;
 }

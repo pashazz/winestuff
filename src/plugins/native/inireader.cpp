@@ -290,7 +290,6 @@ QString NativeReader::getMD5()
 	return md5;
 }
 
-
 bool NativeReader::needToSetMemory()
  {
 	 return s->value("wine/memory").toBool();
@@ -500,7 +499,7 @@ bool NativeReader::needToSetMemory()
 	  if (QFile(preinst).exists())
 		  core->runGenericProcess(p, preinst, tr("Running pre-installation trigger"));
 	  //собсно наш exe
-	  pref->runApplication(exe, "", true); //выводим мод. диалог
+	  pref->runApplication(exe, "", false); //НЕ выводим мод. диалог
 	  //теперь postinst
 	  QString postinst = dir.absoluteFilePath("posinst");
 	  if (QFile(postinst).exists())
@@ -530,6 +529,7 @@ bool NativeReader::needToSetMemory()
 	 else
 		 _device = device;
 	 _cdroot = path;
+	 prefix()->setDiscAttributes(path, device);
  }
 
  QString NativeReader::defaultWine()

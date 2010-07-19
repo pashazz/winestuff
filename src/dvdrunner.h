@@ -46,11 +46,13 @@ public:
 	bool success() {return result;} //Закончилось ли распознавание успешно
 	void setReader (SourceReader *reader);
 	void cleanup ();
+	void updateMount();
 	bool isMounted () {return mounted;}
 public slots:
 	void cancel();
 	void eject (bool &ok);
 signals:
+	void prefixForSwitch (Prefix*);
 private:
 	corelib *core;
 	bool result;

@@ -30,7 +30,7 @@ class WINESTUFFSHARED_EXPORT PrefixCollection : public QObject
 public:
 	PrefixCollection (QSqlDatabase database, corelib *lib, PluginWorker *worker, QObject *parent = 0);
 	virtual ~PrefixCollection() {}
-	Prefix* install (SourceReader *reader, QString file, const QStringList &dvdObj = QStringList());
+	Prefix* install (SourceReader *reader, QString file, const QStringList &dvdObj = QStringList(), bool splash = true);
 	bool remove (QString id);
 	corelib* library () {return core;}
 	QList<Prefix*> prefixes ();

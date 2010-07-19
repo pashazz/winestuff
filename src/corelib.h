@@ -34,10 +34,9 @@ public:
 	virtual ~corelib();
 	static QString whichBin (QString bin);
 	bool removeDir (const QString &dir);
-	bool copyDir (const QString &dir, const QString &destination);
 	void init (const QString &configPath, const QString &dbConnectionName = "");
 	bool unpackWine(QString distr, QString destination);
-	QString unixSystem () {return system;} //наша замена QSysInfo. На системах Win/Lin/Mac/Symbian возвращает пустую строку
+	QString unixSystem () const {return system;} //наша замена QSysInfo. На системах Win/Lin/Mac/Symbian возвращает пустую строку
 	static bool checkPrefixName (QString);
 	void runSingleExe (QStringList exe) ;
 	/// Блок настроек
@@ -79,7 +78,6 @@ private:
 	QNetworkReply *currentReply;
 	QString _confpath;
 	/* About copying files */
-	bool copyCancelled;
 protected:
 	bool initconf (const QString &configPath);
 	inline QString config() const;
@@ -87,8 +85,6 @@ protected:
 	void setConfigValue (QString key, QVariant value, bool setIfEmpty);
 	void loadPlugins ();
 	/*About plugins */
-public slots:
-	void cancelCopy();
 };
 
 #endif // CORELIB_H

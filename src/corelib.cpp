@@ -325,11 +325,8 @@ QString corelib::autorun(QString diskRoot)
 	foreach (QString fileName,  dir.entryList(QDir::Files | QDir::Readable))
 	{
 		if (autorunNames.contains(fileName, Qt::CaseSensitive))
-	 {
-			qDebug()  << diskRoot + QDir::separator() + fileName;
 			return diskRoot + QDir::separator() + fileName;
-		}
- }
+	}
 	return "";
 }
 
@@ -389,52 +386,6 @@ bool corelib::removeDir(const QString & dir)
 	if (!dirObj.rmdir(dir))
 		return false;
 	return true;
-}
-
-bool corelib::copyDir(const QString &dir, const QString &destination)
-{
-	copyCancelled = false;
-	static bool isProgressBarShow = false;
-	QDir myDir(dir);
-	myDir.mkpath(destination);
-	if (!isProgressBarShow)
-	{
-		ui->showProgressBar(tr("Copying %1 into %2").arg(dir).arg(destination));
-		isProgressBarShow = true;
-	}
-	int max = myDir.entryList(QDir::NoDotAndDotDot).count();
-	int i = 0;
-	foreach (QString fileName, myDir.entryList(QDir::NoDotAndDotDot | QDir::AllEntries))
-	{
-		qApp->processEvents();
-		if (copyCancelled)
-		{
-			if (isProgressBarShow)
-				ui->endProgress();
-			return false;
-		}
-		i++;
-		ui->progressText(tr("Copying %1 into %2").arg(dir + QDir::separator() + fileName).arg(destination + QDir::separator() + fileName));
-		ui->progressRange(i,max);
-		if (QFileInfo(dir + QDir::separator() + fileName).isDir())
-		{
-			qDebug() << "copying " << dir + QDir::separator() + fileName << " into " << destination + QDir::separator() + fileName;
-			copyDir (dir + QDir::separator() +fileName, destination + QDir::separator() + fileName);
-		}
-		else
-		{
-			QFile file (dir + QDir::separator() + fileName);
-			file.copy(destination + QDir::separator() + fileName);
-		}
-	}
-	if (isProgressBarShow)
-		ui->endProgress();
-	return true; //others not implemented yet;
-}
-
-void corelib::cancelCopy()
-{
-	copyCancelled = true;
 }
 
 QString corelib::shareDir() const
