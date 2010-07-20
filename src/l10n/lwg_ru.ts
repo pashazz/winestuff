@@ -4,48 +4,79 @@
 <context>
     <name>DVDRunner</name>
     <message>
-        <location filename="../dvdrunner.cpp" line="54"/>
+        <location filename="../dvdrunner.cpp" line="66"/>
         <source>Enter password to mount ISO image</source>
         <translation>Введите пароль для монтирования ISO-образа</translation>
     </message>
     <message>
-        <location filename="../dvdrunner.cpp" line="55"/>
+        <location filename="../dvdrunner.cpp" line="67"/>
         <source>Enter password to unmount ISO image</source>
         <translation>Введите пароль для размонтирования ISO-образа</translation>
     </message>
     <message>
-        <location filename="../dvdrunner.cpp" line="76"/>
+        <location filename="../dvdrunner.cpp" line="187"/>
+        <source>Not implemented</source>
+        <translation>Не реализовано</translation>
+    </message>
+    <message>
+        <location filename="../dvdrunner.cpp" line="187"/>
+        <source>This feature isn`t available yet for this configuration.</source>
+        <translation>Эта фича недоступна для вашей конфигурации.</translation>
+    </message>
+    <message>
+        <location filename="../dvdrunner.cpp" line="206"/>
+        <source>Insert disc</source>
+        <translation>Вставьте диск</translation>
+    </message>
+    <message>
+        <location filename="../dvdrunner.cpp" line="206"/>
+        <source>Insert disc and press Enter/OK. Don`t forget to mount it. If you need to use disk image or custom location of files, then just press Enter/OK.</source>
+        <translation>Вставьте диск и нажмите Ввод/OK. Не забудьте подключить (смонтировать) его. Если вы хотите использовать образ диска или иное расположение файлов, тогда просто нажмите Enter/OK.</translation>
+    </message>
+    <message>
+        <location filename="../dvdrunner.cpp" line="247"/>
+        <source>Mounting image</source>
+        <translation>Подключение образа</translation>
+    </message>
+    <message>
+        <location filename="../dvdrunner.cpp" line="256"/>
+        <source>Disk is switched</source>
+        <translation>Диск сменен</translation>
+    </message>
+    <message>
+        <location filename="../dvdrunner.cpp" line="256"/>
+        <source>Disk is switched to %1</source>
+        <translation>Диск сменен на %1</translation>
+    </message>
+    <message>
+        <location filename="../dvdrunner.cpp" line="42"/>
         <source>Execution error</source>
         <translation>Ошибка выполнения</translation>
     </message>
     <message>
-        <location filename="../dvdrunner.cpp" line="76"/>
+        <location filename="../dvdrunner.cpp" line="42"/>
         <source>I/O error</source>
         <translation>Ошибка ввода/вывода</translation>
     </message>
     <message>
-        <location filename="../dvdrunner.cpp" line="155"/>
         <source>Select disc directory....</source>
-        <translation>Выберите папку диска...</translation>
+        <translation type="obsolete">Выберите папку диска...</translation>
     </message>
     <message>
         <source>Copying files from your CDs</source>
         <translation type="obsolete">Копирую файлы с ваших CD</translation>
     </message>
     <message>
-        <location filename="../dvdrunner.cpp" line="200"/>
         <source>Information</source>
-        <translation>Информация</translation>
+        <translation type="obsolete">Информация</translation>
     </message>
     <message>
-        <location filename="../dvdrunner.cpp" line="200"/>
         <source>Press OK/Enter when application`s installation ends</source>
-        <translation>Нажмите ОК или &quot;Ввод&quot; тогда, когда закончится установка приложения</translation>
+        <translation type="obsolete">Нажмите ОК или &quot;Ввод&quot; тогда, когда закончится установка приложения</translation>
     </message>
     <message>
-        <location filename="../dvdrunner.cpp" line="237"/>
         <source>Select EXE file</source>
-        <translation>Выберите EXE-файл</translation>
+        <translation type="obsolete">Выберите EXE-файл</translation>
     </message>
 </context>
 <context>
@@ -54,6 +85,16 @@
         <location filename="../poldownloader.cpp" line="32"/>
         <source>Downloading a list of wines</source>
         <translation>Загружаю список Wine...</translation>
+    </message>
+    <message>
+        <location filename="../poldownloader.cpp" line="128"/>
+        <source>Sorry...</source>
+        <translation>Извините...</translation>
+    </message>
+    <message>
+        <location filename="../poldownloader.cpp" line="128"/>
+        <source>This feature is disabled</source>
+        <translation>Эта возможность отключена</translation>
     </message>
 </context>
 <context>
@@ -99,7 +140,12 @@
         <translation type="obsolete">Ошибка пакета</translation>
     </message>
     <message>
-        <location filename="../prefix.cpp" line="115"/>
+        <location filename="../prefix.cpp" line="50"/>
+        <source>Updating video memory, application %1</source>
+        <translation>Обновление видеопамяти для приложения %1</translation>
+    </message>
+    <message>
+        <location filename="../prefix.cpp" line="118"/>
         <source>Running program %1, please wait</source>
         <translation>Выполняется программа %1, подождите</translation>
     </message>
@@ -107,46 +153,47 @@
 <context>
     <name>PrefixCollection</name>
     <message>
-        <location filename="../prefixcollection.cpp" line="57"/>
-        <location filename="../prefixcollection.cpp" line="72"/>
-        <location filename="../prefixcollection.cpp" line="86"/>
-        <location filename="../prefixcollection.cpp" line="173"/>
-        <location filename="../prefixcollection.cpp" line="193"/>
-        <location filename="../prefixcollection.cpp" line="206"/>
-        <location filename="../prefixcollection.cpp" line="224"/>
-        <location filename="../prefixcollection.cpp" line="253"/>
+        <location filename="../prefixcollection.cpp" line="52"/>
+        <source>Select executable file</source>
+        <translation>Выберите исполняемый файл</translation>
+    </message>
+    <message>
+        <location filename="../prefixcollection.cpp" line="67"/>
+        <location filename="../prefixcollection.cpp" line="80"/>
+        <location filename="../prefixcollection.cpp" line="114"/>
+        <location filename="../prefixcollection.cpp" line="134"/>
+        <location filename="../prefixcollection.cpp" line="147"/>
+        <location filename="../prefixcollection.cpp" line="165"/>
+        <location filename="../prefixcollection.cpp" line="194"/>
         <source>Database error</source>
         <translation>Ошибка базы данных</translation>
     </message>
     <message>
-        <location filename="../prefixcollection.cpp" line="57"/>
-        <location filename="../prefixcollection.cpp" line="72"/>
-        <location filename="../prefixcollection.cpp" line="86"/>
-        <location filename="../prefixcollection.cpp" line="173"/>
-        <location filename="../prefixcollection.cpp" line="193"/>
-        <location filename="../prefixcollection.cpp" line="206"/>
-        <location filename="../prefixcollection.cpp" line="224"/>
-        <location filename="../prefixcollection.cpp" line="253"/>
+        <location filename="../prefixcollection.cpp" line="67"/>
+        <location filename="../prefixcollection.cpp" line="80"/>
+        <location filename="../prefixcollection.cpp" line="114"/>
+        <location filename="../prefixcollection.cpp" line="134"/>
+        <location filename="../prefixcollection.cpp" line="147"/>
+        <location filename="../prefixcollection.cpp" line="165"/>
+        <location filename="../prefixcollection.cpp" line="194"/>
         <source>Traceback: %1, query: %2</source>
         <translation>Ошибка: %1, запрос: %2</translation>
     </message>
     <message>
-        <location filename="../prefixcollection.cpp" line="130"/>
         <source>Running pre-installation trigger</source>
-        <translation>Запуск триггера...</translation>
+        <translation type="obsolete">Запуск триггера...</translation>
     </message>
     <message>
-        <location filename="../prefixcollection.cpp" line="136"/>
         <source>Running post-installation trigger</source>
-        <translation>Запуск триггера...</translation>
+        <translation type="obsolete">Запуск триггера...</translation>
     </message>
     <message>
-        <location filename="../prefixcollection.cpp" line="162"/>
+        <location filename="../prefixcollection.cpp" line="103"/>
         <source>Installing component: %1</source>
         <translation>Установка компонента: %1</translation>
     </message>
     <message>
-        <location filename="../prefixcollection.cpp" line="265"/>
+        <location filename="../prefixcollection.cpp" line="206"/>
         <source>Removing prefix %1</source>
         <translation>Удаление  префикса %1</translation>
     </message>
@@ -154,47 +201,40 @@
 <context>
     <name>SourceReader</name>
     <message>
-        <location filename="../inireader.cpp" line="151"/>
         <source>Wine outdated</source>
-        <translation>Wine</translation>
+        <translation type="obsolete">Wine</translation>
     </message>
     <message>
-        <location filename="../inireader.cpp" line="151"/>
         <source>Do you want to use system wine distribution for app %1?</source>
-        <translation>Хотите использовать системный Wine для приложения %1? WineGame обнаружил, что собственный дистрибутив Wine более не требуется.</translation>
+        <translation type="obsolete">Хотите использовать системный Wine для приложения %1? WineGame обнаружил, что собственный дистрибутив Wine более не требуется.</translation>
     </message>
     <message>
-        <location filename="../inireader.cpp" line="286"/>
         <source>Unable to download Wine</source>
-        <translation>Ошибка загрузки Wine</translation>
+        <translation type="obsolete">Ошибка загрузки Wine</translation>
     </message>
     <message>
-        <location filename="../inireader.cpp" line="286"/>
         <source>Error info: Failed to download Wine for %1</source>
-        <translation>Информация: Не могу загрузить Wine для %1</translation>
+        <translation type="obsolete">Информация: Не могу загрузить Wine для %1</translation>
     </message>
     <message>
-        <location filename="../inireader.cpp" line="295"/>
         <source>Unable to unpack Wine</source>
-        <translation>Не могу распаковать Wine</translation>
+        <translation type="obsolete">Не могу распаковать Wine</translation>
     </message>
     <message>
-        <location filename="../inireader.cpp" line="295"/>
         <source>Error info: Failed to unpack %1 into %2</source>
-        <translation>Информация: Не могу распаковать %1 в %2</translation>
+        <translation type="obsolete">Информация: Не могу распаковать %1 в %2</translation>
     </message>
     <message>
-        <location filename="../inireader.cpp" line="369"/>
         <source>Package error</source>
-        <translation>Ошибка пакета</translation>
+        <translation type="obsolete">Ошибка пакета</translation>
     </message>
 </context>
 <context>
     <name>corelib</name>
     <message>
-        <location filename="../corelib.cpp" line="71"/>
-        <location filename="../corelib.cpp" line="512"/>
-        <location filename="../corelib.cpp" line="519"/>
+        <location filename="../corelib.cpp" line="62"/>
+        <location filename="../corelib.cpp" line="413"/>
+        <location filename="../corelib.cpp" line="420"/>
         <source>Database error</source>
         <translation>Ошибка базы данных</translation>
     </message>
@@ -203,169 +243,168 @@
         <translation type="obsolete">Не могу создать базу данных для сохранения установленных приложений. Смотрите ошибки в консоли</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="512"/>
-        <location filename="../corelib.cpp" line="519"/>
+        <location filename="../corelib.cpp" line="413"/>
+        <location filename="../corelib.cpp" line="420"/>
         <source>Failed to create table for storing installed applications. See errors on console</source>
         <translation>Не могу создать таблицу для сохранения установленных приложений. Смотрите ошибки в консоли</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="71"/>
+        <location filename="../corelib.cpp" line="62"/>
         <source>Failed to open database for storing installed applications. See errors on console</source>
         <translation>Не могу открыть базу данных для сохранения установленных приложений. Смотрите ошибки в консоли</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="59"/>
         <source>Initialzation error</source>
-        <translation>Ошибка инициализации</translation>
+        <translation type="obsolete">Ошибка инициализации</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="59"/>
         <source>Unable to download packages</source>
-        <translation>Ошибка загрузки Wine</translation>
+        <translation type="obsolete">Ошибка загрузки Wine</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="88"/>
+        <location filename="../corelib.cpp" line="79"/>
         <source>Unpacking wine....</source>
         <translation>Распаковка wine...</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="100"/>
+        <location filename="../corelib.cpp" line="96"/>
         <source>Don`t worry!</source>
         <translation>Не беспокойтесь!</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="100"/>
+        <location filename="../corelib.cpp" line="96"/>
         <source>Now WineGame will download some files, that will need for get your applicaton running</source>
         <translation>Сейчас WineGame загрузит файлы, которые будут нужны для запуска вашего приложения</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="111"/>
         <source>Downloading Wine...</source>
-        <translation>Загрузка Wine</translation>
+        <translation type="obsolete">Загрузка Wine</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="112"/>
         <source>Downloading wine... %1</source>
-        <translation>Загрузка wine... %1</translation>
+        <translation type="obsolete">Загрузка wine... %1</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="144"/>
+        <location filename="../corelib.cpp" line="107"/>
+        <source>Downloading</source>
+        <translation>Загрузка</translation>
+    </message>
+    <message>
+        <location filename="../corelib.cpp" line="108"/>
+        <source>Downloading file: %1</source>
+        <translation>Загрузка файла: %1</translation>
+    </message>
+    <message>
+        <location filename="../corelib.cpp" line="140"/>
         <source>Connection refused</source>
         <translation>Соедиение закрыто</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="147"/>
+        <location filename="../corelib.cpp" line="143"/>
         <source>Remote host closed connection</source>
         <translation>Удаленный хост закрыл соединение</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="150"/>
+        <location filename="../corelib.cpp" line="146"/>
         <source>Host not found</source>
         <translation>Хост не найден</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="153"/>
+        <location filename="../corelib.cpp" line="149"/>
         <source>Connection timeout</source>
         <translation>Таймаут соедиения</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="156"/>
+        <location filename="../corelib.cpp" line="152"/>
         <source>Operation Canceled</source>
         <translation>Операция прервана</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="159"/>
+        <location filename="../corelib.cpp" line="155"/>
         <source>SSL error</source>
         <translation>Ошибка SSL</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="167"/>
+        <location filename="../corelib.cpp" line="163"/>
         <source>Proxy server error</source>
         <translation>Ошибка прокси-сервера</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="170"/>
+        <location filename="../corelib.cpp" line="166"/>
         <source>Acess denied</source>
         <translation>Доступ запрещен</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="174"/>
+        <location filename="../corelib.cpp" line="170"/>
         <source>File not found/Acess not permitted</source>
         <translation>Файл не найден/Доступ не предоставлен</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="177"/>
+        <location filename="../corelib.cpp" line="173"/>
         <source>Authentication Required</source>
         <translation>Необходима Аутентификация</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="180"/>
+        <location filename="../corelib.cpp" line="176"/>
         <source>Content resend error</source>
         <translation>Ошибка пересылки контента</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="183"/>
+        <location filename="../corelib.cpp" line="179"/>
         <source>Unknown error</source>
         <translation>Неизвестная ошибка</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="186"/>
+        <location filename="../corelib.cpp" line="182"/>
         <source>Network error</source>
         <translation>Ошибка сети</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="186"/>
+        <location filename="../corelib.cpp" line="182"/>
         <source>Something went wrong! %1.</source>
         <translation>Что-то пошло не так! %1</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="200"/>
+        <location filename="../corelib.cpp" line="196"/>
         <source>Critical error</source>
         <translation>Критическая ошибка</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="200"/>
+        <location filename="../corelib.cpp" line="196"/>
         <source>Wine distribution not downloaded, so exit installation.</source>
         <translation>Дистрибутив Wine не загружен → выходим из приложения.</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="261"/>
         <source>Cleaning up</source>
-        <translation>Очистка</translation>
+        <translation type="obsolete">Очистка</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="429"/>
+        <location filename="../corelib.cpp" line="376"/>
         <source>Removing %1</source>
         <translation>Удаляю %1</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="452"/>
-        <location filename="../corelib.cpp" line="467"/>
         <source>Copying %1 into %2</source>
-        <translation>Копирую %1 в %2</translation>
+        <translation type="obsolete">Копирую %1 в %2</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="560"/>
         <source>Downloading winegame packagelist</source>
-        <translation>Загружаю список пакетов Winegame</translation>
+        <translation type="obsolete">Загружаю список пакетов Winegame</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="561"/>
         <source>Downloading winegame release info....</source>
-        <translation>Загружаю информацию релиза Winegame...</translation>
+        <translation type="obsolete">Загружаю информацию релиза Winegame...</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="594"/>
         <source>Downloading winegame package index</source>
-        <translation>Загружаю индекс пакетов Winegame</translation>
+        <translation type="obsolete">Загружаю индекс пакетов Winegame</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="595"/>
         <source>Downloading winegame packages...</source>
-        <translation>Загружаю пакеты Winegame...</translation>
+        <translation type="obsolete">Загружаю пакеты Winegame...</translation>
     </message>
     <message>
-        <location filename="../corelib.cpp" line="619"/>
+        <location filename="../corelib.cpp" line="450"/>
         <source>The process is running</source>
         <translation>Выполняется процесс</translation>
     </message>

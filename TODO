@@ -1,3 +1,4 @@
 Version 0.2.0
-Store ALL prefixes in sqlite database
-More clean API/ABI
+Store ALL prefixes in sqlite database - done
+More clean API/ABI - todo
+Proxy settings - todo
