@@ -67,7 +67,7 @@ void DVDRunner::updateMount()
 		 QString umountMsg = tr("Enter password to unmount ISO image");
 		 mount = QString ("gksu -m \"%1\" -D %2 \"%3\"").arg(mountMsg).arg("WineStuff").arg(mountString);
 		 umount = QString ("gksu -m \"%1\" -D %2 \"%3\"").arg(umountMsg).arg("WineStuff").arg(umountString);
-			  }
+	 }
 		else if (sudo == "xdg-su")
 		{
 			mount = QString ("xdg-su -c \"%1\"").arg(mountString);
