@@ -500,8 +500,8 @@ bool NativeReader::needToSetMemory()
 		  core->runGenericProcess(p, preinst, tr("Running pre-installation trigger"));
 	  //собсно наш exe
 	  QString wdir;
-	  if (s->value("wine/blockdisc").toBool())
-		  wdir = QFileInfo (exe).path();
+	  if (_cdroot.isEmpty() || s->value("wine/blockdisc").toBool())
+		  wdir = QFileInfo(exe).path();
 	  else
 		  wdir = QDir::rootPath();
 	  pref->runApplication(exe, wdir, false); //НЕ выводим мод. диалог
