@@ -188,7 +188,6 @@ void DVDRunner::eject(bool &ok)
 		return;
 	}
 	Prefix *prefix = reader->prefix(); //нужный префикс
-	/* TODO! Cделать eject возможным для установки в сущ. префиксы. */
 
 	//run Eject process
 	QProcess p;
@@ -196,9 +195,7 @@ void DVDRunner::eject(bool &ok)
 	p.start(prefix->wine(), QStringList("eject"));
 	p.waitForFinished(-1);
 	if (p.exitCode() != 0)
-	{
 		qDebug() <<  "DEBUG: UNABLE TO EJECT: " << p.readAllStandardError();
-	}
 
 	//wait
 	if (type == Pashazz::Real)

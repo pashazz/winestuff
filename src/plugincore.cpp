@@ -78,3 +78,14 @@ QList<FormatInterface*> PluginWorker::plugins()
 {
 	return _plugins;
 }
+
+SourceReader* PluginWorker::reader(const QString &id)
+{
+	foreach (FormatInterface *plugin, _plugins)
+	{
+		SourceReader *reader = plugin->readerById(id);
+		if (reader)
+			return reader;
+	}
+	return 0;
+}

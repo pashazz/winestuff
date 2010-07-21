@@ -478,3 +478,8 @@ void corelib::cancelCurrentOperation()
 	else
 		qDebug() << "WARNING: access to null pointer";
 }
+
+bool corelib::feedback()
+{
+	return settings->value("askreports").toBool();
+}

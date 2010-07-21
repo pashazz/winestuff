@@ -52,6 +52,7 @@ public:
 	void setMountDir (QString dir, bool isempty = false);
 	void setVideoMemory (int memory, bool isempty = false);
 	void setAutosync (bool value, bool isempty = false);
+	bool feedback ();
 	QString configPath () const {return _confpath;}
 	QString getSudoProg () const;
 	QString downloadWine(QString url, bool force = false);

@@ -31,6 +31,7 @@ public:
 	QList <FormatInterface*> plugins ();
 	QStringList files ();
 	QString pluginsDir () {return plugdir;}
+	SourceReader *reader (const QString &id);
 private:
 	QList <FormatInterface*> _plugins;
 	QStringList fileNames;
