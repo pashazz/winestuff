@@ -29,16 +29,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class  WINESTUFFSHARED_EXPORT corelib : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY (QString mountDir READ mountDir WRITE setMountDir );
+    Q_PROPERTY (bool autosync READ autoSync WRITE setAutosync);
+    Q_PROPERTY (bool forceFuseiso READ forceFuseiso WRITE setForceFuseiso);
+    Q_PROPERTY(QString wineDir READ wineDir WRITE setWineDir);
+    Q_PROPERTY(QString shareDir READ shareDir);
+
 public:
 	corelib(QObject *parent, UiClient *client);
 	virtual ~corelib();
-	static QString whichBin (QString bin);
+	static QString whichBin (const  QString &bin);
 	bool removeDir (const QString &dir);
 	void init (const QString &configPath, const QString &dbConnectionName = "");
 	bool unpackWine(QString distr, QString destination);
 	QString unixSystem () const {return system;} //наша замена QSysInfo. На системах Win/Lin/Mac/Symbian возвращает пустую строку
-	static bool checkPrefixName (QString);
-	void runSingleExe (QStringList exe) ;
+	void  runSingleExe (const QStringList &exe);
+	static bool checkPrefixName (const QString& prefix);
 	/// Блок настроек
 	QString wineDir () const;
 	QString mountDir () const;
@@ -52,7 +58,6 @@ public:
 	void setMountDir (QString dir, bool isempty = false);
 	void setVideoMemory (int memory, bool isempty = false);
 	void setAutosync (bool value, bool isempty = false);
-	bool feedback ();
 	QString configPath () const {return _confpath;}
 	QString getSudoProg () const;
 	QString downloadWine(QString url, bool force = false);

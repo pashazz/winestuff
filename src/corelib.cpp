@@ -26,16 +26,11 @@ corelib::corelib(QObject *parent, UiClient *client)
 	//Init Settings object
 	settings = new QSettings (config(), QSettings::IniFormat, this);
 	QDir::setSearchPaths("winedir", QStringList(wineDir()));
-	//Init translations object
-#ifdef Q_WS_X11
-	QProcess p (this);
-	p.start("uname");
-	p.waitForFinished();
-	system = p.readAllStandardOutput().toLower().trimmed().replace('\n', "");
-#endif
-}
+	//Init translations object (dep. on system)
 
-QString corelib::whichBin(QString bin) {
+    }
+
+QString corelib::whichBin(const QString &bin) {
     QProcess p (0);
     p.start("which", QStringList (bin));
     p.waitForFinished(-1);
@@ -197,7 +192,7 @@ void corelib::exitApp()
 	downloadExitCode = false;
 }
 
-bool corelib::checkPrefixName(QString prefix)
+bool corelib::checkPrefixName(const QString &prefix)
 {
     //пока что тут у нас проверяется на пробелы.
     if (prefix.contains(' '))
@@ -209,14 +204,9 @@ bool corelib::checkPrefixName(QString prefix)
 	return true;
 }
 
-void corelib::runSingleExe(QStringList exe)
+void corelib::runSingleExe(const QStringList &exe)
 {
-	QString wineprefix = QProcessEnvironment::systemEnvironment().value("WINEPREFIX");
-	if (wineprefix.isEmpty())
-	{
-		qDebug() << "winegame: Wineprefix not set, exiting.";
-		return;
-	}
+    QString wineprefix = QProcessEnvironment::systemEnvironment().value("WINEPREFIX", QString("%1/.wine").arg (QDir::homePath ()));
 	// Выбираем бинарник Wine по данному WINEPREFIX
 	QSqlQuery q(db);
 	q.prepare("SELECT wine FROM Apps WHERE wineprefix=:pr");
@@ -282,8 +272,8 @@ void corelib::setWineDir(QString dir, bool isempty)
 
 void corelib::setMountDir(QString dir, bool isempty)
 {
-	if (isempty && (!mountDir().isEmpty()))
-	{
+    if (isempty && (!mountDir().isEmpty()))
+    	{
 		QFileInfo myDir (mountDir());
 		if (forceFuseiso())
 		{
@@ -296,7 +286,7 @@ void corelib::setMountDir(QString dir, bool isempty)
 				isempty = false;
 		}
 	}
-	setConfigValue("MountDir", dir, isempty);
+    setConfigValue("MountDir", dir, isempty);
 }
 void corelib::setVideoMemory(int memory, bool isempty)
 {
@@ -362,10 +352,7 @@ void corelib::setForceFuseiso(bool value, bool isempty)
 
 QString corelib::config() const
 {
-	if (QProcessEnvironment::systemEnvironment().contains("XDG_CONFIG_HOME"))
-		return QProcessEnvironment::systemEnvironment().value("XDG_CONFIG_HOME") + QDir::separator() + "winegame.conf";
-	else
-		return QDir::homePath() + "/.config/winegame.conf";
+    return QProcessEnvironment::systemEnvironment().value("XDG_CONFIG_HOME", QString("%1/.config").arg (QDir::homePath ())) + QDir::separator() + "winegame.conf";
 }
 
 bool corelib::removeDir(const QString & dir)
@@ -464,9 +451,8 @@ void corelib::setAutosync(bool value, bool isempty)
 
 bool corelib::autoSync() const
 {
-	return settings->value("AutoSync", false).toBool();
+  return settings->value("AutoSync", false).toBool();
 }
-
 
 /*!
  Отменяет текущую операцию загрузки (см. corelib::downloadWine())
@@ -479,7 +465,3 @@ void corelib::cancelCurrentOperation()
 		qDebug() << "WARNING: access to null pointer";
 }
 
-bool corelib::feedback()
-{
-	return settings->value("askreports").toBool();
-}

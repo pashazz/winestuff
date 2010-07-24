@@ -24,27 +24,27 @@
         <translation>Эта фича недоступна для вашей конфигурации.</translation>
     </message>
     <message>
-        <location filename="../dvdrunner.cpp" line="206"/>
+        <location filename="../dvdrunner.cpp" line="203"/>
         <source>Insert disc</source>
         <translation>Вставьте диск</translation>
     </message>
     <message>
-        <location filename="../dvdrunner.cpp" line="206"/>
+        <location filename="../dvdrunner.cpp" line="203"/>
         <source>Insert disc and press Enter/OK. Don`t forget to mount it. If you need to use disk image or custom location of files, then just press Enter/OK.</source>
         <translation>Вставьте диск и нажмите Ввод/OK. Не забудьте подключить (смонтировать) его. Если вы хотите использовать образ диска или иное расположение файлов, тогда просто нажмите Enter/OK.</translation>
     </message>
     <message>
-        <location filename="../dvdrunner.cpp" line="247"/>
+        <location filename="../dvdrunner.cpp" line="244"/>
         <source>Mounting image</source>
         <translation>Подключение образа</translation>
     </message>
     <message>
-        <location filename="../dvdrunner.cpp" line="256"/>
+        <location filename="../dvdrunner.cpp" line="253"/>
         <source>Disk is switched</source>
         <translation>Диск сменен</translation>
     </message>
     <message>
-        <location filename="../dvdrunner.cpp" line="256"/>
+        <location filename="../dvdrunner.cpp" line="253"/>
         <source>Disk is switched to %1</source>
         <translation>Диск сменен на %1</translation>
     </message>

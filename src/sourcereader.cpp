@@ -46,7 +46,7 @@ bool SourceReader::isIdValid(const QString &id)
 	QStringList invSymbols = QStringList () << ";"  << "wines" << "wineversion" << QDir::separator() << " ";
 	foreach (QString str, invSymbols)
 	{
-		if (id.contains(str, Qt::CaseInsensitive))
+		if (id.contains(str))
 			return false;
 	}
 	return true;
