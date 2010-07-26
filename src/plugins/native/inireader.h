@@ -47,12 +47,11 @@ public:
 	Prefix::ApplicationType type();
 	Prefix *prefix();
 	bool detectApp (QString path);
-	bool needFile() {return true;}
-	static QString defaultWine (const QString &id); // default wine for prefix ID in this implementation
-	bool needToSetMemory ();
+	bool needFile() const {return true;}
+	bool needToSetMemory () const;
 	Name nameForLang (QString locale);
 	QStringList locales();
-	QString defaultWine();
+	QString defaultWine() const;
 signals:
 	void presetPrefixNeed(QString &prefix);
 	void presetNameNeed (QString &name);

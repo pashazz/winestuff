@@ -188,7 +188,6 @@ QStringList NativeReader::components()
 	return s->value ("wine/components").toString().split(" ", QString::SkipEmptyParts);
 }
 
-
 QString NativeReader::icon()
 {
 	QDir dir ("nativepackages:" + id);
@@ -197,7 +196,6 @@ QString NativeReader::icon()
 	else
 		return "";
 }
-
 
 bool NativeReader::downloadWine() {
  if (!distr().isEmpty())
@@ -290,7 +288,7 @@ QString NativeReader::getMD5()
 	return md5;
 }
 
-bool NativeReader::needToSetMemory()
+bool NativeReader::needToSetMemory() const
  {
 	 return s->value("wine/memory").toBool();
  }
@@ -537,7 +535,7 @@ bool NativeReader::needToSetMemory()
 	 prefix()->setDiscAttributes(path, device);
  }
 
- QString NativeReader::defaultWine()
+ QString NativeReader::defaultWine() const
  {
 	 if (s->value("wine/distr").isNull())
 		 return core->whichBin("wine");

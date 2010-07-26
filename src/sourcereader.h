@@ -33,13 +33,13 @@ public:
 	explicit SourceReader(QObject *parent, corelib *core, QString id);
 	virtual ~SourceReader() {}
 	virtual bool checkWine () = 0;
-	QString ID () {return id;}
+	QString ID () const {return id;}
 	virtual QString name() = 0;
-	virtual QString note() = 0;
+	virtual QString note()  = 0;
 	virtual QString realName () = 0;
 	virtual QString realNote () = 0;
 	virtual bool setup(const QString &file) = 0;
-	virtual bool needFile () = 0;
+	virtual bool needFile () const = 0;
 	virtual void  setDvd (const QString &device, const QString &path) = 0;
 	virtual Prefix * prefix () = 0;
 	virtual QString prefixPath () = 0;
@@ -47,8 +47,8 @@ public:
 	virtual QStringList components () = 0;
 	virtual QString icon () = 0;
 	virtual bool detectApp (QString path) = 0;
-	virtual QString defaultWine () = 0;
-	virtual bool needToSetMemory () = 0;
+	virtual QString defaultWine () const = 0;
+	virtual bool needToSetMemory () const = 0;
 	virtual Name nameForLang (QString locale) = 0;
 	virtual QStringList locales() = 0;
 protected:

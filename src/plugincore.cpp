@@ -23,17 +23,6 @@ PluginWorker::PluginWorker(QObject *parent, corelib *core) :
     QObject(parent)
 {
 	//! we will NOT load static plugins
-	/*
-	foreach (QObject *plugin, QPluginLoader::staticInstances())
-	{
-		FormatInterface *interface = qobject_cast<FormatInterface*>(plugin);
-		if (interface)
-		{
-			_plugins.append(interface);
-			qDebug() << "pluginloader: Plugin " << interface->title() << " loaded.";
-		}
-	}
-	*/
 	QDir dir (qApp->applicationDirPath()); //calculate pkgdir
 	if (dir.dirName() == "bin")
 	{
