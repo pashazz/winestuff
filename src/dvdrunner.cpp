@@ -41,16 +41,19 @@ DVDRunner::DVDRunner(corelib *lib, QString path, PluginWorker *worker)
 		type = Pashazz::Unknown;
 		core->client()->error(tr("Execution error"), tr("I/O error"));
 	}
+
 	result =	prepare();
 }
 void DVDRunner::updateMount()
 {
+	realDrive.replace (" ", "\\ ");
+	diskPath.replace (" ", " \\");
 	//Пробуем примонтировать образ в diskPath
 	if (core->getSudoProg().isEmpty() || core->forceFuseiso())
 	{
-	mount = QString("fuseiso \"%1\" \"%2\"").arg(realDrive).arg(diskPath);
-	umount = QString("fusermount -u \"%1\"").arg(diskPath);
-}
+	    mount = QString("fuseiso \"%1\" \"%2\"").arg(realDrive).arg(diskPath);
+	    umount = QString("fusermount -u \"%1\"").arg(diskPath);
+	}
 	else
 	{
 		QString sudo = core->getSudoProg();
@@ -81,6 +84,8 @@ void DVDRunner::updateMount()
 		}
 	}
 	type = Pashazz::Image;
+	diskPath.replace ("\\ ", " ");
+	realDrive.replace ("\\ ", " ");
 }
 
 bool DVDRunner::prepare(bool nodetect)

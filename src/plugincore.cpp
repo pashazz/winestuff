@@ -57,7 +57,6 @@ PluginWorker::PluginWorker(QObject *parent, corelib *core) :
 	}
 }
 
-
 QStringList PluginWorker::files()
 {
 	return fileNames;
