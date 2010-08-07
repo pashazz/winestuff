@@ -1,0 +1,53 @@
+
+The 'corelib' (inherited publicly from QObject) class Documentation
+
+++++++++++++++++++++++++++++++++++++++++
+
+corelib - the main Winestuff class. Many winestuff`s classes requires
+this class in their constructors.
+
+
+++++++++++++++++++++++++++++++++++++++++
+
+0. Including
+
+#include <winestuff/corelib.h> //or #include <corelib.h> if you have /usr/include/winestuff in INCLUDEPATH
+
+1. Properties
+
+Q_PROPERTY (QString mountDir READ mountDir WRITE setMountDir );
+Q_PROPERTY (bool autosync READ autoSync WRITE setAutosync);
+Q_PROPERTY (bool forceFuseiso READ forceFuseiso WRITE setForceFuseiso);
+Q_PROPERTY(QString wineDir READ wineDir WRITE setWineDir);
+Q_PROPERTY(QString shareDir READ shareDir);
+
+2. Con/De structors
+
+  1. corelib(QObject *parent, UiClient *client);
+   This constructor is default and THE ONE constructor.
+   
+    Parameters:
+    - parent (QObject*) is the QObject`s Parent.
+    - client  (UiClient*) is Winestuff`s UiClient. You need to create it youself. See uiclient.txt for more information.
+
+  2. virtual ~corelib();
+
+3. Static class members
+
+  1. static QString whichBin (const  QString &bin);
+    This function returns 'which' command output.
+
+    Usage:
+    
+     QString x = corelib::whichBin ("xterm") //returns /usr/X11/bin/xterm (for example, if user has X11 installed in /usr/X11. 
+
+    Parameters:
+     - bin (const QString&) is the findable binary
+  
+  2. static QString autorun (const QString& diskRoot);
+    Returns autorun.inf`s full file path (if exists). Else return empty string
+
+   Parameters:
+   - diskRoot (const QString&) is the CD/DVD`s mount point. For example, "/mnt/cdrom"
+ 
+  3. 

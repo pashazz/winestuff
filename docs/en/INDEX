@@ -1,0 +1,5 @@
+winestuff documentation index
+
+interfaces/ - documentation for writing plugins
+
+core/ - documentation for corelib and other core classes

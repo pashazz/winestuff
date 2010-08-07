@@ -142,7 +142,6 @@ bool DVDRunner::detect()
 	}
 }
 
-
 void DVDRunner::cleanup()
 {
 	//размонтируем наш сидюк
@@ -159,17 +158,28 @@ void DVDRunner::cleanup()
 QString DVDRunner::exe ()
 {
 	QString exe;
+#ifndef Q_OS_MAC
 	//Теперь просмотрим AutoRun
 	if (!core->autorun(diskPath).isEmpty())
 	{
 		QSettings autorun(core->autorun(diskPath), QSettings::IniFormat, this);
 		autorun.beginGroup("autorun");
-		if (!autorun.value("open").toString().isEmpty())
+		if (!autorun.value("open").isNull ())
 		{
 			exe = diskPath + QDir::separator() + autorun.value("open").toString();
 			return exe;
 		}
 	}
+#else //HFS - регистронезависимая.
+	QSettings autorun(QDir(diskPath).filePath ("autorun.inf"), QSettings::IniFormat, this);
+	autorun.beginGroup("autorun");
+		if (!autorun.value("open").isNull ())
+		{
+			exe = diskPath + QDir::separator() + autorun.value("open").toString();
+			return exe;
+		}
+	}
+#endif
 	return exe;
 }
 

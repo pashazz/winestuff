@@ -1,0 +1,5 @@
+индекс документации winestuff
+
+interfaces/ - документация по классам плагинов
+
+core/ - документация по ядру winestuff (классам corelib, DVDRunner)

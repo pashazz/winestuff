@@ -32,17 +32,18 @@ class  WINESTUFFSHARED_EXPORT corelib : public QObject
     Q_PROPERTY (QString mountDir READ mountDir WRITE setMountDir );
     Q_PROPERTY (bool autosync READ autoSync WRITE setAutosync);
     Q_PROPERTY (bool forceFuseiso READ forceFuseiso WRITE setForceFuseiso);
-    Q_PROPERTY(QString wineDir READ wineDir WRITE setWineDir);
-    Q_PROPERTY(QString shareDir READ shareDir);
+    Q_PROPERTY (QString wineDir READ wineDir WRITE setWineDir);
+    Q_PROPERTY (UiClient* uiClient READ client WRITE setClient);
+    Q_PROPERTY (QString configPath READ configPath WRITE setConfigPath);
+    Q_PROPERTY (QSqlDatabase database READ database WRITE setDatabase);
 
 public:
-	corelib(QObject *parent, UiClient *client);
+	corelib(QObject *parent, UiClient *client, const QString &configPath);
 	virtual ~corelib();
+	void init (const QString &dbConnectionName = "");
 	static QString whichBin (const  QString &bin);
-	bool removeDir (const QString &dir);
-	void init (const QString &configPath, const QString &dbConnectionName = "");
-	bool unpackWine(QString distr, QString destination);
-	QString unixSystem () const {return system;} //наша замена QSysInfo. На системах Win/Lin/Mac/Symbian возвращает пустую строку
+	bool unpackWine(const QString &distr, const QString &destination);
+	QString unixSystem () const {return system;}
 	void  runSingleExe (const QStringList &exe);
 	static bool checkPrefixName (const QString& prefix);
 	/// Блок настроек
@@ -53,19 +54,22 @@ public:
 	bool forceFuseiso () const;
 	void setForceFuseiso(bool value, bool isempty = false);
 	void syncSettings() const {settings->sync();}
-	static QString autorun (QString diskRoot);
-	void setWineDir (QString dir, bool isempty =false);
-	void setMountDir (QString dir, bool isempty = false);
+	static QString autorun (const QString& diskRoot);
+	void setWineDir (const QString &dir, bool isempty = false);
+	void setMountDir (const QString &dir, bool isempty = false);
 	void setVideoMemory (int memory, bool isempty = false);
 	void setAutosync (bool value, bool isempty = false);
 	QString configPath () const {return _confpath;}
+	void setConfigPath (const QString &configPath) {_confpath = configPath;}
 	QString getSudoProg () const;
 	QString downloadWine(QString url, bool force = false);
-	UiClient * client () {return ui;}
+	UiClient * client () const {return ui;}
+	void setClient (UiClient *uiClient) {delete  ui; ui = uiClient;}
 	int runGenericProcess(QProcess *process, const QString &program, QString message = "");
-	void setDatabase (QSqlDatabase database) {db = database;}
+	void setDatabase (QSqlDatabase database) {
+	    if (database.isOpen ())
+		 db = database;}
 	QSqlDatabase database () const {return db;}
-	QString shareDir() const;
 
 signals:
 	void videoMemoryChanged();
@@ -89,8 +93,6 @@ protected:
 	inline QString config() const;
 	void initDb();
 	void setConfigValue (QString key, QVariant value, bool setIfEmpty);
-	void loadPlugins ();
-	/*About plugins */
 };
 
 #endif // CORELIB_H

@@ -1,0 +1,219 @@
+Документация класса corelib (унаследован публично от QObject).
+
++++++++++++++++++++++++++++++++++++++
+Этот класс является основным в библиотеке Winestuff, содержит основные функции и  доступ к настройкам. Все остальные классы Winestuff (кроме UiClient)
+требуют передать указатель на corelib в своих конструкторах.
+++++++++++++++++++++++++++++++++++++++
+
+0. Включение
+
+ #include <corelib.h> или #include <winestuff/corelib.h>
+
+
+
+1. Свойства
+
+    Q_PROPERTY (QString mountDir READ mountDir WRITE setMountDir );
+    Q_PROPERTY (bool autosync READ autoSync WRITE setAutosync);
+    Q_PROPERTY (bool forceFuseiso READ forceFuseiso WRITE setForceFuseiso);
+    Q_PROPERTY (QString wineDir READ wineDir WRITE setWineDir);
+    Q_PROPERTY (UiClient* uiClient READ client WRITE setClient);
+    Q_PROPERTY (QString configPath READ configPath WRITE setConfigPath);
+    Q_PROPERTY (QSqlDatabase database READ database WRITE setDatabase);
+
+
+
+2. Конструкторы и деструкторы
+
+
+    1. corelib(QObject *parent, UiClient *client, const QString &configPath);
+
+        Первый и единственный конструктор corelib.
+
+        Параметры:
+
+       - parent (QObject*) - родитель для QObject-класса.
+       - client (UiClient*) - Клиент для GUI Winestuff. См. uiclient.txt
+       - configPath (const QString&) - Конфигурационная директория Цш
+       
+    2. virtual ~corelib();
+        
+        Деструктор corelib.
+
+
+
+3. Сигналы
+
+
+   1. void videoMemoryChanged();
+
+       Этот сигнал вызывается при успешном изменении видеопамяти ф-циями corelib. см. setVideoMemory
+
+
+4. Статические функции-члены
+
+
+   1. static QString whichBin (const  QString &bin);
+
+        Этот метод выполняет команду which с аргументом bin.
+        Пример: 
+          corelib::whichBin ("wine") //возвращает /usr/bin/wine
+
+
+
+   2. static bool checkPrefixName (const QString& prefix);
+      
+	Проверяет имя префикса prefix (здесь имеется ввиду имя собственно префикса, а не имя игры/приложения) и возвращает успешность проверки (true/false)
+        Проверка проводится на наличие пробелов, разделителя в иерархии директорий, а также на то, что имя префикса не совпадает с одним из зарезервированных
+	Однако, не проверяет имена префиксов на занятость.
+
+
+
+   3.  static QString autorun (const QString& diskRoot);
+e
+        Возвращает имя файла autorun.inf в случае его нахождения в diskRoot. В противном случае возвращает пустую строку.
+
+        Параметр:
+        diskRoot (const QString&) - путь к корню CD/DVD для поиска (его точке монтирования).SD
+
+        Примечание:
+        Используйте эту функцию только на регистрозависимых ФС.
+
+
+
+ 5. Публичные нестатические функции-члены
+
+   
+
+  1.  void init (const QString &dbConnectionName = "");
+
+      Инициализирует corelib. Должно быть вызвано сразу после конструктора.
+
+     Параметры:
+     - dbConnectionName - имя соединения базы данных
+
+    Примечания:
+     - этот метод выполняет инициализацию winestuff по-умолчанию: база данных QSQLITE заполняется таблицей Apps (см. исходный код функции)
+     - если конфигурационный файл уже создан, он не заполняется снова
+     - если конфигурационный файл не создан, то он заполняется значениями, основанными на configPath()
+     - вы можете выполнить инициализацию своим путем, используя методы setDatabase, setClient, setConfigPath
+
+
+  2.  bool corelib::unpackWine (const QString &distr, const QString &destination);
+
+        Распаковывает дистрибутив Wine (или, впрочем, любой tar-файл), находящийся в distr, в destination.
+	Показывает прогресс-бар во время распаковки
+
+        Примечание: используется программа tar
+
+
+  3.  QString unixSystem () const;
+
+       Возвращает имя текущей ОС, если она поддерживается. Если система не поддерживается, возвращается пустая строка
+
+       Примечание:
+       - Windows и Mac OS X не поддерживаются, и не будут поддерживаться.
+       - Сейчас поддерживается только Linux (возвращается "linux"), возможно будут поддерживаться другие свободные ОС
+
+
+  4.  void  runSingleExe (const QStringList &exe);
+
+      Эта функция устарела (deprecated). Ее следует перенести в отдельное приложение.
+
+
+  5.  QString wineDir () const;
+      
+      Возвращает директорию WineDir (директорию, где находятся все префиксы Wine. Дистрибутивы WineУ находятся (должны находиться) в поддиректории wines/
+      этой директории.
+
+  5.1. void setWineDir (const QString &dir, bool isempty = false);
+
+      Устанавливает WineDir в dir. Если isempty = false, то устанавливает WineDir в любом случае. Иначе устанавливает  WineDir
+      только в том случае, если WineDir пуста.
+
+
+  6.  QString mountDir () const;
+
+      Возвращает MountDir - директорию, куда монтируются все ISO/MDF/NRG файлы через DVDRunner (dvdrunner.txt).
+
+  6.1	void setMountDir (const QString &dir, bool isempty = false);
+
+     Устанавливает MountDir в dir. Аргумент isempty имеет то же значение, что и в 5.1
+
+
+  7.	QString videoMemory () const;
+
+	Возвращает количество видеопамяти (указывается пользователем), как объект QString
+
+  7.1	void setVideoMemory (int memory, bool isempty = false);
+
+      Устанавливает количество видеопамяти в memory.
+
+      Примечания:
+      - см. 5.1 (так же далее в ф-ции 8.1 и 9.1)
+      - необходимо удалить эту функцию, и сделать распознавание видеопамяти автоматически в ф-ции 7.
+
+
+  8.	 bool forceFuseiso () const;
+
+	   Возвращает true, если предписано использовать FuseISO вместо системного механизма монтирования. Иначе (по-умолчанию) false.
+
+  8.1	void setForceFuseiso(bool value, bool isempty = false);
+
+    Устанавливает ForceFuseiso (см. 8) в value.
+
+
+  9.	bool autoSync () const;
+
+	  Предписывает программе-клиенту, совершать ли обновление, или нет.
+
+  9.1	void setAutosync (bool value, bool isempty = false);
+
+	  Устанавливает AutoSync в value.
+
+
+  10.	QString configPath () const;
+  
+	 Возвращает путь к конфигурационной директории winestuff.
+
+  10.1	void setConfigPath (const QString &configPath);
+
+	  Устанавливает конфигурационную директорию winestuff в configPath.
+
+
+  11.	void setDatabase (QSqlDatabase database);
+
+	  Устанавливает базу данных winestuff в database. База должна быть открыта.
+
+  11.1	QSqlDatabase database () const;
+
+	  Возвращает базу данных winestuff.
+
+
+  12.	void setClient (UiClient *uiClient);
+
+	  Установить клиент GUI winestuff в uiClient.
+
+  12.1	UiClient * client () const;
+ 
+	  Возвращает клиент GUI winestuff.
+
+
+  13.	QString getSudoProg () const;
+
+	 Возвращает sudo-программу (kdesu, gksu), установленную у пользователя.
+
+
+  14.	int runGenericProcess(QProcess *process, const QString &program, QString message = "");
+
+	  Запускает процесс, показывая сплеш.
+
+	Параметры:
+	 - process (QProcess*) - QProcess для запуска
+	 - program (const QString&) - программа для запуска
+	 - message (QString) - сообщение для сплеша
+
+
+  15.	void syncSettings() const;
+
+	  Синхронизирует настройки winestuff.

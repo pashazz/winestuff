@@ -20,17 +20,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "corelib.h"
 /// The core of winestuff. Commonly used functions.
-corelib::corelib(QObject *parent, UiClient *client)
-	:QObject(parent), ui (client)
+corelib::corelib(QObject *parent, UiClient *client, const QString &configPath)
+	:QObject(parent), ui (client), _confpath (configPath)
 {
+	if (!QFileInfo(_confpath).isWritable ())
+	    _confpath = QDir::home ().filePath (".winestuff"); //Default value
 	//Init Settings object
 	settings = new QSettings (config(), QSettings::IniFormat, this);
 	QDir::setSearchPaths("winedir", QStringList(wineDir()));
 	//Init translations object (dep. on system)
+    #ifdef Q_OS_LINUX
+	system = "linux";
+    #endif //other systems don`t supported yet
 
-    }
+ }
 
-QString corelib::whichBin(const QString &bin) {
+QString corelib::whichBin(const QString &bin)
+{
     QProcess p (0);
     p.start("which", QStringList (bin));
     p.waitForFinished(-1);
@@ -41,10 +47,10 @@ QString corelib::whichBin(const QString &bin) {
 	else
 		return "";
 }
-void corelib::init(const QString &configPath, const QString &dbConnectionName)
+
+void corelib::init( const QString &dbConnectionName)
 {
-	_confpath = configPath;
-	initconf(configPath);
+	initconf(_confpath);
 
 	bool isMakeDb;
 	isMakeDb = (!QFile::exists(wineDir() + "/installed.db"));
@@ -62,8 +68,7 @@ void corelib::init(const QString &configPath, const QString &dbConnectionName)
 		initDb();
 }
 
-
-bool corelib::unpackWine (QString distr, QString destination)
+bool corelib::unpackWine (const QString &distr, const QString &destination)
 {
      QDir dir (destination);
      if (!dir.exists())
@@ -258,7 +263,7 @@ QString corelib::wineDir() const {
 QString corelib::mountDir() const {
 	return settings->value("MountDir").toString();
 }
-void corelib::setWineDir(QString dir, bool isempty)
+void corelib::setWineDir(const QString &dir, bool isempty)
 {
 	if (isempty && (!wineDir().isEmpty()))
 	{
@@ -270,7 +275,7 @@ void corelib::setWineDir(QString dir, bool isempty)
 	setConfigValue("WineDir", dir, isempty);
 }
 
-void corelib::setMountDir(QString dir, bool isempty)
+void corelib::setMountDir(const QString  &dir, bool isempty)
 {
     if (isempty && (!mountDir().isEmpty()))
     	{
@@ -302,20 +307,22 @@ QString corelib::videoMemory() const
 	return settings->value("VideoMemory").toString();
 }
 
-QString corelib::autorun(QString diskRoot)
+QString corelib::autorun(const QString& diskRoot)
 {
 	QStringList autorunNames;
 	autorunNames.append("autorun.inf");
 	autorunNames.append("Autorun.inf");
 	autorunNames.append("AUTORUN.INF");
 	autorunNames.append("AutoRun.inf");
+	autorunNames.append ("autorun.INF");
+	autorunNames.append ("Autorun.INF");
 	QDir dir (diskRoot);
 	if (!dir.exists())
 		return "";
 	foreach (QString fileName,  dir.entryList(QDir::Files | QDir::Readable))
 	{
 		if (autorunNames.contains(fileName, Qt::CaseSensitive))
-			return diskRoot + QDir::separator() + fileName;
+			return dir.filePath (fileName);
 	}
 	return "";
 }
@@ -323,7 +330,6 @@ QString corelib::autorun(QString diskRoot)
 corelib::~corelib()
 {
 db.close();
-/* TODO: размонтирование всего и вся */
 }
 
 QString corelib::getSudoProg() const
@@ -352,42 +358,10 @@ void corelib::setForceFuseiso(bool value, bool isempty)
 
 QString corelib::config() const
 {
-    return QProcessEnvironment::systemEnvironment().value("XDG_CONFIG_HOME", QString("%1/.config").arg (QDir::homePath ())) + QDir::separator() + "winegame.conf";
-}
-
-bool corelib::removeDir(const QString & dir)
-{
-	QDir dirObj(dir);
-	int i = 0;
-	int max = dirObj.entryList(QDir::Readable | QDir::NoDotAndDotDot | QDir::AllEntries).count();
-	ui->progressText(tr("Removing %1").arg(dir));
-	foreach (QString fileName, dirObj.entryList(QDir::Readable | QDir::NoDotAndDotDot | QDir::AllEntries /*| QDir::NoSymLinks*/))
-	{
-		i++;
-		ui->progressRange(i, max);
-		if (QFileInfo(dir+QDir::separator()+fileName).isDir())
-			removeDir(dir+QDir::separator()+fileName);
-		else
-			dirObj.remove(fileName);
-	}
-	if (!dirObj.rmdir(dir))
-		return false;
-	return true;
-}
-
-QString corelib::shareDir() const
-{
-	QString shareDir;
-	QDir dir (qApp->applicationDirPath());
-	if (dir.dirName() == "bin") //like a system directory
-	{
-		dir.cdUp();
-		dir.cd("share");
-		if (!dir.exists("winegame"))
-			return "";
-		dir.cd("winegame");
-		shareDir = dir.absolutePath();
-	}
+    if (_confpath.isEmpty ())
+     return QProcessEnvironment::systemEnvironment().value("XDG_CONFIG_HOME", QString("%1/.config").arg (QDir::homePath ())) + QDir::separator() + "winegame.conf";
+    else
+	return QDir(_confpath).filePath ("config");
 }
 
 void corelib::initDb()
@@ -464,4 +438,3 @@ void corelib::cancelCurrentOperation()
 	else
 		qDebug() << "WARNING: access to null pointer";
 }
-

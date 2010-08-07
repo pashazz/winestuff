@@ -8,3 +8,5 @@ r5:formats now extendable via plugins, moving all SourceReader code into libwst_
 r6:new disc-detecting format, added program tools/wst-listgen
 r7:added 'winestuff package creator'
 r8:support for multi-disc installations over wine`s eject
+r9:fix many bugs, release 0.2 beta 1
+r10:start console client for winestuff

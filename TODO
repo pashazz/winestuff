@@ -1,5 +1,7 @@
 Version 0.2.0
 Store ALL prefixes in sqlite database - done
-More clean API/ABI - todo
+More clean API/ABI - done
 Proxy settings - todo
 Wisotool support - todo
+Documentation - todo
+Console client - todo
