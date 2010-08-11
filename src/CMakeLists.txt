@@ -38,8 +38,8 @@ if (WISOTOOL MATCHES ON)
   #compile wisotool plug-in
   add_subdirectory(plugins/wisotool)
 endif (WISOTOOL MATCHES ON)
-set (QHEADERS corelib.h  dvdrunner.h  poldownloader.h  prefix.h sourcereader.h  uiclient.h prefixcollection.h plugincore.h)
-set (HEADERS ${QHEADERS}  formatinterface.h libwinegame_global.h)
+set (QHEADERS corelib.h  dvdrunner.h  poldownloader.h  prefix.h sourcereader.h prefixcollection.h plugincore.h)
+set (HEADERS ${QHEADERS}  formatinterface.h libwinegame_global.h uiclient.h)
 set (SOURCES corelib.cpp  dvdrunner.cpp  poldownloader.cpp  prefix.cpp sourcereader.cpp prefixcollection.cpp plugincore.cpp)
 message (STATUS "Run 'make translations && make' to compile winestuff")
 

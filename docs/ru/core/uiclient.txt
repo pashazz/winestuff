@@ -1,0 +1,134 @@
+Документация класса UiClient
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+UiClient - это абстрактный класс, предоставляющий элементы GUI для winestuff.
+Вы можете найти пример реализации класса UiClient в проекте Winegame, файлы winegameui.cpp/winegameui.h
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+0. Включение
+
+  #include <uiclient.h> или #include <winestuff/uiclient.h>
+
+
+
+1. Нестатические чисто виртуальные функции
+
+
+  1. virtual void showNotify (const QString& title, const QString& body) = 0;
+
+      Показывает нотификационное (всплывающее) сообщение.
+
+      Параметры:
+      - title (const QString&) - заголовок сообщения
+      -	body (const QString&) - тело сообщения
+
+
+  2.  virtual void showProgressBar (const QString &title, const char * cancelSlot, QObject *pointer) = 0;
+
+      Показывает прогресс-бар с возможностью отмены.
+
+      Параметры:
+      - title (const QString&) - заголовок
+      - cancelSlot (const char *) - слот отмены
+      - pointer (QObject*) - родитель слота отмены
+
+
+  2.1. virtual void showProgressBar(const QString &title) = 0;
+
+      Показывает прогресс-бар без возможности отмены с заголовком title.
+
+  2.2. virtual void progressText (const QString &text) = 0;
+
+      Устанавливает описательный текст на прогресс-баре в text.
+
+  2.3. virtual void progressRange (int, int) = 0;
+
+      Устанавливает прогресс на прогрессбаре.
+
+      Параметры:
+      1. int - кол-во пройденного из 2
+      2. общее кол-во  долей операции
+
+  2.4.  virtual void endProgress () = 0;
+
+      Закрывает прогресс-бар.
+
+
+  3. virtual void error (const QString& title, const QString& text) = 0;
+
+      Показывает сообщение об ошибке с заголовком title и текстом text.
+
+
+  4. virtual int getVideoMemory() = 0;
+
+      Получает размер видеопамяти для winestuff (у пользователя или с помощью детекции).
+
+
+  5.  virtual QString desktopLocation () = 0;
+
+      Возвращает папку рабочего стола или любую другую папку для создания ярлыка.
+
+
+  6.  virtual bool questionDialog (const QString &title, const QString &text) = 0;
+
+      Показывает вопросительный диалог с вариантами ДА/НЕТ. Возвращает bool-значение в зависимости от ответа пользователя.
+
+      Параметры:
+      - title (const QString &) - заголовок диалога
+      - text (const QString &) - текст вопроса
+
+
+  7.  virtual void infoDialog (const QString &title, const QString &text) = 0;
+
+      Показывает информационный диалог с заголовком title и текстом text и ожидает, пока пользователь ответит на него (нажмет OK, Enter или другую
+      предусмотренную кнопку)
+
+
+  8. virtual void selectExe (const QString &title, QString &file,  QString home = "") = 0;
+
+      Выбор EXE-файла.
+
+      Параметры:
+      - title (const QString&) - заголовок диалога выбора (описание)
+      - file (QString&) - выбранный файл
+      - home (QString) - стартовая директория в диалоге
+
+
+   9. virtual bool selectNextDisc (bool &isDir, QString &file, const QString &dir) = 0;
+
+      Выбор следующего диска (образа или директории). Возвращает успешность операции в виде bool-значения.
+
+      Параметры:
+      - isDir (bool&) - возвращается true, если выбрана директория, иначе - false.
+      - file (QString&) - имя выбранного файла/каталога (образа диска или точки монтирования).
+      -	dir (const QString&) - стартовая директория в диалоге.
+
+
+  10.  virtual void showUserWaitMessage (const QString &message) = 0;
+
+	Показывает сплеш "Please wait" с сообщением message.
+
+  10.1  virtual void closeWaitMessage() = 0;
+
+	Закрывает сплеш "Please wait"
+
+
+  11. virtual QString directoryDialog (const QString &description, const QString &startDirectory) = 0;
+
+	Диалог выбора каталога.
+
+	Параметры:
+	- description (const QString&) - описание диалога
+	- startDirectory (const QString&) - стартовый каталог
+
+
+  12. virtual void  getText (const QString &title, const QString &message, QString &result) = 0;
+
+      Ввод текста.
+
+      Параметры:
+      - title (const QString&) - заголовок диалога
+      - message (const QString&) - сообщение
+      - result (QString&) - результат ввода

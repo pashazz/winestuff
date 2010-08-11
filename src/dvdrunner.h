@@ -50,9 +50,8 @@ public:
 	bool isMounted () {return mounted;}
 public slots:
 	void cancel();
-	void eject (bool &ok);
-
-private:
+	void eject (bool &ok);       
+    private:
 	corelib *core;
 	bool result;
 	bool multidisc;

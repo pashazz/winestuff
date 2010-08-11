@@ -42,10 +42,14 @@ DVDRunner::DVDRunner(corelib *lib, QString path, PluginWorker *worker)
 		core->client()->error(tr("Execution error"), tr("I/O error"));
 	}
 
-	result =	prepare();
+	result = prepare();
 }
 void DVDRunner::updateMount()
 {
+	if (realDrive.isEmpty () || diskPath.isEmpty ())
+	    return;
+	if (QFileInfo(realDrive).path ().startsWith ("/dev")) //looks like a real device
+	    return;
 	realDrive.replace (" ", "\\ ");
 	diskPath.replace (" ", " \\");
 	//Пробуем примонтировать образ в diskPath
@@ -113,8 +117,7 @@ bool DVDRunner::prepare(bool nodetect)
 	{
 		if (!detect ())
 			return false;
-}
-
+	}
 	return true;
 }
 

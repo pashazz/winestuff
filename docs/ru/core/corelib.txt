@@ -7,7 +7,7 @@
 
 0. Включение
 
- #include <corelib.h> или #include <winestuff/corelib.h>
+  #include <corelib.h> или #include <winestuff/corelib.h>
 
 
 

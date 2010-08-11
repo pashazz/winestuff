@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <QObject>
 #include "formatinterface.h"
 
-class PluginWorker : public QObject
+class WINESTUFFSHARED_EXPORT PluginWorker : public QObject
 {
     Q_OBJECT
 public:
