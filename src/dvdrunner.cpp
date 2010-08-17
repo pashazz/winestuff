@@ -51,18 +51,18 @@ void DVDRunner::updateMount()
 	if (QFileInfo(realDrive).path ().startsWith ("/dev")) //looks like a real device
 	    return;
 	realDrive.replace (" ", "\\ ");
-	diskPath.replace (" ", " \\");
+	diskPath.replace (" ", " \\ ");
 	//Пробуем примонтировать образ в diskPath
 	if (core->getSudoProg().isEmpty() || core->forceFuseiso())
 	{
-	    mount = QString("fuseiso \"%1\" \"%2\"").arg(realDrive).arg(diskPath);
-	    umount = QString("fusermount -u \"%1\"").arg(diskPath);
+		mount = QString("fuseiso %1 %2").arg(realDrive).arg(diskPath);
+		umount = QString("fusermount -u %1§").arg(diskPath);
 	}
 	else
 	{
 		QString sudo = core->getSudoProg();
-		QString mountString = QString ("mount -o loop \"%1\" \"%2\"").arg(realDrive).arg(diskPath);
-		QString umountString = QString ("umount \"%1\"").arg(diskPath);
+		QString mountString = QString ("mount -o loop %1 %2").arg(realDrive).arg(diskPath);
+		QString umountString = QString ("umount %1").arg(diskPath);
 		if (sudo == "kdesu" && QProcessEnvironment::systemEnvironment().contains("KDE_FULL_SESSION"))
 		{
 			mount = QString ("kdesu -i %1 \"%2\"").arg("winegame").arg(mountString);
@@ -88,6 +88,7 @@ void DVDRunner::updateMount()
 		}
 	}
 	type = Pashazz::Image;
+	qDebug() <<"winestuff: mount is"  <<mount << "umount is:" << umount;
 	diskPath.replace ("\\ ", " ");
 	realDrive.replace ("\\ ", " ");
 }
