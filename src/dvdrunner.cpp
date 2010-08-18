@@ -122,9 +122,9 @@ bool DVDRunner::prepare(bool nodetect)
 	return true;
 }
 
-void DVDRunner::setReader(SourceReader *reader)
+void DVDRunner::setPrefix(Prefix *prefix)
 {
-	this->reader = reader;
+	myPrefix = prefix;
 	prepare(true); //true - отключаем детектинг (префикс установлен вручную)
 }
 
@@ -136,7 +136,7 @@ bool DVDRunner::detect()
 		{
 			if (reader->detectApp(diskPath))
 			{
-				this->reader = reader;
+				myPrefix = reader->prefix();
 				return true;
 			}
 			else //Just delete it
@@ -201,17 +201,10 @@ void DVDRunner::cancel()
 void DVDRunner::eject(bool &ok)
 {
 	QStringList entrylist = QDir(diskPath).entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
-	if (!reader)
-	{
-		core->client()->error(tr("Not implemented"), tr("This feature isn`t available yet for this configuration."));
-		return;
-	}
-	Prefix *prefix = reader->prefix(); //нужный префикс
-
 	//run Eject process
 	QProcess p;
-	p.setProcessEnvironment(prefix->environment());
-	p.start(prefix->wine(), QStringList("eject"));
+	p.setProcessEnvironment(myPrefix->environment());
+	p.start(myPrefix->wine(), QStringList("eject"));
 	p.waitForFinished(-1);
 	if (p.exitCode() != 0)
 		qDebug() <<  "DEBUG: UNABLE TO EJECT: " << p.readAllStandardError();
@@ -249,7 +242,7 @@ void DVDRunner::eject(bool &ok)
 	if (isDir)
 	{
 		diskPath = path;
-		prefix->setDiscAttributes(diskPath);
+		myPrefix->setDiscAttributes(diskPath);
 		type = Pashazz::Real;
 	}
 	else
@@ -257,7 +250,7 @@ void DVDRunner::eject(bool &ok)
 		//монтирую образ
 		diskPath = core->mountDir();
 		realDrive = path;
-		prefix->setDiscAttributes(diskPath, realDrive);
+		myPrefix->setDiscAttributes(diskPath, realDrive);
 		updateMount();
 		QProcess p (this);
 		if (core->runGenericProcess(&p, mount, tr("Mounting image")) != 0)

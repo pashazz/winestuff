@@ -42,9 +42,9 @@ public:
 	QString device () {return realDrive;}
 	QString exe();
 	Pashazz::DriveType objectType () {return type;}
-	SourceReader *sourceReader () {return this->reader;}
+	Prefix *prefix () {return myPrefix;}
 	bool success() {return result;} //Закончилось ли распознавание успешно
-	void setReader (SourceReader *reader);
+	void setPrefix (Prefix *prefix);
 	void cleanup ();
 	void updateMount();
 	bool isMounted () {return mounted;}
@@ -58,12 +58,12 @@ public slots:
 	bool cancelled;
 	bool detect();
 	bool prepare (bool nodetect = false); //метод для выполнения различных подготовок (монтирования и т.д.). Если WineGame распознал диск сам, то этот метод вызывается из конструктора.
-	SourceReader *reader;
 	QString diskPath, realDrive;
 	QString mount, umount;
 	Pashazz::DriveType type;
 	int _max; //copyfile size
 	bool mounted;
+	Prefix *myPrefix;
 	PluginWorker *_worker;
 };
 

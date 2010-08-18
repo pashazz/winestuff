@@ -33,7 +33,7 @@ public:
 	enum ApplicationType
 	{
 		Other = 0, Application, Strategy, Roleplaying, Sports, FistPersonShooter, Arcade, Action
-			};
+	};
 	Prefix (QObject *parent, corelib *lib);
 	Prefix (const QString &id,  const QString &name, const QString &note,  const QString &path, const QString &wine, QObject *parent, corelib *lib);
 	virtual ~Prefix () {}
