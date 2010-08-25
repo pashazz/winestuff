@@ -203,7 +203,8 @@ bool PrefixCollection::remove(QString id)
 	if (prefix->path().isEmpty() || prefix->ID().isEmpty())
 		return false;
 	QProcess p;
-	core->runGenericProcess(&p, QString("rm -rf %1").arg(prefix->path()), tr("Removing prefix %1").arg(prefix->name()));
+	core->runGenericProcess(&p, QString("rm -rf '%1'").arg(prefix->path()), tr("Removing prefix %1").arg(prefix->name()));
+	core->runGenericProcess(&p, QString ("rm -rf '%1/wines/%2'").arg(core->wineDir(), prefix->ID()), tr("Removing Wine for %1").arg(prefix->name()));
 	QSqlQuery q(db);
 	q.prepare("DELETE FROM Apps WHERE prefix=:pr");
 	q.bindValue(":pr", id);
