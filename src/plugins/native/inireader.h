@@ -51,7 +51,6 @@ public:
 	bool needToSetMemory () const;
 	Name nameForLang (QString locale);
 	QStringList locales();
-	QString defaultWine() const;
 signals:
 	void presetPrefixNeed(QString &prefix);
 	void presetNameNeed (QString &name);

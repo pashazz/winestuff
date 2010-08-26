@@ -127,15 +127,15 @@ void PolDownloader::fallback()
 {
 	core->client()->showNotify(tr("Sorry..."), tr("This feature is disabled"));
 	//back to app`s wine
-	/*
+
 	QString wine;
-	if (QFile::exists(SourceReader::defaultWine(prefix->ID())))
-		wine = SourceReader::defaultWine(prefix->ID());
+	if (QFile::exists(QString("%1/wines/%2/usr/bin/wine").arg(core->wineDir(), prefix->ID())))
+		wine = QString("%1/wines/%2/usr/bin/wine").arg(core->wineDir(), prefix->ID());
 	else
 		wine = core->whichBin("wine");
 	prefix->setWine(wine);
 	pcoll->updatePrefix(prefix);
-	*/
+
 }
 
 QString PolDownloader::detectCurrentVersion()

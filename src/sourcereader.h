@@ -47,7 +47,6 @@ public:
 	virtual QStringList components () = 0;
 	virtual QString icon () = 0;
 	virtual bool detectApp (QString path) = 0;
-	virtual QString defaultWine () const = 0;
 	virtual bool needToSetMemory () const = 0;
 	virtual Name nameForLang (QString locale) = 0;
 	virtual QStringList locales() = 0;

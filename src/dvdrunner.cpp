@@ -50,8 +50,15 @@ void DVDRunner::updateMount()
 	    return;
 	if (QFileInfo(realDrive).path ().startsWith ("/dev")) //looks like a real device
 	    return;
-	realDrive.replace (" ", "\\ ");
-	diskPath.replace (" ", " \\ ");
+	QString diskPath = this->diskPath;
+	QString realDrive = this->realDrive;
+	QStringList symbols = QStringList () << " " << "(" << ")" << "{" << "}"; //символы, которым нужно экранирование
+	foreach (QString str, symbols)
+	{
+		diskPath.replace(str, "\\" + str);
+		realDrive.replace(str, "\\"+ str);
+	}
+
 	//Пробуем примонтировать образ в diskPath
 	if (core->getSudoProg().isEmpty() || core->forceFuseiso())
 	{
@@ -89,8 +96,7 @@ void DVDRunner::updateMount()
 	}
 	type = Pashazz::Image;
 	qDebug() <<"winestuff: mount is"  <<mount << "umount is:" << umount;
-	diskPath.replace ("\\ ", " ");
-	realDrive.replace ("\\ ", " ");
+
 }
 
 bool DVDRunner::prepare(bool nodetect)
@@ -184,7 +190,7 @@ QString DVDRunner::exe ()
 		}
 	}
 #endif
-	return exe;
+ return exe;
 }
 
 QString DVDRunner::diskDirectory()

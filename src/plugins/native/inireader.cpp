@@ -535,14 +535,6 @@ bool NativeReader::needToSetMemory() const
 	 prefix()->setDiscAttributes(path, device);
  }
 
- QString NativeReader::defaultWine() const
- {
-	 if (s->value("wine/distr").isNull())
-		 return core->whichBin("wine");
-	 else
-		 return QString ("winedir:wines/%1/usr/bin/wine").arg(id);
- }
-
  void NativeReader::override_dll(const QString &dll, const QString &type)
  {
 	 QStringList possibleTypes = QStringList() << "native" << "builtin" << "native,builtin" << "builtin,native";

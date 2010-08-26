@@ -76,7 +76,7 @@ bool corelib::unpackWine (const QString &distr, const QString &destination)
  QProcess *proc = new QProcess (0); //не забываем удалять
  proc->setWorkingDirectory(destination);
  QString unpackLine =  QString ("tar xvpf %1 -C %2").arg(distr).arg(destination);
-runGenericProcess(proc, unpackLine, tr("Unpacking wine...."));
+runGenericProcess(proc, unpackLine, tr("Processing archive..."));
 return proc->exitCode() == 0 ? true : false;
 }
 
@@ -93,7 +93,6 @@ QString corelib::downloadWine(QString url, bool force) //TODO: проверка 
 		else
 			return wineFileName;
 	}
-	ui->showNotify(tr("Don`t worry!"), tr("Now WineGame will download some files, that will need for get your applicaton running"));
 	QEventLoop loop;
 	QNetworkAccessManager *manager = new QNetworkAccessManager (this);
 	QNetworkRequest req; //request для Url
@@ -105,7 +104,7 @@ QString corelib::downloadWine(QString url, bool force) //TODO: проверка 
 	connect (reply, SIGNAL(finished()), &loop, SLOT(quit()));
 	connect (reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT (error(QNetworkReply::NetworkError)));
 	ui->showProgressBar(tr("Downloading"), SLOT(cancelCurrentOperation()), this);
-	ui->progressText(tr("Downloading file: %1").arg(url));
+	ui->progressText(tr("Downloading..."));
 	loop.exec();
 	ui->endProgress();
 	if (reply->error() == QNetworkReply::OperationCanceledError)
