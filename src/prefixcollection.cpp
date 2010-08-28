@@ -100,8 +100,7 @@ bool PrefixCollection::launchWinetricks(Prefix *prefix, const QStringList &args)
 	qDebug() << "List of components that must be installed: " << args.join(" ");
 	bool good = true;
 	foreach (QString arg, args)
-	{
-	 int x =	core->runGenericProcess(p, "winetricks -q " + arg, tr("Installing component: %1").arg(arg));
+	{	 int x =	core->runGenericProcess(p, "winetricks -q " + arg, tr("Installing component: %1").arg(arg));
 	 if (x != 0)
 		 good = false;
 	}

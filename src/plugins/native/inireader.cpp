@@ -496,8 +496,9 @@ bool NativeReader::needToSetMemory() const
 	  QString exe = executable(file);
 	  QDir dir ("nativepackages:" + id);
 	  QString preinst = dir.absoluteFilePath("preinst");
-	  if (QFile(preinst).exists())
+	  if (QFileInfo(preinst).isExecutable())
 		  core->runGenericProcess(p, preinst, tr("Running pre-installation trigger"));
+	  
 	  //собсно наш exe
 	  QString wdir;
 	  if (_cdroot.isEmpty() || s->value("wine/blockdisc").toBool())
@@ -507,7 +508,7 @@ bool NativeReader::needToSetMemory() const
 	  pref->runApplication(exe, wdir, false); //НЕ выводим мод. диалог
 	  //теперь postinst
 	  QString postinst = dir.absoluteFilePath("posinst");
-	  if (QFile(postinst).exists())
+	  if (QFileInfo(postinst).isExecutable())
 		  core->runGenericProcess(p, postinst, tr("Running post-installation trigger"));
 	  return true;
  }
