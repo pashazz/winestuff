@@ -451,7 +451,9 @@ bool NativeReader::needToSetMemory() const
 		 return false;
 	 QProcess *p = new QProcess (this);
 	 Prefix *pref = prefix();
-	 p->setProcessEnvironment(pref->environment());
+	 QProcessEnvironment env = pref->environment();
+	 env.insert("FILESDIR", workdir() + "/files"); //files directory
+	 p->setProcessEnvironment(env);
 	 //Override DLLs
 	 s->beginGroup("dlls");
 	 if (!s->value("builtin").isNull())
