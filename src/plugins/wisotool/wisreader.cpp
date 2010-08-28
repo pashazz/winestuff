@@ -45,3 +45,14 @@ Name WisReader::nameForLang(QString locale)
 	name.second = this->note();
 	return name;
 }
+WisObject WisReader::getTrix(const QString &str)
+{
+	QStringList rawData = str.trimmed().split(" ", QString::SkipEmptyParts);
+	WisObject trix;
+	if (rawData.count() < 2)
+		return trix;
+	trix.id = rawData.takeFirst();
+	trix.description = rawData.join(" ");
+	if (trix.id != "help")
+		return trix;
+}

@@ -35,8 +35,6 @@ class WisReader : public SourceReader
 public:
 	explicit WisReader(QObject *parent, corelib *lib, WisObject label);
 	bool checkWine () {return true;}
-	bool isMulticd () {return false;}
-	short int discCount() {return 0;}
 	QString name();
 	QString note();
 	QString realName () {return name();}
@@ -50,13 +48,15 @@ public:
 	QStringList components () {}
 	QString icon () {return  "";}
 	bool detectApp (QString path);
-	QString defaultWine () {return wine();}
 	bool needToSetMemory () {return true;}
 	Name nameForLang (QString locale);
 	QStringList locales() {return QStringList("C");} //We support only C locale
 
 protected:
 	QString desc;
+	WisObject getTrix(const QString &str);
+	QList <WisObject> objects;
+
 
 };
 

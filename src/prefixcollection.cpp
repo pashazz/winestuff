@@ -93,15 +93,19 @@ Prefix* PrefixCollection::install(SourceReader *reader, QString file, const QStr
 	return pref;
 }
 
-void PrefixCollection::launchWinetricks(Prefix *prefix, const QStringList &args)
+bool PrefixCollection::launchWinetricks(Prefix *prefix, const QStringList &args)
 {
 	QProcess *p = new QProcess (this);
 	p->setProcessEnvironment(prefix->environment());
 	qDebug() << "List of components that must be installed: " << args.join(" ");
+	bool good = true;
 	foreach (QString arg, args)
 	{
-		core->runGenericProcess(p, "winetricks -q " + arg, tr("Installing component: %1").arg(arg));
+	 int x =	core->runGenericProcess(p, "winetricks -q " + arg, tr("Installing component: %1").arg(arg));
+	 if (x != 0)
+		 good = false;
 	}
+	return good;
 }
 
 QList <Prefix*> PrefixCollection::prefixes()

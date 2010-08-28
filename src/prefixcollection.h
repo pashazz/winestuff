@@ -38,7 +38,7 @@ public:
 	void setLocale (QLocale locale) {loc = locale;}
 	QSqlDatabase database () {return db;}
 	void setDatabase (QSqlDatabase database) {db = database;}
-	void launchWinetricks (Prefix *prefix, const QStringList &args);
+	bool launchWinetricks (Prefix *prefix, const QStringList &args);
 	bool updatePrefix (Prefix *newData, QString id = ""); //если id пустой, то используется newData.id(). Указывайте QString id, только если он изменен.
 	bool havePrefix (const QString &id);
 protected:
